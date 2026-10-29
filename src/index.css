@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --teal: #0e9f9f;
+  --teal-soft: #e6f7f7;
+  --teal-deep: #0a7a7a;
+  --navy: #0f2a44;
+  --navy-soft: #e8eef5;
+  --amber: #ff9a2c;
+  --amber-soft: #fff4e6;
+  --purple: #7c5cf0;
+  --purple-soft: #f0ecff;
+  --bg: #f6fbfb;
+  --surface: #ffffff;
+  --surface-2: #f0f8f8;
+  --border: #dbe9e9;
+  --text: #122a2a;
+  --muted: #6b8a8a;
+  --radius: 1.25rem;
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1a1a;
+    --surface: #122525;
+    --surface-2: #1a3333;
+    --border: #234040;
+    --text: #e6f2f2;
+    --muted: #8fb0b0;
+    --teal-soft: #133333;
+    --navy: #dbe8f5;
+    --navy-soft: #1a2a3a;
+    --amber-soft: #332410;
+    --purple-soft: #251e40;
+  }
+}
+
+* {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Fraunces', 'Inter', serif;
+  letter-spacing: -0.02em;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.card {
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px -8px rgba(15, 42, 68, 0.08);
+}

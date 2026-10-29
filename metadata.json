@@ -1,0 +1,6 @@
+{
+  "name": "MediFAQ - Online Medical Knowledge FAQ Database",
+  "description": "Trilingual (English, Bahasa Melayu, 华语) Malaysian Medical Knowledge FAQ Database, interactive discussion forum, and administration portal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

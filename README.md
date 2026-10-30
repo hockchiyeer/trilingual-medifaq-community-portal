@@ -9,7 +9,8 @@ Whether you are looking for trusted answers regarding common symptoms, seeking p
 ## 🎯 Key Features at a Glance
 
 ### 1. 🌐 Trilingual Accessibility
-* **Instant Language Toggle**: Switch seamlessly between **English**, **Chinese (中文)**, and **Bahasa Melayu** with a single click.
+* **Instant Language Toggle**: Switch seamlessly between **English**, **Chinese (中文)**, and **Bahasa Melayu** with a single click. Language selection persists across browser sessions (`localStorage`) and automatically synchronizes the document language attribute (`<html lang="en">`, `zh-Hans`, `ms`).
+* **CJK Typographic Optimization**: Native font fallbacks (`Noto Sans SC`, `PingFang SC`, `Microsoft YaHei`) and tailored heading letter-spacing for CJK readability.
 * **Culturally Relevant Health Topics**: Content covers localized health challenges in Malaysia, including haze season allergies, tropical hydration, dengue awareness, and national smoking cessation resources (such as MOH mQuit clinics).
 * **WCAG AA Compliance**: Built-in accessibility bar providing dynamic font-size scaling (`A-`, `A`, `A+`), a one-click **High Contrast Mode**, keyboard navigation support, and a `Skip to content` shortcut.
 
@@ -54,6 +55,9 @@ Whether you are looking for trusted answers regarding common symptoms, seeking p
 ---
 
 ### 5. 📬 Private Messaging & User Accounts
+* **Header User Profile Menu & Quick Logout**:
+  * Top-right header avatar dropdown displaying active username, role badge, quick links to **Member Control Panel** and **Administration Board**, and a one-click **Log Out** option across all locales (EN, ZH, BM).
+  * Fast keyboard login submission: Pressing `[Enter]` on username or password fields immediately submits the login form.
 * **Member Control Panel**:
   * Profile customization (Full Name, Address, Personal Homepage, Biography, Forum Signature).
   * Privacy controls: Option to keep email private from other members.
@@ -426,15 +430,17 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 
 ```
 ├── docker-compose.yml   # 1-command local PostgreSQL 16 container setup
-├── index.html           # HTML5 entry point with Fraunces & Inter fonts
+├── index.html           # HTML5 entry point with Fraunces, Inter & CJK fonts
 ├── metadata.json        # Application manifest and platform capabilities
-├── package.json         # Full-stack dependencies and scripts (dev, build, db:push, db:seed)
+├── package.json         # Full-stack dependencies and scripts (dev, build, db:push, db:seed, test)
 ├── server.ts            # Express full-stack server mounting /api/* and Vite middleware
 ├── tsconfig.json        # TypeScript configuration
 ├── vite.config.ts       # Vite build configuration with Tailwind CSS plugin
+├── tests/
+│   └── run-all-tests.ts # Comprehensive test suite & Data Guardian (npm test)
 └── src/
     ├── App.tsx          # Full-featured Single Page Application (UI, Routing, State, i18n)
-    ├── index.css        # Global CSS variables, custom typography, and Tailwind tokens
+    ├── index.css        # Global CSS variables, custom typography (CJK), and Tailwind tokens
     ├── main.tsx         # React application bootstrap entry
     └── db/
         ├── drizzle.config.ts  # Drizzle Kit migration configuration

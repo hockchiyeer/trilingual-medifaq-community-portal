@@ -8,6 +8,7 @@ import {
   Baby,
   BookOpen,
   Brain,
+  ChevronDown,
   ChevronRight,
   CircleCheck,
   CircleUser,
@@ -1749,6 +1750,7 @@ export default function App() {
   // Login form
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginErrorState, setLoginErrorState] = useState<'none' | 'wrong_pw' | 'no_user'>('none');
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Change Password form
   const [pwdForm, setPwdForm] = useState({ old: '', new: '', confirm: '' });
@@ -2605,19 +2607,77 @@ export default function App() {
               </button>
             </div>
 
-            {/* User status badge or quick sign in */}
+            {/* User status badge with dropdown and quick sign in */}
             {currentUser ? (
-              <button
-                onClick={() => navigate('memberPanel')}
-                className="flex items-center gap-2 pl-2 focus-ring rounded-full"
-              >
-                <div className="w-8 h-8 rounded-full bg-[var(--teal)] text-white grid place-items-center text-xs font-bold shadow-sm">
-                  {currentUser.username.slice(0, 2).toUpperCase()}
-                </div>
-                <span className="hidden sm:inline text-xs font-bold text-[var(--navy)]">
-                  {currentUser.username}
-                </span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 pl-2 pr-2 py-1 focus-ring rounded-full hover:bg-[var(--surface-2)] transition border border-transparent hover:border-[var(--border)]"
+                  title={currentUser.username}
+                >
+                  <div className="w-8 h-8 rounded-full bg-[var(--teal)] text-white grid place-items-center text-xs font-bold shadow-sm">
+                    {currentUser.username.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span className="hidden sm:inline text-xs font-bold text-[var(--navy)]">
+                    {currentUser.username}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-[var(--muted)] hidden sm:inline" />
+                </button>
+
+                {userMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[var(--border)] shadow-xl z-40 py-2 text-xs divide-y divide-gray-100 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="px-4 py-2.5">
+                        <p className="font-bold text-[var(--navy)] truncate">{currentUser.username}</p>
+                        <p className="text-[10px] text-[var(--muted)] capitalize">
+                          {currentUser.role === 'admin' ? t('administratorRole') : currentUser.role === 'moderator' ? t('doctorRole') : t('standardMemberRole')}
+                        </p>
+                      </div>
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate('memberPanel');
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-[var(--surface-2)] font-semibold flex items-center gap-2 text-[var(--navy)]"
+                        >
+                          <CircleUser className="w-4 h-4 text-[var(--teal)]" />
+                          <span>{t('memberControlPanel')}</span>
+                        </button>
+                        {currentUser.role === 'admin' && (
+                          <button
+                            onClick={() => {
+                              setUserMenuOpen(false);
+                              navigate('adminBoard');
+                            }}
+                            className="w-full text-left px-4 py-2 hover:bg-[var(--surface-2)] font-semibold flex items-center gap-2 text-purple-700"
+                          >
+                            <Shield className="w-4 h-4 text-purple-600" />
+                            <span>{t('administrationBoard')}</span>
+                          </button>
+                        )}
+                      </div>
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            setCurrentUser(null);
+                            navigate('loggingOutPage');
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 font-bold flex items-center gap-2"
+                        >
+                          <LogOut className="w-4 h-4 text-red-500" />
+                          <span>{t('logout')}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               <button
                 onClick={() => navigate('login')}
@@ -3161,12 +3221,24 @@ export default function App() {
                   </div>
                 )}
 
-                <div className="space-y-4 text-xs">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleLogin();
+                  }}
+                  className="space-y-4 text-xs"
+                >
                   <div>
                     <label className="font-bold block mb-1">{t('username')}</label>
                     <input
                       value={loginForm.username}
                       onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleLogin();
+                        }
+                      }}
                       className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                       placeholder={t('enterUsername')}
                     />
@@ -3177,18 +3249,25 @@ export default function App() {
                       type="password"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleLogin();
+                        }
+                      }}
                       className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                       placeholder={t('enterPassword')}
                     />
                   </div>
 
                   <button
+                    type="submit"
                     onClick={handleLogin}
                     className="w-full py-2.5 rounded-xl bg-[var(--navy)] text-white font-bold text-xs hover:bg-[var(--teal-deep)] transition shadow-sm"
                   >
                     {t('login')}
                   </button>
-                </div>
+                </form>
               </div>
             </div>
           )}

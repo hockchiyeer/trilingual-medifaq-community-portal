@@ -2453,7 +2453,7 @@ export default function App() {
           <div>
             <div className="text-[11px] font-bold tracking-widest text-[var(--muted)] uppercase mb-2 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--teal)]" />
-              General Access
+              {t('generalAccess')}
             </div>
             <nav className="space-y-1">
               {[
@@ -2484,7 +2484,7 @@ export default function App() {
           <div>
             <div className="text-[11px] font-bold tracking-widest text-[var(--muted)] uppercase mb-2 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--amber)]" />
-              Member Access
+              {t('memberAccess')}
             </div>
             <nav className="space-y-1">
               {!currentUser ? (
@@ -2570,7 +2570,7 @@ export default function App() {
             <div className="rounded-2xl bg-[var(--purple-soft)] border-2 border-purple-300 p-3.5 shadow-sm space-y-2">
               <div className="text-[11px] font-bold tracking-widest text-purple-800 uppercase mb-1 flex items-center gap-1.5">
                 <Crown className="w-3.5 h-3.5 text-purple-700" />
-                <span>Admin Section</span>
+                <span>{t('adminSection')}</span>
               </div>
               <button
                 onClick={() => navigate('adminBoard')}
@@ -2900,7 +2900,7 @@ export default function App() {
                 <div className="max-w-2xl relative z-10 space-y-4">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-[var(--border)] text-[11px] font-bold text-[var(--teal-deep)] shadow-sm">
                     <Sparkles className="w-3.5 h-3.5 text-[var(--teal)]" />
-                    <span>Malaysian Public Health Knowledge Portal</span>
+                    <span>{t('malaysianHealthPortal')}</span>
                   </div>
                   <h1 className="display text-3xl lg:text-5xl font-bold leading-tight text-[var(--navy)]">
                     {lang === 'EN'
@@ -2910,7 +2910,7 @@ export default function App() {
                       : "Pangkalan Data FAQ Pengetahuan Perubatan Dalam Talian"}
                   </h1>
                   <p className="text-xs lg:text-sm text-[var(--muted)] leading-relaxed">
-                    {t('tagline')}. Cross-platform, accessible, and verified clinical guidance tailored for all levels of Malaysian society.
+                    {t('tagline')}.
                   </p>
 
                   {/* Quick FAQ Search Bar */}
@@ -3411,7 +3411,11 @@ export default function App() {
                     </div>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-[var(--teal-soft)] text-[var(--teal-deep)] text-xs font-bold uppercase">
-                    Level {currentUser?.adminLevel ?? 0}
+                    {currentUser?.role === 'admin'
+                      ? t('administratorRole')
+                      : currentUser?.role === 'moderator'
+                      ? t('doctorRole')
+                      : `${t('adminLevel')} ${currentUser?.adminLevel ?? 0}`}
                   </span>
                 </div>
 
@@ -3468,7 +3472,13 @@ export default function App() {
                   <div className="mt-6 p-4 rounded-xl border bg-[var(--surface-2)]/60 text-xs space-y-2">
                     <div className="font-bold text-sm text-[var(--navy)] flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      <span>{currentUser.fullName || currentUser.username}'s {t('profileSummary')}</span>
+                      <span>
+                        {lang === 'ZH'
+                          ? `${currentUser.fullName || currentUser.username} 的${t('profileSummary')}`
+                          : lang === 'BM'
+                          ? `${t('profileSummary')} ${currentUser.fullName || currentUser.username}`
+                          : `${currentUser.fullName || currentUser.username}'s ${t('profileSummary')}`}
+                      </span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
                       <div>
@@ -3500,7 +3510,9 @@ export default function App() {
                         <span>{t('adminInboxesQuickStatus')}</span>
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[10px] font-bold">
-                        Level {currentUser.adminLevel}
+                        {currentUser.role === 'admin'
+                          ? t('administratorRole')
+                          : `${t('adminLevel')} ${currentUser.adminLevel}`}
                       </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -6010,7 +6022,7 @@ export default function App() {
         <footer className="mt-12 border-t border-[var(--border)] bg-[var(--surface)]/70 py-6 text-xs text-[var(--muted)]">
           <div className="max-w-[1300px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
-              © 2026 MediFAQ • {t('fullTitle')} • Online Medical Knowledge FAQ Database for all levels of Malaysian society.
+              © 2026 MediFAQ • {t('fullTitle')} • {t('tagline')}.
             </div>
             <div className="flex items-center gap-3 font-medium">
               <span>{t('accessibility')}: WCAG AA</span>
@@ -6038,7 +6050,7 @@ export default function App() {
           >
             {/* Modal Header */}
             <div className="bg-amber-500 text-white font-bold p-3 text-center text-xs relative">
-              <span id="faq-modal-title">Medical Knowledge Frequently Asked Question</span>
+              <span id="faq-modal-title">{t('medicalKnowledgeFAQ')}</span>
               <button
                 onClick={() => setActiveFaqDetail(null)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg bg-black/20 hover:bg-black/30"

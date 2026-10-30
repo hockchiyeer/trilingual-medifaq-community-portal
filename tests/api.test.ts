@@ -336,6 +336,9 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
     const listAfter = await listAfterRes.json();
     const readPm = listAfter.find((p: any) => p.id === mockPmId);
     assert.equal(readPm.read, true, 'Message status must be updated to read: true');
+
+    const delPmRes = await fetch(`${baseUrl}/api/pms/${mockPmId}`, { method: 'DELETE' });
+    assert.equal(delPmRes.status, 200);
   });
 
   return { passed, failed };

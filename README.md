@@ -304,6 +304,30 @@ The Express server boots up on port `3000`, establishes connection pooling with 
 
 ---
 
+## 📬 User Feedback Routing & Email Notifications
+
+When visitors submit feedback via the public form (`/feedback`), the portal processes the submission through multiple synchronized channels:
+
+1. **Persistent PostgreSQL Storage**:
+   * All submissions are saved to the `feedbacks` table and chronologically sorted so the latest feedback always appears at the top of the **Feedback Message Center**.
+2. **Internal Administrator Private Message**:
+   * An automatic notification message is generated in `private_messages` addressed to administrator accounts (`admin`). When administrators log in, their **Private Message Center** badge lights up immediately with full feedback details.
+3. **Email Notification Dispatch**:
+   * The system inspects configured administrator email addresses (such as `erhc79@gmail.com` updated via User Management).
+   * **Local Simulation Mode (Default)**: Outgoing emails are cleanly logged to the server console and the **Notification Outbox** (`Administration Board > Send Email to All Members`), eliminating hard external dependencies for local machines.
+   * **Real SMTP Delivery (Optional)**: If you want real emails delivered directly to an external Gmail inbox, configure your SMTP parameters in `.env`:
+     ```env
+     SMTP_HOST="smtp.gmail.com"
+     SMTP_PORT="587"
+     SMTP_SECURE="false"
+     SMTP_USER="your_email@gmail.com"
+     SMTP_PASS="your_16_char_app_password"
+     SMTP_FROM="MediFAQ Community Portal <no-reply@medifaq.my>"
+     ```
+     *(For Gmail, generate an App Password at [Google Account > Security > 2-Step Verification > App passwords](https://myaccount.google.com/apppasswords)).*
+
+---
+
 ## 🔍 Verifying Local Database Endpoints
 
 To verify that your local PostgreSQL backend is actively answering requests, run these `curl` commands in a new terminal window:

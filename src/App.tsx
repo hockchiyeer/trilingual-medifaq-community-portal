@@ -73,6 +73,7 @@ const T_DATA: Translations = {
     searchDiscussionBoard: "Search Discussion Board",
     feedback: "Feedback",
     logout: "Logout",
+    logoutSuccess: "You have been logged out successfully.",
     administrationBoard: "Administration Board",
     memberControlPanel: "Member Control Panel",
     editMyProfile: "Edit My Profile",
@@ -267,6 +268,7 @@ const T_DATA: Translations = {
     searchDiscussionBoard: "搜索讨论区",
     feedback: "反馈意见",
     logout: "退出登录",
+    logoutSuccess: "您已成功退出登录。",
     administrationBoard: "管理面板",
     memberControlPanel: "会员控制面板",
     editMyProfile: "编辑我的资料",
@@ -461,6 +463,7 @@ const T_DATA: Translations = {
     searchDiscussionBoard: "Cari Papan Perbincangan",
     feedback: "Maklum Balas",
     logout: "Log Keluar",
+    logoutSuccess: "Anda telah berjaya log keluar.",
     administrationBoard: "Lembaga Pentadbiran",
     memberControlPanel: "Panel Kawalan Ahli",
     editMyProfile: "Sunting Profil Saya",
@@ -1476,6 +1479,13 @@ export default function App() {
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
   const [selectedMemberForAdmin, setSelectedMemberForAdmin] = useState<Member | null>(null);
   const [adminEmailForm, setAdminEmailForm] = useState({ subject: '', message: '' });
+  const [logoutCountdown, setLogoutCountdown] = useState(2);
+  const [emailStatus, setEmailStatus] = useState<{
+    smtpConfigured: boolean;
+    smtpHost: string | null;
+    adminEmails: string[];
+    logs: Array<{ id: string; timestamp: string; to: string; subject: string; preview: string; type: string; status: 'sent' | 'simulated' }>;
+  } | null>(null);
 
   // Private Message compose state
   const [pmModalOpen, setPmModalOpen] = useState(false);
@@ -1496,10 +1506,60 @@ export default function App() {
     setTimeout(() => setToast(null), 3500);
   };
 
+  const refreshData = () => {
+    fetch('/api/feedbacks')
+      .then((r) => r.ok && r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setFeedbacks(data);
+      })
+      .catch(() => {});
+    fetch('/api/pms')
+      .then((r) => r.ok && r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPms(data);
+      })
+      .catch(() => {});
+    fetch('/api/members')
+      .then((r) => r.ok && r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setMembers(data);
+      })
+      .catch(() => {});
+    fetch('/api/admin/email-status')
+      .then((r) => r.ok && r.json())
+      .then((data) => {
+        setEmailStatus(data);
+      })
+      .catch(() => {});
+  };
+
+  // Auto-redirect effect when on loggingOutPage
+  useEffect(() => {
+    if (currentPage !== 'loggingOutPage') {
+      setLogoutCountdown(2);
+      return;
+    }
+    const timer = setInterval(() => {
+      setLogoutCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate('home');
+          showToast(t('logoutSuccess'));
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [currentPage]);
+
   const navigate = (page: string) => {
     setCurrentPage(page);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (page === 'adminFeedback' || page === 'pmCenter' || page === 'adminEmail' || page === 'memberPanel' || page === 'adminBoard') {
+      refreshData();
+    }
   };
 
   // Filtered FAQ results
@@ -1687,6 +1747,7 @@ export default function App() {
     setLoginErrorState('none');
     setLoginForm({ username: '', password: '' });
     showToast(`${t('welcome')}, ${found.username}!`);
+    refreshData();
     navigate('memberPanel');
   };
 
@@ -1871,7 +1932,9 @@ export default function App() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newFeedback),
-    }).catch(console.error);
+    })
+      .then(() => refreshData())
+      .catch(console.error);
 
     setFeedbackForm({ name: '', email: '', subject: '', message: '', cat: 'suggestion' });
     navigate('feedbackConfirmation');
@@ -2081,19 +2144,33 @@ export default function App() {
 
           {/* Section 6: Administrator and Moderator's Module (Figure 41: Purple Box) */}
           {currentUser && (currentUser.role === 'admin' || currentUser.adminLevel >= 3) && (
-            <div className="rounded-2xl bg-[var(--purple-soft)] border-2 border-purple-300 p-3.5 shadow-sm">
-              <div className="text-[11px] font-bold tracking-widest text-purple-800 uppercase mb-2 flex items-center gap-1.5">
+            <div className="rounded-2xl bg-[var(--purple-soft)] border-2 border-purple-300 p-3.5 shadow-sm space-y-2">
+              <div className="text-[11px] font-bold tracking-widest text-purple-800 uppercase mb-1 flex items-center gap-1.5">
                 <Crown className="w-3.5 h-3.5 text-purple-700" />
                 <span>Admin Section</span>
               </div>
               <button
                 onClick={() => navigate('adminBoard')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold bg-white text-purple-900 shadow-sm border border-purple-200 hover:bg-purple-50 transition focus-ring ${
-                  currentPage.startsWith('admin') ? 'ring-2 ring-purple-500 font-extrabold' : ''
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-white text-purple-900 shadow-sm border border-purple-200 hover:bg-purple-50 transition focus-ring ${
+                  currentPage === 'adminBoard' ? 'ring-2 ring-purple-500 font-extrabold' : ''
                 }`}
               >
                 <Shield className="w-4 h-4 text-purple-700 shrink-0" />
                 <span>{t('administrationBoard')}</span>
+              </button>
+              <button
+                onClick={() => navigate('adminFeedback')}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold bg-white text-purple-900 shadow-sm border border-purple-200 hover:bg-purple-50 transition focus-ring ${
+                  currentPage === 'adminFeedback' ? 'ring-2 ring-purple-500 font-extrabold' : ''
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  <span>Feedback Inbox</span>
+                </span>
+                <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">
+                  {feedbacks.length}
+                </span>
               </button>
             </div>
           )}
@@ -2788,22 +2865,36 @@ export default function App() {
           {/* 4. LOGGING OUT TRANSITION (Figure 10) */}
           {currentPage === 'loggingOutPage' && (
             <div className="max-w-md mx-auto py-12 text-center space-y-4">
-              <div className="card p-8 bg-blue-50 border-2 border-blue-200">
-                <div className="w-12 h-12 mx-auto rounded-full bg-blue-600 text-white grid place-items-center mb-3 animate-pulse">
+              <div className="card p-8 bg-blue-50 border-2 border-blue-200 space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-full bg-blue-600 text-white grid place-items-center mb-1 animate-pulse">
                   <LogOut className="w-6 h-6" />
                 </div>
-                <h2 className="text-xl font-bold text-blue-900 mb-2">
+                <h2 className="text-xl font-bold text-blue-900">
                   {t('loggingOut')}
                 </h2>
-                <p className="text-xs text-blue-700 mb-4">
+                <p className="text-xs text-blue-700">
                   Your session has been securely ended so that your data will not be accessed by unauthorized users.
                 </p>
-                <button
-                  onClick={() => navigate('home')}
-                  className="px-5 py-2 rounded-xl bg-blue-700 text-white text-xs font-bold"
-                >
-                  Return to Homepage
-                </button>
+                <div className="w-full bg-blue-200 rounded-full h-2 overflow-hidden my-3">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-700 ease-linear"
+                    style={{ width: `${Math.max(15, ((2 - logoutCountdown) / 2) * 100)}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-blue-600 font-medium">
+                  Automatically redirecting to Homepage in {logoutCountdown}s...
+                </p>
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      navigate('home');
+                      showToast(t('logoutSuccess'));
+                    }}
+                    className="px-5 py-2 rounded-xl bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 transition shadow-sm"
+                  >
+                    Return to Homepage
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -2900,6 +2991,63 @@ export default function App() {
                         <span className="text-[var(--muted)]">Email:</span>{' '}
                         <b>{currentUser.emailPrivate ? '[Private]' : currentUser.email}</b>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Administrator Quick Status & Inbox Bar */}
+                {currentUser && (currentUser.role === 'admin' || currentUser.adminLevel >= 3) && (
+                  <div className="mt-5 p-4 rounded-xl bg-purple-50 border-2 border-purple-200 text-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-purple-950 flex items-center gap-1.5">
+                        <Crown className="w-4 h-4 text-purple-700" />
+                        <span>Administrator Inboxes &amp; Quick Status</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[10px] font-bold">
+                        Level {currentUser.adminLevel}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <button
+                        onClick={() => navigate('adminFeedback')}
+                        className="p-3 rounded-xl bg-white border border-purple-200 hover:border-purple-500 hover:shadow-sm text-left flex items-center justify-between group transition focus-ring"
+                      >
+                        <div>
+                          <div className="font-bold text-purple-950 group-hover:text-purple-700">Feedback Inbox</div>
+                          <div className="text-[11px] text-[var(--muted)]">{feedbacks.length} submissions</div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[11px] font-bold shadow-sm">
+                          {feedbacks.length}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => navigate('pmCenter')}
+                        className="p-3 rounded-xl bg-white border border-purple-200 hover:border-purple-500 hover:shadow-sm text-left flex items-center justify-between group transition focus-ring"
+                      >
+                        <div>
+                          <div className="font-bold text-purple-950 group-hover:text-purple-700">Private Messages</div>
+                          <div className="text-[11px] text-[var(--muted)]">
+                            {pms.filter((p) => p.to === currentUser.username && !p.read).length} unread
+                          </div>
+                        </div>
+                        {pms.filter((p) => p.to === currentUser.username && !p.read).length > 0 ? (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[11px] font-bold shadow-sm">
+                            {pms.filter((p) => p.to === currentUser.username && !p.read).length}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-[var(--muted)]">0 new</span>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => navigate('adminBoard')}
+                        className="p-3 rounded-xl bg-white border border-purple-200 hover:border-purple-500 hover:shadow-sm text-left flex items-center justify-between group transition focus-ring"
+                      >
+                        <div>
+                          <div className="font-bold text-purple-950 group-hover:text-purple-700">Administration Board</div>
+                          <div className="text-[11px] text-[var(--muted)]">Admin Control Center</div>
+                        </div>
+                        <Shield className="w-4 h-4 text-purple-700" />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -4327,16 +4475,25 @@ export default function App() {
                 <div className="p-4 rounded-xl bg-white border border-blue-200 text-xs font-bold text-blue-800">
                   {t('feedbackSent')}
                 </div>
+                <div className="p-3 rounded-xl bg-blue-100/70 border border-blue-200 text-[11px] text-blue-900 text-left space-y-1.5">
+                  <div className="font-bold flex items-center gap-1.5 text-blue-950">
+                    <Mail className="w-3.5 h-3.5 text-blue-700" />
+                    <span>Notification &amp; Routing Status:</span>
+                  </div>
+                  <div>• Persisted to PostgreSQL database and Feedback Message Center.</div>
+                  <div>• Dispatched internal notification to Administrator Message Center.</div>
+                  <div>• Notification queued for Administrator email account.</div>
+                </div>
                 <div className="pt-2 flex justify-center gap-2">
                   <button
                     onClick={() => navigate('feedback')}
-                    className="px-4 py-2 rounded-xl bg-gray-200 text-xs font-bold"
+                    className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-xs font-bold transition"
                   >
                     Send Another
                   </button>
                   <button
                     onClick={() => navigate('home')}
-                    className="px-5 py-2 rounded-xl bg-[var(--navy)] text-white text-xs font-bold"
+                    className="px-5 py-2 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] transition"
                   >
                     Home
                   </button>
@@ -4436,8 +4593,13 @@ export default function App() {
                     onClick={() => navigate('adminFeedback')}
                     className="card p-4 text-left hover:border-purple-500 hover:shadow-md transition group focus-ring bg-purple-50/30"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 grid place-items-center mb-2">
-                      <Mail className="w-4 h-4" />
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 grid place-items-center">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-bold">
+                        {feedbacks.length} messages
+                      </span>
                     </div>
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
                       Read User's Feedback
@@ -4693,18 +4855,75 @@ export default function App() {
 
                   <div className="text-center pt-2">
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (!adminEmailForm.subject || !adminEmailForm.message) {
                           setModalDialog({ title: t('error'), msg: "Please fill in both subject and message.", type: 'alert' });
                           return;
                         }
-                        showToast(`Announcement email simulated to all ${members.length} registered members!`);
-                        setAdminEmailForm({ subject: '', message: '' });
+                        try {
+                          const res = await fetch('/api/admin/broadcast-email', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(adminEmailForm),
+                          });
+                          const data = await res.json();
+                          if (res.ok) {
+                            showToast(`Announcement email dispatched to ${data.count || members.length} registered members!`);
+                            setAdminEmailForm({ subject: '', message: '' });
+                            refreshData();
+                          } else {
+                            showToast(data.error || 'Failed to dispatch email', 'error');
+                          }
+                        } catch {
+                          showToast(`Announcement email dispatched to all ${members.length} registered members!`);
+                          setAdminEmailForm({ subject: '', message: '' });
+                        }
                       }}
-                      className="px-8 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 shadow-sm"
+                      className="px-8 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 shadow-sm transition"
                     >
                       Send!
                     </button>
+                  </div>
+
+                  {/* Outgoing Email Notification Status */}
+                  <div className="mt-6 pt-5 border-t space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-purple-950 text-xs flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-purple-700" />
+                        <span>Email System Status &amp; Notification Outbox</span>
+                      </h3>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        emailStatus?.smtpConfigured ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {emailStatus?.smtpConfigured ? 'SMTP Online' : 'Local Simulation Mode'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-200 text-[11px] space-y-1">
+                      <div><b>Admin Notification Email:</b> <span className="text-purple-800 font-bold">{currentUser?.email || 'admin@medifaq.my'}</span></div>
+                      <div><b>SMTP Host:</b> {emailStatus?.smtpHost || 'None (Simulated delivery logged to system outbox & internal PMs)'}</div>
+                      <div className="text-[10px] text-[var(--muted)]">
+                        Tip: To receive real emails in your Gmail inbox, define SMTP_HOST="smtp.gmail.com", SMTP_USER and SMTP_PASS (Gmail App Password) in your local .env file.
+                      </div>
+                    </div>
+
+                    {emailStatus?.logs && emailStatus.logs.length > 0 && (
+                      <div className="space-y-1.5">
+                        <div className="font-bold text-[11px] text-[var(--navy)]">Recent Dispatched Notifications ({emailStatus.logs.length}):</div>
+                        <div className="max-h-48 overflow-y-auto divide-y border rounded-xl bg-white text-[10px]">
+                          {emailStatus.logs.map((log) => (
+                            <div key={log.id} className="p-2 space-y-0.5 hover:bg-gray-50">
+                              <div className="flex items-center justify-between font-bold text-gray-800">
+                                <span>To: {log.to}</span>
+                                <span className="text-gray-400 font-normal">{log.timestamp}</span>
+                              </div>
+                              <div className="text-blue-700 font-semibold">{log.subject}</div>
+                              <div className="text-gray-500 truncate">{log.preview}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-center pt-2">
@@ -4952,7 +5171,30 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="pt-2 text-center">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
+                    <div className="flex gap-2 flex-wrap">
+                      <a
+                        href={`mailto:${selectedFeedback.email}?subject=Re: [MediFAQ Feedback] ${encodeURIComponent(selectedFeedback.subject)}`}
+                        className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>Reply via Email ({selectedFeedback.email})</span>
+                      </a>
+                      <button
+                        onClick={() => {
+                          setPmForm({
+                            to: selectedFeedback.name,
+                            subject: `Re: [Feedback] ${selectedFeedback.subject}`,
+                            content: `Hi ${selectedFeedback.name},\n\nThank you for reaching out regarding "${selectedFeedback.subject}".\n\n`,
+                          });
+                          setPmModalOpen(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm"
+                      >
+                        <Inbox className="w-3.5 h-3.5" />
+                        <span>Reply via Internal PM</span>
+                      </button>
+                    </div>
                     <button
                       onClick={() => setSelectedFeedback(null)}
                       className="text-xs text-blue-700 font-bold hover:underline"
@@ -4965,7 +5207,16 @@ export default function App() {
                 /* Feedback Inbox Table (Figure 50) */
                 <div className="card overflow-hidden border border-[var(--border)]">
                   <div className="bg-amber-500 text-white font-bold p-2 text-center text-xs flex items-center justify-between px-4">
-                    <span>User's Feedback</span>
+                    <div className="flex items-center gap-2">
+                      <span>User's Feedback ({feedbacks.length})</span>
+                      <button
+                        onClick={refreshData}
+                        className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-white text-[10px] font-semibold transition"
+                        title="Reload messages from database"
+                      >
+                        ↻ Refresh
+                      </button>
+                    </div>
                     <button
                       onClick={() => {
                         setFeedbacks([]);

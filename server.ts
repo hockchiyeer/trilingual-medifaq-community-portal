@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, like } from 'drizzle-orm';
+import nodemailer from 'nodemailer';
 import { db } from './src/db/index.ts';
 import {
   users,
@@ -510,11 +511,112 @@ app.delete('/api/members/:username/posts', async (req, res) => {
   }
 });
 
+// Email Dispatch System & Outbox Logger
+interface EmailLogItem {
+  id: string;
+  timestamp: string;
+  to: string;
+  subject: string;
+  preview: string;
+  type: 'feedback_notification' | 'broadcast_announcement' | 'direct_message';
+  status: 'sent' | 'simulated';
+}
+
+const emailLogs: EmailLogItem[] = [];
+
+async function dispatchEmailNotification({
+  to,
+  subject,
+  html,
+  text,
+  type = 'feedback_notification',
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  type?: 'feedback_notification' | 'broadcast_announcement' | 'direct_message';
+}): Promise<{ sent: boolean; status: 'sent' | 'simulated'; error?: string }> {
+  const timestamp = new Date().toLocaleString();
+  const logId = `eml_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const preview = text.substring(0, 140);
+
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
+  const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+  const smtpFrom = process.env.SMTP_FROM || 'MediFAQ Portal <no-reply@medifaq.my>';
+
+  if (smtpHost && smtpUser && smtpPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      });
+
+      await transporter.sendMail({
+        from: smtpFrom,
+        to,
+        subject,
+        text,
+        html,
+      });
+
+      console.log(`[MediFAQ Email] Successfully delivered email via SMTP to: ${to} (Subject: "${subject}")`);
+      const logEntry: EmailLogItem = { id: logId, timestamp, to, subject, preview, type, status: 'sent' };
+      emailLogs.unshift(logEntry);
+      if (emailLogs.length > 50) emailLogs.pop();
+      return { sent: true, status: 'sent' };
+    } catch (err: any) {
+      console.error(`[MediFAQ Email] SMTP delivery failed to ${to}:`, err.message);
+      const logEntry: EmailLogItem = {
+        id: logId,
+        timestamp,
+        to,
+        subject: `${subject} (SMTP Error: ${err.message})`,
+        preview,
+        type,
+        status: 'simulated',
+      };
+      emailLogs.unshift(logEntry);
+      if (emailLogs.length > 50) emailLogs.pop();
+      return { sent: false, status: 'simulated', error: err.message };
+    }
+  }
+
+  // Local Simulation Mode (Logged to server console and system outbox)
+  console.log(`[MediFAQ Email Dispatch - Local Simulation] To: ${to} | Subject: "${subject}" | Content: ${preview}...`);
+  const logEntry: EmailLogItem = { id: logId, timestamp, to, subject, preview, type, status: 'simulated' };
+  emailLogs.unshift(logEntry);
+  if (emailLogs.length > 50) emailLogs.pop();
+  return { sent: true, status: 'simulated' };
+}
+
 // 5. Feedbacks
 app.get('/api/feedbacks', async (_req, res) => {
   try {
-    const rows = await db.select().from(feedbacks).orderBy(desc(feedbacks.date));
-    const formatted = rows.map((f) => ({
+    const rows = await db.select().from(feedbacks);
+    // Sort chronologically: newest timestamp/ID first
+    const sorted = [...rows].sort((a, b) => {
+      const getScore = (item: typeof a) => {
+        if (item.id.startsWith('fb_')) {
+          const num = parseInt(item.id.split('_')[1], 10);
+          if (!isNaN(num)) return num;
+        }
+        const parsed = Date.parse(item.date);
+        if (!isNaN(parsed)) return parsed;
+        return 0;
+      };
+      return getScore(b) - getScore(a);
+    });
+
+    const formatted = sorted.map((f) => ({
       id: f.id,
       name: f.name,
       email: f.email,
@@ -533,16 +635,79 @@ app.get('/api/feedbacks', async (_req, res) => {
 app.post('/api/feedbacks', async (req, res) => {
   try {
     const { id, name, email, subject, message, cat, date } = req.body;
+    const feedbackId = id || `fb_${Date.now()}`;
+    const timestamp = date || new Date().toLocaleString();
+
     await db.insert(feedbacks).values({
-      id: id || `fb_${Date.now()}`,
+      id: feedbackId,
       name,
       email,
       subject,
       message,
       cat,
-      date: date || new Date().toLocaleString(),
+      date: timestamp,
     });
-    res.json({ success: true });
+
+    // 1. Find all administrators to notify
+    const adminUsers = await db.select().from(users).where(eq(users.role, 'admin'));
+
+    // 2. Automatically dispatch internal Private Message to all administrators
+    for (const admin of adminUsers) {
+      await db.insert(privateMessages).values({
+        id: `${feedbackId}_pm_${admin.username}`,
+        fromUser: `System (Feedback Form)`,
+        toUser: admin.username,
+        subject: `[New Feedback: ${cat ? cat.toUpperCase() : 'USER'}] ${subject}`,
+        content: `New visitor feedback received:\nFrom: ${name} <${email}>\nCategory: ${cat}\nDate: ${timestamp}\nSubject: ${subject}\n\nMessage:\n${message}\n\nYou can review, reply, or delete this message directly inside the Feedback Message Center.`,
+        date: timestamp,
+        read: false,
+      });
+
+      // 3. Dispatch email notification to the administrator's email address (e.g. erhc79@gmail.com)
+      if (admin.email) {
+        await dispatchEmailNotification({
+          to: admin.email,
+          subject: `[MediFAQ Feedback Alert] [${cat}] ${subject}`,
+          text: `Hello ${admin.fullName || admin.username},\n\nA new feedback entry has been submitted on MediFAQ:\n\nFrom: ${name} (${email})\nCategory: ${cat}\nDate: ${timestamp}\nSubject: ${subject}\n\nMessage:\n${message}\n\nYou can review, reply, or delete this message directly inside the MediFAQ Feedback Message Center.\n\n--\nMediFAQ Online Medical Knowledge & Community Health Portal`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <div style="background-color: #0f766e; color: #ffffff; padding: 16px; border-radius: 8px; text-align: center;">
+                <h2 style="margin: 0; font-size: 18px;">New MediFAQ User Feedback</h2>
+              </div>
+              <div style="padding: 20px 10px;">
+                <p>Hello <b>${admin.fullName || admin.username}</b>,</p>
+                <p>A new visitor feedback submission has been received on the portal:</p>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
+                  <tr><td style="padding: 6px 0; color: #64748b; width: 120px;"><b>From:</b></td><td>${name} (&lt;<a href="mailto:${email}">${email}</a>&gt;)</td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Category:</b></td><td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-size: 11px; font-weight: bold;">${cat}</span></td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Subject:</b></td><td><b>${subject}</b></td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Date:</b></td><td>${timestamp}</td></tr>
+                </table>
+                <div style="background-color: #f8fafc; border-left: 4px solid #0f766e; padding: 14px; border-radius: 4px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">
+                  ${message}
+                </div>
+                <div style="margin-top: 24px; text-align: center;">
+                  <a href="mailto:${email}?subject=Re: [MediFAQ Feedback] ${encodeURIComponent(subject)}" style="display: inline-block; background-color: #0f766e; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">
+                    Reply to Submitter via Email
+                  </a>
+                </div>
+              </div>
+              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+              <small style="color: #94a3b8; display: block; text-align: center;">
+                MediFAQ Community Health Portal • Administration Notification
+              </small>
+            </div>
+          `,
+          type: 'feedback_notification',
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      feedbackId,
+      notifiedAdmins: adminUsers.map((a) => ({ username: a.username, email: a.email })),
+    });
   } catch (err: any) {
     console.error('Error creating feedback:', err);
     res.status(500).json({ error: 'Failed to create feedback' });
@@ -553,6 +718,8 @@ app.delete('/api/feedbacks/:id', async (req, res) => {
   try {
     const { id } = req.params;
     await db.delete(feedbacks).where(eq(feedbacks.id, id));
+    // Also remove any notification PMs created for this feedback
+    await db.delete(privateMessages).where(like(privateMessages.id, `${id}%`));
     res.json({ success: true });
   } catch (err: any) {
     console.error('Error deleting feedback:', err);
@@ -563,8 +730,25 @@ app.delete('/api/feedbacks/:id', async (req, res) => {
 // 6. Private Messages
 app.get('/api/pms', async (_req, res) => {
   try {
-    const rows = await db.select().from(privateMessages).orderBy(desc(privateMessages.date));
-    const formatted = rows.map((p) => ({
+    const rows = await db.select().from(privateMessages);
+    // Sort chronologically: newest timestamp/ID first
+    const sorted = [...rows].sort((a, b) => {
+      const getScore = (item: typeof a) => {
+        if (item.id.startsWith('pm_') || item.id.includes('_pm_')) {
+          const match = item.id.match(/\d{10,}/);
+          if (match) {
+            const num = parseInt(match[0], 10);
+            if (!isNaN(num)) return num;
+          }
+        }
+        const parsed = Date.parse(item.date);
+        if (!isNaN(parsed)) return parsed;
+        return 0;
+      };
+      return getScore(b) - getScore(a);
+    });
+
+    const formatted = sorted.map((p) => ({
       id: p.id,
       from: p.fromUser,
       to: p.toUser,
@@ -618,6 +802,51 @@ app.delete('/api/pms/:id', async (req, res) => {
   } catch (err: any) {
     console.error('Error deleting private message:', err);
     res.status(500).json({ error: 'Failed to delete private message' });
+  }
+});
+
+// 7. Admin Email Notification Status & Outbox Logs
+app.get('/api/admin/email-status', async (_req, res) => {
+  try {
+    const adminRows = await db.select().from(users).where(eq(users.role, 'admin'));
+    const adminEmails = adminRows.map((a) => a.email).filter(Boolean);
+    const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    res.json({
+      smtpConfigured,
+      smtpHost: process.env.SMTP_HOST || null,
+      adminEmails,
+      logs: emailLogs,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch email status' });
+  }
+});
+
+app.post('/api/admin/broadcast-email', async (req, res) => {
+  try {
+    const { subject, message } = req.body;
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'Subject and message are required' });
+    }
+    const memberRows = await db.select().from(users);
+    const recipients = memberRows.map((m) => m.email).filter(Boolean);
+    for (const recipient of recipients) {
+      await dispatchEmailNotification({
+        to: recipient,
+        subject: `[MediFAQ Announcement] ${subject}`,
+        text: message,
+        html: `<div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="color: #0f766e;">${subject}</h2>
+          <p>${message.replace(/\n/g, '<br/>')}</p>
+          <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 16px 0;" />
+          <small style="color: #64748b;">Sent to registered members by MediFAQ Administration</small>
+        </div>`,
+        type: 'broadcast_announcement',
+      });
+    }
+    res.json({ success: true, count: recipients.length, recipients });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to broadcast email' });
   }
 });
 

@@ -37,12 +37,16 @@
 }
 
 * {
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 h1, h2, h3, .display {
-  font-family: 'Fraunces', 'Inter', serif;
+  font-family: 'Fraunces', 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif;
   letter-spacing: -0.02em;
+}
+
+:lang(zh) h1, :lang(zh) h2, :lang(zh) h3, :lang(zh) .display {
+  letter-spacing: normal;
 }
 
 body {

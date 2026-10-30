@@ -349,7 +349,21 @@ const T_DATA: Translations = {
     readUserFeedbackUnitDesc: "Inspect inbox comments and suggestions.",
     messagesCount: "messages",
     recipientUsername: "Recipient Username:",
-    messageContentLabel: "Message Content:"
+    messageContentLabel: "Message Content:",
+    generalAccess: "General Access",
+    memberAccess: "Member Access",
+    adminSection: "Admin Section",
+    demoStatus: "Interactive Demo Ready",
+    malaysianHealthPortal: "Malaysian Public Health Knowledge Portal",
+    toggleNavigationMenu: "Toggle navigation menu",
+    decreaseFontSize: "Decrease font size",
+    resetFontSize: "Reset font size",
+    increaseFontSize: "Increase font size",
+    toggleHighContrast: "Toggle high contrast",
+    editPost: "Edit Post",
+    neverPosted: "Never Posted!",
+    createdAt: "Created at",
+    systemNotice: "System Notice"
   },
   ZH: {
     appName: "MediFAQ",
@@ -639,7 +653,21 @@ const T_DATA: Translations = {
     readUserFeedbackUnitDesc: "检查收件箱中的意见与建议。",
     messagesCount: "条消息",
     recipientUsername: "收件人用户名：",
-    messageContentLabel: "消息内容："
+    messageContentLabel: "消息内容：",
+    generalAccess: "常规访问",
+    memberAccess: "会员通道",
+    adminSection: "管理专区",
+    demoStatus: "交互演示就绪",
+    malaysianHealthPortal: "马来西亚公共卫生常识知识库",
+    toggleNavigationMenu: "切换导航菜单",
+    decreaseFontSize: "缩小字体",
+    resetFontSize: "重置字体",
+    increaseFontSize: "放大字体",
+    toggleHighContrast: "切换高对比度",
+    editPost: "编辑帖子",
+    neverPosted: "尚未发帖！",
+    createdAt: "创建于",
+    systemNotice: "系统提示"
   },
   BM: {
     appName: "MediFAQ",
@@ -929,7 +957,21 @@ const T_DATA: Translations = {
     readUserFeedbackUnitDesc: "Semak komen dan cadangan peti masuk.",
     messagesCount: "mesej",
     recipientUsername: "Nama Pengguna Penerima:",
-    messageContentLabel: "Kandungan Mesej:"
+    messageContentLabel: "Kandungan Mesej:",
+    generalAccess: "Akses Umum",
+    memberAccess: "Akses Ahli",
+    adminSection: "Bahagian Pentadbir",
+    demoStatus: "Demo Interaktif Bersedia",
+    malaysianHealthPortal: "Portal Pengetahuan Kesihatan Awam Malaysia",
+    toggleNavigationMenu: "Tukar menu navigasi",
+    decreaseFontSize: "Kecilkan saiz fon",
+    resetFontSize: "Tetapkan semula saiz fon",
+    increaseFontSize: "Besarkan saiz fon",
+    toggleHighContrast: "Tukar kontras tinggi",
+    editPost: "Sunting Pos",
+    neverPosted: "Belum Pernah Pos!",
+    createdAt: "Dicipta pada",
+    systemNotice: "Notis Sistem"
   }
 };
 
@@ -1096,7 +1138,7 @@ const INITIAL_FAQS: FAQItem[] = [
     mainId: "pharmacy",
     subId: "vitamin",
     q: {
-      EN: "Saya ingin bertanya tentang pengambilan vitamin yang sesuai untuk diri saya di mana tubuh badan saya terlalu kurus, tidak sesuai dengan ketinggian saya.",
+      EN: "What suitable vitamin supplements should I consider if I am underweight for my height?",
       ZH: "我想咨询关于体重过轻、身体偏瘦人群适合服用的维生素与营养建议。",
       BM: "Saya ingin bertanya tentang pengambilan vitamin yang sesuai untuk diri saya di mana tubuh badan saya terlalu kurus, tidak sesuai dengan ketinggian saya."
     },
@@ -1413,9 +1455,9 @@ const INITIAL_TOPICS: ForumTopic[] = [
     forumId: "healthy",
     subId: "quit",
     title: {
-      EN: "How to quich smoking?",
-      ZH: "如何戒烟？（保留手册原版拼写：How to quich smoking?）",
-      BM: "Bagaimana berhenti merokok? (ejaan asal: How to quich smoking?)"
+      EN: "How to quit smoking?",
+      ZH: "如何戒烟？",
+      BM: "Bagaimana cara untuk berhenti merokok?"
     },
     author: "member_tan",
     replies: 2,
@@ -1633,7 +1675,32 @@ const INITIAL_PMS: PrivateMessage[] = [
 ];
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('EN');
+  const [lang, setLangState] = useState<Lang>(() => {
+    try {
+      const saved = localStorage.getItem('medifaq_lang');
+      if (saved === 'EN' || saved === 'ZH' || saved === 'BM') return saved;
+      const navLang = navigator.language.toLowerCase();
+      if (navLang.startsWith('zh')) return 'ZH';
+      if (navLang.startsWith('ms')) return 'BM';
+    } catch {}
+    return 'EN';
+  });
+
+  const setLang = (newLang: Lang) => {
+    setLangState(newLang);
+    try {
+      localStorage.setItem('medifaq_lang', newLang);
+    } catch {}
+  };
+
+  useEffect(() => {
+    const langMap: Record<Lang, string> = {
+      EN: 'en',
+      ZH: 'zh-Hans',
+      BM: 'ms'
+    };
+    document.documentElement.lang = langMap[lang] || 'en';
+  }, [lang]);
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fontSizeMultiplier, setFontSizeMultiplier] = useState(1);
@@ -1940,11 +2007,15 @@ export default function App() {
     if (!regForm.email.trim() || !/^\S+@\S+\.\S+$/.test(regForm.email)) missing.push(t('emailAddress'));
 
     if (missing.length > 0) {
-      setModalDialog({
-        title: "Microsoft Internet Explorer",
-        msg: `You failed to correctly fill in required information in the following field(s):\n- ${missing.join('\n- ')}\n\nPlease re-enter and submit again!`,
-        type: 'alert'
-      });
+      const isZh = lang === 'ZH';
+      const isBm = lang === 'BM';
+      const title = t('systemNotice');
+      const msg = isZh
+        ? `请完成以下必填项的填写：\n- ${missing.join('\n- ')}\n\n请重新检查并提交！`
+        : isBm
+        ? `Sila lengkapkan maklumat wajib dalam medan berikut:\n- ${missing.join('\n- ')}\n\nSila semak dan hantar semula!`
+        : `Please fill in all required fields:\n- ${missing.join('\n- ')}\n\nPlease check and submit again!`;
+      setModalDialog({ title, msg, type: 'alert' });
       return;
     }
 
@@ -2012,28 +2083,35 @@ export default function App() {
 
   // Handle User Login
   const handleLogin = () => {
+    const isZh = lang === 'ZH';
+    const isBm = lang === 'BM';
+    const title = t('systemNotice');
+
     if (!loginForm.username.trim() && !loginForm.password.trim()) {
-      setModalDialog({
-        title: "Microsoft Internet Explorer",
-        msg: `You didn't fill in the following field(s):\n- Username\n- Password\n\nPlease fill in the mentioned field(s) and log in again.`,
-        type: 'alert'
-      });
+      const msg = isZh
+        ? `请输入您的用户名与密码，然后重试。`
+        : isBm
+        ? `Sila masukkan nama pengguna dan kata laluan anda, kemudian cuba lagi.`
+        : `Please enter your username and password, then try again.`;
+      setModalDialog({ title, msg, type: 'alert' });
       return;
     }
     if (!loginForm.username.trim()) {
-      setModalDialog({
-        title: "Microsoft Internet Explorer",
-        msg: `You didn't fill in the following field(s):\n- Username\n\nPlease fill in the mentioned field(s) and log in again.`,
-        type: 'alert'
-      });
+      const msg = isZh
+        ? `请输入您的用户名，然后重试。`
+        : isBm
+        ? `Sila masukkan nama pengguna anda, kemudian cuba lagi.`
+        : `Please enter your username, then try again.`;
+      setModalDialog({ title, msg, type: 'alert' });
       return;
     }
     if (!loginForm.password.trim()) {
-      setModalDialog({
-        title: "Microsoft Internet Explorer",
-        msg: `You didn't fill in the following field(s):\n- Password\n\nPlease fill in the mentioned field(s) and log in again.`,
-        type: 'alert'
-      });
+      const msg = isZh
+        ? `请输入您的密码，然后重试。`
+        : isBm
+        ? `Sila masukkan kata laluan anda, kemudian cuba lagi.`
+        : `Please enter your password, then try again.`;
+      setModalDialog({ title, msg, type: 'alert' });
       return;
     }
 
@@ -2066,6 +2144,10 @@ export default function App() {
           setLoginErrorState('no_user');
           return;
         }
+        if (found.password !== loginForm.password) {
+          setLoginErrorState('wrong_pw');
+          return;
+        }
         setCurrentUser(found);
         setLoginErrorState('none');
         setLoginForm({ username: '', password: '' });
@@ -2077,6 +2159,10 @@ export default function App() {
         const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
         if (!found) {
           setLoginErrorState('no_user');
+          return;
+        }
+        if (found.password !== loginForm.password) {
+          setLoginErrorState('wrong_pw');
           return;
         }
         setCurrentUser(found);

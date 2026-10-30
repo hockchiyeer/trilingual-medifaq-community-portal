@@ -132,6 +132,8 @@ const T_DATA: Translations = {
     register: "Register",
     registerMeNow: "Register Me Now!",
     login: "Log in",
+    enterUsername: "Enter username",
+    enterPassword: "Enter password",
     invalidLogin: "Invalid login - please check your credentials",
     usernameNotExist: "Sorry, the username does not exist. Please click here to try again.",
     wrongPassword: "You have entered an invalid password",
@@ -181,7 +183,7 @@ const T_DATA: Translations = {
     breadcrumbs: "Breadcrumbs",
     results: "Results",
     noResults: "No results found",
-    adminHint: "Default Demo Accounts — Admin: admin / admin • Member: member_tan / tan123 • Doctor: dr_lee / doc123",
+    adminHint: "Secure Portal — Authorized login required.",
     success: "Success",
     error: "Error",
     confirmDelete: "Are you sure you want to delete this item?",
@@ -420,6 +422,8 @@ const T_DATA: Translations = {
     register: "注册",
     registerMeNow: "立即注册！",
     login: "登录",
+    enterUsername: "请输入用户名",
+    enterPassword: "请输入密码",
     invalidLogin: "登录无效，请检查用户名或密码",
     usernameNotExist: "对不起，该用户名不存在。请点击此处重试。",
     wrongPassword: "您输入了错误的密码",
@@ -469,7 +473,7 @@ const T_DATA: Translations = {
     breadcrumbs: "导航路径",
     results: "条结果",
     noResults: "未找到相关结果",
-    adminHint: "演示账号 — 管理员: admin / admin • 会员: member_tan / tan123 • 医生: dr_lee / doc123",
+    adminHint: "安全门户 — 需要授权登录。",
     success: "成功",
     error: "提示错误",
     confirmDelete: "确定要删除此条目吗？",
@@ -708,6 +712,8 @@ const T_DATA: Translations = {
     register: "Daftar",
     registerMeNow: "Daftar Saya Sekarang!",
     login: "Log masuk",
+    enterUsername: "Masukkan nama pengguna",
+    enterPassword: "Masukkan kata laluan",
     invalidLogin: "Log masuk tidak sah - sila periksa maklumat anda",
     usernameNotExist: "Maaf, nama pengguna tersebut tidak wujud. Sila klik di sini untuk cuba lagi.",
     wrongPassword: "Anda telah memasukkan kata laluan yang tidak sah",
@@ -757,7 +763,7 @@ const T_DATA: Translations = {
     breadcrumbs: "Navigasi",
     results: "Keputusan",
     noResults: "Tiada keputusan dijumpai",
-    adminHint: "Akaun Demo — Pentadbir: admin / admin • Ahli: member_tan / tan123 • Doktor: dr_lee / doc123",
+    adminHint: "Portal Selamat — Log masuk yang diberi kuasa diperlukan.",
     success: "Berjaya",
     error: "Ralat",
     confirmDelete: "Adakah anda pasti mahu memadam item ini?",
@@ -2978,7 +2984,7 @@ export default function App() {
                         value={regForm.username}
                         onChange={(e) => setRegForm({ ...regForm, username: e.target.value })}
                         className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
-                        placeholder="e.g. member_tan"
+                        placeholder={t('enterUsername')}
                       />
                     </div>
                     <div>
@@ -3162,7 +3168,7 @@ export default function App() {
                       value={loginForm.username}
                       onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
-                      placeholder="e.g. admin, dr_lee, member_tan"
+                      placeholder={t('enterUsername')}
                     />
                   </div>
                   <div>
@@ -3172,6 +3178,7 @@ export default function App() {
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
+                      placeholder={t('enterPassword')}
                     />
                   </div>
 
@@ -3181,13 +3188,6 @@ export default function App() {
                   >
                     {t('login')}
                   </button>
-
-                  <div className="p-3 rounded-xl bg-[var(--surface-2)] text-[11px] text-[var(--muted)] space-y-1">
-                    <div className="font-bold text-[var(--navy)]">{t('defaultTestAccounts')}</div>
-                    <div>• {t('administratorRole')}: <b>admin</b> / <b>admin</b></div>
-                    <div>• {t('doctorRole')}: <b>dr_lee</b> / <b>doc123</b></div>
-                    <div>• {t('standardMemberRole')}: <b>member_tan</b> / <b>tan123</b></div>
-                  </div>
                 </div>
               </div>
             </div>

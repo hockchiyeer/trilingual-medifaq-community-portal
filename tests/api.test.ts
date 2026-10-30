@@ -341,5 +341,211 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
     assert.equal(delPmRes.status, 200);
   });
 
+  // 7. Category & Subcategory Update and Delete (Admin CRUD)
+  await testCase('PUT & DELETE /api/subcategories/:id and /api/categories/:id - completes category CRUD lifecycle', async () => {
+    const testCatId = `${guardian.prefix}crud_cat`;
+    const testSubId = `${guardian.prefix}crud_sub`;
+
+    // Create
+    await fetch(`${baseUrl}/api/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: testCatId,
+        name: { EN: "Temp Health", ZH: "临时健康", BM: "Kesihatan Temp" },
+        listOrder: 100,
+      }),
+    });
+    await fetch(`${baseUrl}/api/subcategories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: testSubId,
+        mainId: testCatId,
+        name: { EN: "Temp Topic", ZH: "临时子项", BM: "Topik Temp" },
+      }),
+    });
+
+    // Update
+    const putSubRes = await fetch(`${baseUrl}/api/subcategories/${testSubId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: { EN: "Renamed Subtopic", ZH: "已重命名子专题", BM: "Subtopik Dinamakan Semula" },
+      }),
+    });
+    assert.equal(putSubRes.status, 200);
+
+    const putCatRes = await fetch(`${baseUrl}/api/categories/${testCatId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: { EN: "Renamed Main Category", ZH: "已重命名主分类", BM: "Kategori Utama Dinamakan Semula" },
+      }),
+    });
+    assert.equal(putCatRes.status, 200);
+
+    // Verify update
+    const verifyCatsRes = await fetch(`${baseUrl}/api/categories`);
+    const allCats = await verifyCatsRes.json();
+    const updatedCat = allCats.find((c: any) => c.id === testCatId);
+    assert.ok(updatedCat);
+    assert.equal(updatedCat.name.EN, "Renamed Main Category");
+    const updatedSub = updatedCat.subs.find((s: any) => s.id === testSubId);
+    assert.ok(updatedSub);
+    assert.equal(updatedSub.name.EN, "Renamed Subtopic");
+
+    // Delete subcategory
+    const delSubRes = await fetch(`${baseUrl}/api/subcategories/${testSubId}`, { method: 'DELETE' });
+    assert.equal(delSubRes.status, 200);
+
+    // Delete category
+    const delCatRes = await fetch(`${baseUrl}/api/categories/${testCatId}`, { method: 'DELETE' });
+    assert.equal(delCatRes.status, 200);
+
+    // Verify deletion
+    const finalCatsRes = await fetch(`${baseUrl}/api/categories`);
+    const finalCats = await finalCatsRes.json();
+    assert.ok(!finalCats.some((c: any) => c.id === testCatId), 'Category must be deleted');
+  });
+
+  // 8. Doctor / Moderator Clinical Workflow
+  await testCase('Doctor / Moderator - verifies role and creates clinical FAQ with doctor attribution', async () => {
+    // Verify default doctor account
+    const membersRes = await fetch(`${baseUrl}/api/members`);
+    const members = await membersRes.json();
+    const dr = members.find((m: any) => m.username === 'dr_lee');
+    assert.ok(dr, 'Doctor dr_lee account must exist');
+    assert.equal(dr.role, 'moderator');
+    assert.equal(dr.adminLevel, 1);
+
+    // Doctor creates clinical verified FAQ
+    const docFaqId = `${guardian.prefix}doc_faq`;
+    const docFaqRes = await fetch(`${baseUrl}/api/faqs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: docFaqId,
+        mainId: 'pharmacy',
+        subId: 'vitamin',
+        q: { EN: "Can vitamin C prevent acute viral infections?", ZH: "维生素C能预防急性病毒感染吗？", BM: "Bolehkah vitamin C mencegah jangkitan virus akut?" },
+        a: { EN: "Vitamin C supports cellular immune function, but regular supplementation does not entirely prevent catching common viral infections; it may marginally shorten symptom duration.", ZH: "维生素C支持细胞免疫机能，但日常补充并不能完全阻止病毒感染，仅可能略微缩短病程。", BM: "Vitamin C menyokong fungsi imun selular, tetapi suplemen harian tidak menghalang jangkitan secara mutlak." },
+        doctorName: "Dr. Lee, Medical Officer",
+        createdBy: "dr_lee",
+        views: 0,
+      }),
+    });
+    assert.equal(docFaqRes.status, 200);
+
+    const faqsRes = await fetch(`${baseUrl}/api/faqs`);
+    const faqs = await faqsRes.json();
+    const docFaq = faqs.find((f: any) => f.id === docFaqId);
+    assert.ok(docFaq);
+    assert.equal(docFaq.doctorName, "Dr. Lee, Medical Officer");
+    assert.equal(docFaq.createdBy, "dr_lee");
+
+    // Clean up
+    await fetch(`${baseUrl}/api/faqs/${docFaqId}`, { method: 'DELETE' });
+  });
+
+  // 9. Topic Deletion Cascading Posts (Moderator/Admin action)
+  await testCase('DELETE /api/topics/:id - cascades deletion to associated topic posts', async () => {
+    const cascadeTopicId = `${guardian.prefix}casc_topic`;
+    const cascadePost1Id = `${guardian.prefix}casc_p1`;
+    const cascadePost2Id = `${guardian.prefix}casc_p2`;
+
+    // Create topic with first post
+    await fetch(`${baseUrl}/api/topics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: cascadeTopicId,
+        forumId: "healthy",
+        subId: "quit",
+        title: { EN: "Topic to delete", ZH: "待删主题", BM: "Topik untuk dipadam" },
+        author: mockUsername,
+        initialPost: {
+          id: cascadePost1Id,
+          author: mockUsername,
+          content: { EN: "Initial post", ZH: "首贴", BM: "Pos awal" },
+        },
+      }),
+    });
+
+    // Add reply post
+    await fetch(`${baseUrl}/api/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: cascadePost2Id,
+        topicId: cascadeTopicId,
+        author: mockUsername,
+        content: { EN: "Reply to be deleted with topic", ZH: "随主题被删的回复", BM: "Balasan yang akan dipadam bersama topik" },
+      }),
+    });
+
+    // Verify both posts exist
+    const postsBefore = await (await fetch(`${baseUrl}/api/posts`)).json();
+    assert.ok(postsBefore.some((p: any) => p.id === cascadePost1Id));
+    assert.ok(postsBefore.some((p: any) => p.id === cascadePost2Id));
+
+    // Delete topic
+    const delTopicRes = await fetch(`${baseUrl}/api/topics/${cascadeTopicId}`, { method: 'DELETE' });
+    assert.equal(delTopicRes.status, 200);
+
+    // Verify topic and posts are gone
+    const topicsAfter = await (await fetch(`${baseUrl}/api/topics`)).json();
+    assert.ok(!topicsAfter.some((t: any) => t.id === cascadeTopicId), 'Topic must be deleted');
+
+    const postsAfter = await (await fetch(`${baseUrl}/api/posts`)).json();
+    assert.ok(!postsAfter.some((p: any) => p.id === cascadePost1Id), 'Initial post must be cascaded');
+    assert.ok(!postsAfter.some((p: any) => p.id === cascadePost2Id), 'Reply post must be cascaded');
+  });
+
+  // 10. Admin Email Broadcast & Outbox Status
+  await testCase('POST /api/admin/broadcast-email & GET /api/admin/email-status - handles system-wide announcements', async () => {
+    const broadcastRes = await fetch(`${baseUrl}/api/admin/broadcast-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: `${guardian.prefix} Seasonal Health Advisory`,
+        message: "Stay hydrated and wear masks during regional haze alerts.",
+      }),
+    });
+    assert.equal(broadcastRes.status, 200);
+    const broadcastData = await broadcastRes.json();
+    assert.ok(broadcastData.success);
+    assert.ok(broadcastData.count > 0);
+
+    const statusRes = await fetch(`${baseUrl}/api/admin/email-status`);
+    assert.equal(statusRes.status, 200);
+    const statusData = await statusRes.json();
+    assert.ok(Array.isArray(statusData.adminEmails));
+    assert.ok(statusData.adminEmails.includes('erhc79@gmail.com'));
+    assert.ok(Array.isArray(statusData.logs));
+    assert.ok(statusData.logs.some((l: any) => l.subject.includes(guardian.prefix)));
+  });
+
+  // 11. Admin Lockout Prevention
+  await testCase('Admin Lockout Prevention - blocks demotion or deletion of last remaining administrator', async () => {
+    // Attempting to demote the sole default admin 'admin' to user level 0
+    const demoteRes = await fetch(`${baseUrl}/api/members/admin`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: 'user', adminLevel: 0 }),
+    });
+    assert.equal(demoteRes.status, 400, 'Demoting sole administrator must return 400 Bad Request');
+    const demoteData = await demoteRes.json();
+    assert.ok(demoteData.error.includes('administrator'));
+
+    // Attempting to delete the sole default admin 'admin'
+    const deleteRes = await fetch(`${baseUrl}/api/members/admin`, {
+      method: 'DELETE',
+    });
+    assert.equal(deleteRes.status, 400, 'Deleting sole administrator must return 400 Bad Request');
+    const deleteData = await deleteRes.json();
+    assert.ok(deleteData.error.includes('administrator'));
+  });
+
   return { passed, failed };
 }

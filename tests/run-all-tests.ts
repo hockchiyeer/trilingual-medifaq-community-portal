@@ -5,25 +5,27 @@ import { runApiTests } from './api.test.ts';
 import { runResilienceTests } from './resilience.test.ts';
 
 async function findOrStartServer(): Promise<{ baseUrl: string; stopServer: () => Promise<void> }> {
-  // 1. Check if server is already running on candidate ports
-  const candidatePorts = Array.from(new Set([process.env.PORT, '3000', '8080'].filter(Boolean)));
-  for (const p of candidatePorts) {
-    const candidateUrl = `http://127.0.0.1:${p}`;
-    try {
-      const res = await fetch(`${candidateUrl}/api/categories`, { signal: AbortSignal.timeout(1200) });
-      if (res.ok) {
-        console.log(`[TestRunner] Using active server at ${candidateUrl}`);
-        return {
-          baseUrl: candidateUrl,
-          stopServer: async () => {},
-        };
+  // If explicitly requested to test against an active external port
+  if (process.env.USE_ACTIVE_SERVER) {
+    const candidatePorts = Array.from(new Set([process.env.PORT, '3000', '8080'].filter(Boolean)));
+    for (const p of candidatePorts) {
+      const candidateUrl = `http://127.0.0.1:${p}`;
+      try {
+        const res = await fetch(`${candidateUrl}/api/categories`, { signal: AbortSignal.timeout(1200) });
+        if (res.ok) {
+          console.log(`[TestRunner] Using active server at ${candidateUrl}`);
+          return {
+            baseUrl: candidateUrl,
+            stopServer: async () => {},
+          };
+        }
+      } catch {
+        // Continue to next port
       }
-    } catch {
-      // Continue to next port
     }
   }
 
-  // 2. Spawn ephemeral HTTP server on dynamic port (0)
+  // Spawn ephemeral HTTP server on dynamic port (0) using current app instance
   console.log(`[TestRunner] Starting ephemeral test server on random free port...`);
   const server = http.createServer(app);
   await new Promise<void>((resolve) => {

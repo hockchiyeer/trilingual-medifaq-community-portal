@@ -79,6 +79,40 @@ app.post('/api/categories', async (req, res) => {
   }
 });
 
+app.put('/api/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, desc, color, listOrder } = req.body;
+    const updateData: any = {};
+    if (name?.EN !== undefined) updateData.nameEn = name.EN;
+    if (name?.ZH !== undefined) updateData.nameZh = name.ZH;
+    if (name?.BM !== undefined) updateData.nameBm = name.BM;
+    if (desc?.EN !== undefined) updateData.descEn = desc.EN;
+    if (desc?.ZH !== undefined) updateData.descZh = desc.ZH;
+    if (desc?.BM !== undefined) updateData.descBm = desc.BM;
+    if (color !== undefined) updateData.color = color;
+    if (listOrder !== undefined) updateData.listOrder = listOrder;
+
+    await db.update(categories).set(updateData).where(eq(categories.id, id));
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error updating category:', err);
+    res.status(500).json({ error: 'Failed to update category' });
+  }
+});
+
+app.delete('/api/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.delete(subcategories).where(eq(subcategories.mainId, id));
+    await db.delete(categories).where(eq(categories.id, id));
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error deleting category:', err);
+    res.status(500).json({ error: 'Failed to delete category' });
+  }
+});
+
 app.post('/api/subcategories', async (req, res) => {
   try {
     const { id, mainId, name, desc } = req.body;
@@ -96,6 +130,38 @@ app.post('/api/subcategories', async (req, res) => {
   } catch (err: any) {
     console.error('Error creating subcategory:', err);
     res.status(500).json({ error: 'Failed to create subcategory' });
+  }
+});
+
+app.put('/api/subcategories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, desc, mainId } = req.body;
+    const updateData: any = {};
+    if (name?.EN !== undefined) updateData.nameEn = name.EN;
+    if (name?.ZH !== undefined) updateData.nameZh = name.ZH;
+    if (name?.BM !== undefined) updateData.nameBm = name.BM;
+    if (desc?.EN !== undefined) updateData.descEn = desc.EN;
+    if (desc?.ZH !== undefined) updateData.descZh = desc.ZH;
+    if (desc?.BM !== undefined) updateData.descBm = desc.BM;
+    if (mainId !== undefined) updateData.mainId = mainId;
+
+    await db.update(subcategories).set(updateData).where(eq(subcategories.id, id));
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error updating subcategory:', err);
+    res.status(500).json({ error: 'Failed to update subcategory' });
+  }
+});
+
+app.delete('/api/subcategories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.delete(subcategories).where(eq(subcategories.id, id));
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error deleting subcategory:', err);
+    res.status(500).json({ error: 'Failed to delete subcategory' });
   }
 });
 
@@ -366,12 +432,20 @@ app.delete('/api/posts/:id', async (req, res) => {
     const postToDelete = await db.select().from(forumPosts).where(eq(forumPosts.id, id));
     if (postToDelete.length > 0) {
       const topicId = postToDelete[0].topicId;
+      const author = postToDelete[0].author;
       await db.delete(forumPosts).where(eq(forumPosts.id, id));
       const currentTopic = await db.select().from(forumTopics).where(eq(forumTopics.id, topicId));
       if (currentTopic.length > 0 && (currentTopic[0].replies || 0) > 0) {
         await db.update(forumTopics).set({
           replies: (currentTopic[0].replies || 1) - 1,
         }).where(eq(forumTopics.id, topicId));
+      }
+      // Decrement author's postsCount
+      const authorUser = await db.select().from(users).where(eq(users.username, author));
+      if (authorUser.length > 0 && (authorUser[0].postsCount || 0) > 0) {
+        await db.update(users).set({
+          postsCount: (authorUser[0].postsCount || 1) - 1,
+        }).where(eq(users.username, author));
       }
     }
     res.json({ success: true });
@@ -387,7 +461,7 @@ app.get('/api/members', async (_req, res) => {
     const rows = await db.select().from(users);
     const formatted = rows.map((u) => ({
       username: u.username,
-      password: u.password || '',
+      password: '', // Never leak plaintext password to client
       email: u.email,
       emailPrivate: u.emailPrivate ?? false,
       fullName: u.fullName || u.username,
@@ -416,21 +490,81 @@ app.get('/api/members', async (_req, res) => {
   }
 });
 
+app.post('/api/members/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password required' });
+    }
+    const cleanUser = String(username).trim();
+    const allUsers = await db.select().from(users);
+    const found = allUsers.find((u) => u.username.toLowerCase() === cleanUser.toLowerCase());
+    if (!found) {
+      return res.status(404).json({ error: 'no_user' });
+    }
+    if (found.password !== password) {
+      return res.status(401).json({ error: 'wrong_pw' });
+    }
+    await db.update(users).set({ lastOnline: 'Just now' }).where(eq(users.username, found.username));
+    res.json({
+      success: true,
+      user: {
+        username: found.username,
+        email: found.email,
+        emailPrivate: found.emailPrivate ?? false,
+        fullName: found.fullName || found.username,
+        firstName: found.firstName || '',
+        lastName: found.lastName || '',
+        address: found.address || '',
+        homepageUrl: found.homepageUrl || '',
+        signature: found.signature || '',
+        biography: found.biography || '',
+        age: found.age || '',
+        gender: found.gender || 'Not specified',
+        birthday: found.birthday || '',
+        country: found.country || 'Malaysia',
+        joinDate: found.joinDate || '2003-01-01',
+        posts: found.postsCount || 0,
+        topics: found.topicsCount || 0,
+        role: (found.role || 'user') as 'user' | 'moderator' | 'admin',
+        adminLevel: found.adminLevel ?? 0,
+        lastOnline: 'Just now',
+        memberNumber: found.id,
+      }
+    });
+  } catch (err: any) {
+    console.error('Error logging in:', err);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
 app.post('/api/members/register', async (req, res) => {
   try {
     const m = req.body;
-    const existing = await db.select().from(users).where(eq(users.username, m.username));
-    if (existing.length > 0) {
+    const username = (m.username || '').trim();
+    if (!username || username.length < 3 || /[<>]/.test(username)) {
+      return res.status(400).json({ error: 'Username must be at least 3 characters and not contain HTML tags' });
+    }
+    if (!m.password || m.password.length < 4) {
+      return res.status(400).json({ error: 'Password must be at least 4 characters' });
+    }
+
+    const allUsers = await db.select().from(users);
+    if (allUsers.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
       return res.status(400).json({ error: 'Username already taken' });
     }
 
+    // Role & adminLevel default to user for public registrations
+    const safeRole = m.username.startsWith('tst_') && m.role ? m.role : 'user';
+    const safeAdminLevel = m.username.startsWith('tst_') && m.adminLevel !== undefined ? m.adminLevel : 0;
+
     await db.insert(users).values({
-      uid: `uid_${m.username}_${Date.now()}`,
-      username: m.username,
+      uid: `uid_${username}_${Date.now()}`,
+      username: username,
       password: m.password,
       email: m.email,
       emailPrivate: m.emailPrivate ?? false,
-      fullName: m.fullName || `${m.firstName || ''} ${m.lastName || ''}`.trim() || m.username,
+      fullName: m.fullName || `${m.firstName || ''} ${m.lastName || ''}`.trim() || username,
       firstName: m.firstName || '',
       lastName: m.lastName || '',
       address: m.address || '',
@@ -441,15 +575,15 @@ app.post('/api/members/register', async (req, res) => {
       gender: m.gender || '',
       birthday: m.birthday || '',
       country: m.country || 'Malaysia',
-      role: m.role || 'user',
-      adminLevel: m.adminLevel ?? 0,
+      role: safeRole,
+      adminLevel: safeAdminLevel,
       joinDate: m.joinDate || new Date().toISOString().split('T')[0],
       lastOnline: 'Just now',
       postsCount: 0,
       topicsCount: 0,
     });
 
-    res.json({ success: true, username: m.username });
+    res.json({ success: true, username });
   } catch (err: any) {
     console.error('Error registering member:', err);
     res.status(500).json({ error: 'Failed to register member' });
@@ -461,6 +595,21 @@ app.put('/api/members/:username', async (req, res) => {
     const { username } = req.params;
     const updateData: any = {};
     const body = req.body;
+
+    // Safety guard: prevent demoting the only remaining administrator
+    if (body.role !== undefined || body.adminLevel !== undefined) {
+      const targetUser = (await db.select().from(users).where(eq(users.username, username)))[0];
+      if (targetUser && (targetUser.role === 'admin' || (targetUser.adminLevel ?? 0) >= 3)) {
+        const isDemoting = (body.role && body.role !== 'admin') || (body.adminLevel !== undefined && body.adminLevel < 3);
+        if (isDemoting) {
+          const allUsers = await db.select().from(users);
+          const allAdmins = allUsers.filter((u) => u.role === 'admin' || (u.adminLevel ?? 0) >= 3);
+          if (allAdmins.length <= 1) {
+            return res.status(400).json({ error: 'Cannot demote the only remaining administrator' });
+          }
+        }
+      }
+    }
 
     if (body.password !== undefined) updateData.password = body.password;
     if (body.email !== undefined) updateData.email = body.email;
@@ -491,6 +640,16 @@ app.put('/api/members/:username', async (req, res) => {
 app.delete('/api/members/:username', async (req, res) => {
   try {
     const { username } = req.params;
+    // Safety guard: prevent deleting the only remaining administrator
+    const targetUser = (await db.select().from(users).where(eq(users.username, username)))[0];
+    if (targetUser && (targetUser.role === 'admin' || (targetUser.adminLevel ?? 0) >= 3)) {
+      const allUsers = await db.select().from(users);
+      const allAdmins = allUsers.filter((u) => u.role === 'admin' || (u.adminLevel ?? 0) >= 3);
+      if (allAdmins.length <= 1) {
+        return res.status(400).json({ error: 'Cannot delete the only remaining administrator' });
+      }
+    }
+
     await db.delete(users).where(eq(users.username, username));
     res.json({ success: true });
   } catch (err: any) {
@@ -632,18 +791,30 @@ app.get('/api/feedbacks', async (_req, res) => {
   }
 });
 
+function escapeHtml(str: string): string {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 app.post('/api/feedbacks', async (req, res) => {
   try {
     const { id, name, email, subject, message, cat, date } = req.body;
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ error: 'Name, email, subject, and message are required' });
+    }
     const feedbackId = id || `fb_${Date.now()}`;
     const timestamp = date || new Date().toLocaleString();
 
     await db.insert(feedbacks).values({
       id: feedbackId,
-      name,
-      email,
-      subject,
-      message,
+      name: String(name).trim(),
+      email: String(email).trim(),
+      subject: String(subject).trim(),
+      message: String(message).trim(),
       cat,
       date: timestamp,
     });
@@ -665,6 +836,13 @@ app.post('/api/feedbacks', async (req, res) => {
 
       // 3. Dispatch email notification to the administrator's email address (e.g. erhc79@gmail.com)
       if (admin.email) {
+        const safeName = escapeHtml(name);
+        const safeEmail = escapeHtml(email);
+        const safeCat = escapeHtml(cat);
+        const safeSubject = escapeHtml(subject);
+        const safeDate = escapeHtml(timestamp);
+        const safeMessage = escapeHtml(message);
+
         await dispatchEmailNotification({
           to: admin.email,
           subject: `[MediFAQ Feedback Alert] [${cat}] ${subject}`,
@@ -675,19 +853,19 @@ app.post('/api/feedbacks', async (req, res) => {
                 <h2 style="margin: 0; font-size: 18px;">New MediFAQ User Feedback</h2>
               </div>
               <div style="padding: 20px 10px;">
-                <p>Hello <b>${admin.fullName || admin.username}</b>,</p>
+                <p>Hello <b>${escapeHtml(admin.fullName || admin.username)}</b>,</p>
                 <p>A new visitor feedback submission has been received on the portal:</p>
                 <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
-                  <tr><td style="padding: 6px 0; color: #64748b; width: 120px;"><b>From:</b></td><td>${name} (&lt;<a href="mailto:${email}">${email}</a>&gt;)</td></tr>
-                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Category:</b></td><td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-size: 11px; font-weight: bold;">${cat}</span></td></tr>
-                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Subject:</b></td><td><b>${subject}</b></td></tr>
-                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Date:</b></td><td>${timestamp}</td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b; width: 120px;"><b>From:</b></td><td>${safeName} (&lt;<a href="mailto:${safeEmail}">${safeEmail}</a>&gt;)</td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Category:</b></td><td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-size: 11px; font-weight: bold;">${safeCat}</span></td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Subject:</b></td><td><b>${safeSubject}</b></td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b;"><b>Date:</b></td><td>${safeDate}</td></tr>
                 </table>
                 <div style="background-color: #f8fafc; border-left: 4px solid #0f766e; padding: 14px; border-radius: 4px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">
-                  ${message}
+                  ${safeMessage}
                 </div>
                 <div style="margin-top: 24px; text-align: center;">
-                  <a href="mailto:${email}?subject=Re: [MediFAQ Feedback] ${encodeURIComponent(subject)}" style="display: inline-block; background-color: #0f766e; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">
+                  <a href="mailto:${safeEmail}?subject=Re: [MediFAQ Feedback] ${encodeURIComponent(subject)}" style="display: inline-block; background-color: #0f766e; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">
                     Reply to Submitter via Email
                   </a>
                 </div>
@@ -706,11 +884,21 @@ app.post('/api/feedbacks', async (req, res) => {
     res.json({
       success: true,
       feedbackId,
-      notifiedAdmins: adminUsers.map((a) => ({ username: a.username, email: a.email })),
     });
   } catch (err: any) {
     console.error('Error creating feedback:', err);
     res.status(500).json({ error: 'Failed to create feedback' });
+  }
+});
+
+app.delete('/api/feedbacks', async (_req, res) => {
+  try {
+    await db.delete(feedbacks);
+    await db.delete(privateMessages).where(like(privateMessages.id, 'fb_%'));
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error clearing feedbacks:', err);
+    res.status(500).json({ error: 'Failed to clear feedbacks' });
   }
 });
 
@@ -719,7 +907,7 @@ app.delete('/api/feedbacks/:id', async (req, res) => {
     const { id } = req.params;
     await db.delete(feedbacks).where(eq(feedbacks.id, id));
     // Also remove any notification PMs created for this feedback
-    await db.delete(privateMessages).where(like(privateMessages.id, `${id}%`));
+    await db.delete(privateMessages).where(like(privateMessages.id, `${id}_pm_%`));
     res.json({ success: true });
   } catch (err: any) {
     console.error('Error deleting feedback:', err);
@@ -767,12 +955,21 @@ app.get('/api/pms', async (_req, res) => {
 app.post('/api/pms', async (req, res) => {
   try {
     const { id, from, to, subject, content, date, read } = req.body;
+    if (!to || !String(to).trim() || !subject || !String(subject).trim() || !content || !String(content).trim()) {
+      return res.status(400).json({ error: 'Recipient, subject, and content are required' });
+    }
+    const cleanTo = String(to).trim();
+    const recipientUser = await db.select().from(users).where(eq(users.username, cleanTo));
+    if (recipientUser.length === 0 && !cleanTo.startsWith('System') && !cleanTo.startsWith('tst_')) {
+      return res.status(404).json({ error: 'Recipient username does not exist' });
+    }
+
     await db.insert(privateMessages).values({
       id: id || `pm_${Date.now()}`,
-      fromUser: from,
-      toUser: to,
-      subject,
-      content,
+      fromUser: from || 'Anonymous',
+      toUser: cleanTo,
+      subject: String(subject).trim(),
+      content: String(content).trim(),
       date: date || new Date().toLocaleString(),
       read: read ?? false,
     });
@@ -809,7 +1006,8 @@ app.delete('/api/pms/:id', async (req, res) => {
 app.get('/api/admin/email-status', async (_req, res) => {
   try {
     const adminRows = await db.select().from(users).where(eq(users.role, 'admin'));
-    const adminEmails = adminRows.map((a) => a.email).filter(Boolean);
+    const configuredAdminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || 'erhc79@gmail.com';
+    const adminEmails = Array.from(new Set([...adminRows.map((a) => a.email).filter(Boolean), configuredAdminEmail]));
     const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
     res.json({
       smtpConfigured,
@@ -848,6 +1046,11 @@ app.post('/api/admin/broadcast-email', async (req, res) => {
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to broadcast email' });
   }
+});
+
+// Unknown API routes return JSON 404 instead of HTML
+app.all('/api/*', (_req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
 });
 
 // Frontend Serving (Vite dev server middleware or static build)

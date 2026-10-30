@@ -253,7 +253,100 @@ const T_DATA: Translations = {
     deleteReply: "Delete Reply",
     deleteAll: "DELETE ALL",
     newMsg: "NEW MSG",
-    adminHome: "Admin Home"
+    adminHome: "Admin Home",
+    loginPrompt: "If you have not already registered, please",
+    clickHere: "click here",
+    toRegister: "to do so now. Your password is case sensitive.",
+    defaultTestAccounts: "Default Test Accounts:",
+    administratorRole: "Administrator",
+    doctorRole: "Doctor / Moderator",
+    standardMemberRole: "Standard Member",
+    invalidPwMsg: "You have entered an invalid password,",
+    forgotPwPrompt: "If you have forgotten your password, please",
+    sendPwEmailMsg: ". The system will send your password to your email account.",
+    toTryAgain: "To try again, please",
+    noUserMsg: "Sorry, the username",
+    doesNotExist: "does not exist.",
+    pleaseClickHereToTryAgain: "to try again.",
+    secureLogoutMsg: "Your session has been securely ended so that your data will not be accessed by unauthorized users.",
+    fillFieldsToRegister: "Fill in all fields to become a registered member of the Online Medical Knowledge FAQ Database.",
+    requiredInformation: "Required Information",
+    male: "Male",
+    female: "Female",
+    otherGender: "Other",
+    welcomeTitle: "Welcome To Online Medical Knowledge FAQ Database",
+    memberControlPanelFor: "Member Control Panel for",
+    changePwSub: "Change your Log In password.",
+    editProfileSub: "Change your personal profile.",
+    pmCenterSub: "View and manage your private messages.",
+    profileSummary: "Profile Summary",
+    memberNo: "Member No",
+    totalPosts: "Total Posts",
+    topicsStarted: "Topics Started",
+    privateTag: "[Private]",
+    adminInboxesQuickStatus: "Administrator Inboxes & Quick Status",
+    feedbackInbox: "Feedback Inbox",
+    submissions: "submissions",
+    unreadMsg: "unread",
+    zeroNew: "0 new",
+    adminControlCenter: "Admin Control Center",
+    changePwHeader: "Change your Log In password",
+    changePasswordBtn: "Change Password!",
+    pleaseFillAllPwFields: "Please fill in all password fields.",
+    oldPwMismatch: "Old password does not match current password.",
+    makeRequiredChangesToProfile: "Make the required changed to your profile below.",
+    updateMyProfileBtn: "Update My Profile!",
+    fromSender: "From",
+    timeReceived: "Time Received",
+    mailingOptions: "Mailing Options",
+    emptyInboxMsg: "Your message inbox is empty.",
+    goBackToControlPanel: "Go back to Control Panel",
+    medicalFAQTitle: "Medical Knowledge Frequently Asked Question",
+    selectMainTopicDesc: "Select a Main Topic below to view related medical subcategories and clinical FAQs.",
+    mainTopicHeader: "Main Topic",
+    subtopicsCount: "Subtopics",
+    subtopicsHeaderSuffix: "Subtopics",
+    faqsAvailable: "FAQs Available",
+    clickingViews: "Clicking",
+    addBy: "Add by",
+    atTime: "at",
+    medicalKnowledgeFAQDiscussionBoard: "Medical Knowledge FAQ Discussion Board",
+    discussionThreadFor: "Discussion thread for",
+    topicsCount: "Topics",
+    topicTitle: "Topic Title",
+    byUserAtTime: "By",
+    noTopicsPostedYet: "No topics have been posted in this subforum yet.",
+    createNewTopicForDiscussion: "Create New Topic for Discussion",
+    enterTopicTitle: "Enter topic title",
+    typeDiscussionContent: "Type your discussion content here...",
+    topicTitlePrefix: "Topic title:",
+    subForumBreadcrumb: "Sub Forum",
+    pmInboxBtn: "PM INBOX",
+    controlPanelBtn: "CONTROL PANEL",
+    searchBtnLabel: "SEARCH",
+    routingStatus: "Notification & Routing Status:",
+    routingPersisted: "• Persisted to PostgreSQL database and Feedback Message Center.",
+    routingDispatched: "• Dispatched internal notification to Administrator Message Center.",
+    routingQueued: "• Notification queued for Administrator email account.",
+    sendAnother: "Send Another",
+    accessDeniedTitle: "Access Denied • Administrator Privileges Required",
+    accessDeniedDesc: "You must be logged in as an authorized System Administrator to access the Administration Board.",
+    sysAdminControlPanel: "System Administrative Control Panel",
+    superAdmin: "Super Administrator",
+    adminControlPanelUnits: "Admin Control Panel (5 Function Units)",
+    medFaqAdminUnit: "Medical Knowledge FAQ Administration",
+    medFaqAdminUnitDesc: "Add, delete or edit FAQ & categories.",
+    discussionBoardAdminUnit: "Discussion Board Administration",
+    discussionBoardAdminUnitDesc: "Add, delete or edit forum and subforums.",
+    sendEmailToAllUnit: "Send Email to All Members",
+    sendEmailToAllUnitDesc: "Broadcast system-wide email announcements.",
+    membershipMgmtUnit: "Membership Management",
+    membershipMgmtUnitDesc: "Delete membership, set moderator/admin access.",
+    readUserFeedbackUnit: "Read User's Feedback",
+    readUserFeedbackUnitDesc: "Inspect inbox comments and suggestions.",
+    messagesCount: "messages",
+    recipientUsername: "Recipient Username:",
+    messageContentLabel: "Message Content:"
   },
   ZH: {
     appName: "MediFAQ",
@@ -448,7 +541,100 @@ const T_DATA: Translations = {
     deleteReply: "删除回复",
     deleteAll: "全部删除",
     newMsg: "新信息",
-    adminHome: "管理首页"
+    adminHome: "管理首页",
+    loginPrompt: "如果您尚未注册，请",
+    clickHere: "点击此处",
+    toRegister: "以立即注册。您的密码区分大小写。",
+    defaultTestAccounts: "默认测试账号：",
+    administratorRole: "管理员",
+    doctorRole: "医生 / 版主",
+    standardMemberRole: "普通会员",
+    invalidPwMsg: "您输入了无效的密码，",
+    forgotPwPrompt: "如果您忘记了密码，请",
+    sendPwEmailMsg: "。系统将会把密码发送到您的电子邮箱。",
+    toTryAgain: "要重试，请",
+    noUserMsg: "抱歉，用户名",
+    doesNotExist: "不存在。",
+    pleaseClickHereToTryAgain: "以重试。",
+    secureLogoutMsg: "您的会话已安全结束，因此未经授权的用户将无法访问您的数据。",
+    fillFieldsToRegister: "填写所有字段以成为线上医疗常问知识库的注册会员。",
+    requiredInformation: "必填信息",
+    male: "男",
+    female: "女",
+    otherGender: "其他",
+    welcomeTitle: "欢迎来到线上医疗常问知识库",
+    memberControlPanelFor: "会员控制面板：",
+    changePwSub: "修改您的登录密码。",
+    editProfileSub: "修改您的个人资料。",
+    pmCenterSub: "查看并管理您的私人信息。",
+    profileSummary: "资料摘要",
+    memberNo: "会员编号",
+    totalPosts: "总发帖数",
+    topicsStarted: "发起的讨论",
+    privateTag: "[保密]",
+    adminInboxesQuickStatus: "管理员收件箱与快捷状态",
+    feedbackInbox: "反馈收件箱",
+    submissions: "条反馈",
+    unreadMsg: "未读",
+    zeroNew: "0 条新信息",
+    adminControlCenter: "管理员控制中心",
+    changePwHeader: "修改您的登录密码",
+    changePasswordBtn: "修改密码！",
+    pleaseFillAllPwFields: "请填写所有密码字段。",
+    oldPwMismatch: "旧密码与当前密码不符。",
+    makeRequiredChangesToProfile: "请在下方对您的个人资料进行必要的修改。",
+    updateMyProfileBtn: "更新我的资料！",
+    fromSender: "发件人",
+    timeReceived: "接收时间",
+    mailingOptions: "邮件选项",
+    emptyInboxMsg: "您的收件箱为空。",
+    goBackToControlPanel: "返回控制面板",
+    medicalFAQTitle: "医疗常问知识",
+    selectMainTopicDesc: "在下方选择一个主要主题，以查看相关的医疗子分类和临床常问。",
+    mainTopicHeader: "主要主题",
+    subtopicsCount: "个子主题",
+    subtopicsHeaderSuffix: "子主题",
+    faqsAvailable: "条常问解答",
+    clickingViews: "点击量",
+    addBy: "添加者",
+    atTime: "于",
+    medicalKnowledgeFAQDiscussionBoard: "医疗常问知识讨论区",
+    discussionThreadFor: "讨论主题：",
+    topicsCount: "个主题",
+    topicTitle: "主题标题",
+    byUserAtTime: "由",
+    noTopicsPostedYet: "该子论坛尚未发布任何主题。",
+    createNewTopicForDiscussion: "创建新讨论主题",
+    enterTopicTitle: "输入主题标题",
+    typeDiscussionContent: "在此输入讨论内容……",
+    topicTitlePrefix: "主题标题：",
+    subForumBreadcrumb: "子论坛",
+    pmInboxBtn: "私人信息箱",
+    controlPanelBtn: "控制面板",
+    searchBtnLabel: "搜索",
+    routingStatus: "通知与路由状态：",
+    routingPersisted: "• 已保存至 PostgreSQL 数据库与反馈消息中心。",
+    routingDispatched: "• 已发送内部通知至管理员消息中心。",
+    routingQueued: "• 通知已加入队列排队发送至管理员电子邮箱。",
+    sendAnother: "发送另一条",
+    accessDeniedTitle: "拒绝访问 • 需要管理员权限",
+    accessDeniedDesc: "您必须作为受授权的系统管理员登录才能访问管理面板。",
+    sysAdminControlPanel: "系统行政控制面板",
+    superAdmin: "超级管理员",
+    adminControlPanelUnits: "管理员控制面板（5个功能单元）",
+    medFaqAdminUnit: "医疗常问知识管理",
+    medFaqAdminUnitDesc: "添加、删除或编辑 FAQ 与分类。",
+    discussionBoardAdminUnit: "讨论区管理",
+    discussionBoardAdminUnitDesc: "添加、删除或编辑论坛与子论坛。",
+    sendEmailToAllUnit: "向所有会员发送电子邮件",
+    sendEmailToAllUnitDesc: "广播系统级电子邮件通知。",
+    membershipMgmtUnit: "会员资格管理",
+    membershipMgmtUnitDesc: "取消会员资格、设置版主/管理员权限。",
+    readUserFeedbackUnit: "阅读用户反馈",
+    readUserFeedbackUnitDesc: "检查收件箱中的意见与建议。",
+    messagesCount: "条消息",
+    recipientUsername: "收件人用户名：",
+    messageContentLabel: "消息内容："
   },
   BM: {
     appName: "MediFAQ",
@@ -643,7 +829,100 @@ const T_DATA: Translations = {
     deleteReply: "Padam Balasan",
     deleteAll: "PADAM SEMUA",
     newMsg: "MESEJ BARU",
-    adminHome: "Laman Utama Pentadbir"
+    adminHome: "Laman Utama Pentadbir",
+    loginPrompt: "Jika anda belum mendaftar, sila",
+    clickHere: "klik di sini",
+    toRegister: "untuk mendaftar sekarang. Kata laluan anda peka huruf besar/kecil.",
+    defaultTestAccounts: "Akaun Ujian Laluan:",
+    administratorRole: "Pentadbir",
+    doctorRole: "Doktor / Moderator",
+    standardMemberRole: "Ahli Biasa",
+    invalidPwMsg: "Anda telah memasukkan kata laluan yang tidak sah,",
+    forgotPwPrompt: "Jika anda terlupa kata laluan anda, sila",
+    sendPwEmailMsg: ". Sistem akan menghantar kata laluan anda ke akaun e-mel anda.",
+    toTryAgain: "Untuk cuba lagi, sila",
+    noUserMsg: "Maaf, nama pengguna",
+    doesNotExist: "tidak wujud.",
+    pleaseClickHereToTryAgain: "untuk cuba lagi.",
+    secureLogoutMsg: "Sesi anda telah ditamatkan secara selamat supaya data anda tidak dapat diakses oleh pengguna yang tidak dibenarkan.",
+    fillFieldsToRegister: "Isi semua medan untuk menjadi ahli berdaftar Pangkalan Data FAQ Pengetahuan Perubatan Dalam Talian.",
+    requiredInformation: "Maklumat Diperlukan",
+    male: "Lelaki",
+    female: "Perempuan",
+    otherGender: "Lain-lain",
+    welcomeTitle: "Selamat Datang Ke Pangkalan Data FAQ Pengetahuan Perubatan Dalam Talian",
+    memberControlPanelFor: "Panel Kawalan Ahli untuk",
+    changePwSub: "Tukar kata laluan Log Masuk anda.",
+    editProfileSub: "Tukar profil peribadi anda.",
+    pmCenterSub: "Lihat dan urus mesej peribadi anda.",
+    profileSummary: "Ringkasan Profil",
+    memberNo: "No. Ahli",
+    totalPosts: "Jumlah Pos",
+    topicsStarted: "Topik Dimulakan",
+    privateTag: "[Rahsia]",
+    adminInboxesQuickStatus: "Peti Masuk & Status Pantas Pentadbir",
+    feedbackInbox: "Peti Masuk Maklum Balas",
+    submissions: "serahan",
+    unreadMsg: "belum dibaca",
+    zeroNew: "0 baru",
+    adminControlCenter: "Pusat Kawalan Pentadbir",
+    changePwHeader: "Tukar kata laluan Log Masuk anda",
+    changePasswordBtn: "Tukar Kata Laluan!",
+    pleaseFillAllPwFields: "Sila isi semua medan kata laluan.",
+    oldPwMismatch: "Kata laluan lama tidak sepadan dengan kata laluan semasa.",
+    makeRequiredChangesToProfile: "Buat perubahan yang diperlukan pada profil anda di bawah.",
+    updateMyProfileBtn: "Kemas Kini Profil Saya!",
+    fromSender: "Daripada",
+    timeReceived: "Masa Diterima",
+    mailingOptions: "Pilihan Mel",
+    emptyInboxMsg: "Peti masuk mesej anda adalah kosong.",
+    goBackToControlPanel: "Kembali ke Panel Kawalan",
+    medicalFAQTitle: "Soalan Lazim Pengetahuan Perubatan",
+    selectMainTopicDesc: "Pilih Topik Utama di bawah untuk melihat subkategori perubatan dan FAQ klinikal yang berkaitan.",
+    mainTopicHeader: "Topik Utama",
+    subtopicsCount: "Subtopik",
+    subtopicsHeaderSuffix: "Subtopik",
+    faqsAvailable: "FAQ Tersedia",
+    clickingViews: "Klik",
+    addBy: "Ditambah oleh",
+    atTime: "pada",
+    medicalKnowledgeFAQDiscussionBoard: "Papan Perbincangan FAQ Pengetahuan Perubatan",
+    discussionThreadFor: "Thred perbincangan untuk",
+    topicsCount: "Topik",
+    topicTitle: "Tajuk Topik",
+    byUserAtTime: "Oleh",
+    noTopicsPostedYet: "Belum ada topik yang diposkan dalam subforum ini lagi.",
+    createNewTopicForDiscussion: "Cipta Topik Baru untuk Perbincangan",
+    enterTopicTitle: "Masukkan tajuk topik",
+    typeDiscussionContent: "Taip kandungan perbincangan anda di sini...",
+    topicTitlePrefix: "Tajuk topik:",
+    subForumBreadcrumb: "Sub Forum",
+    pmInboxBtn: "PETI PM",
+    controlPanelBtn: "PANEL KAWALAN",
+    searchBtnLabel: "CARI",
+    routingStatus: "Status Pemberitahuan & Hala Tuju:",
+    routingPersisted: "• Disimpan ke pangkalan data PostgreSQL dan Pusat Mesej Maklum Balas.",
+    routingDispatched: "• Pemberitahuan dalaman dihantar ke Pusat Mesej Pentadbir.",
+    routingQueued: "• Pemberitahuan dijadualkan untuk akaun e-mel Pentadbir.",
+    sendAnother: "Hantar Lagi",
+    accessDeniedTitle: "Akses Ditolak • Keperluan Hak Pentadbir",
+    accessDeniedDesc: "Anda mesti log masuk sebagai Pentadbir Sistem yang diberi kuasa untuk mengakses Lembaga Pentadbiran.",
+    sysAdminControlPanel: "Panel Kawalan Pentadbiran Sistem",
+    superAdmin: "Pentadbir Utama",
+    adminControlPanelUnits: "Panel Kawalan Pentadbir (5 Unit Fungsi)",
+    medFaqAdminUnit: "Pentadbiran FAQ Pengetahuan Perubatan",
+    medFaqAdminUnitDesc: "Tambah, padam atau sunting FAQ & kategori.",
+    discussionBoardAdminUnit: "Pentadbiran Papan Perbincangan",
+    discussionBoardAdminUnitDesc: "Tambah, padam atau sunting forum dan subforum.",
+    sendEmailToAllUnit: "Hantar E-mel kepada Semua Ahli",
+    sendEmailToAllUnitDesc: "Siarkan pengumuman e-mel ke seluruh sistem.",
+    membershipMgmtUnit: "Pengurusan Keahlian",
+    membershipMgmtUnitDesc: "Padam keahlian, tetapkan akses moderator/pentadbir.",
+    readUserFeedbackUnit: "Baca Maklum Balas Pengguna",
+    readUserFeedbackUnitDesc: "Semak komen dan cadangan peti masuk.",
+    messagesCount: "mesej",
+    recipientUsername: "Nama Pengguna Penerima:",
+    messageContentLabel: "Kandungan Mesej:"
   }
 };
 
@@ -1361,7 +1640,25 @@ export default function App() {
   } | null>(null);
 
   // Core Data States
-  const [currentUser, setCurrentUser] = useState<Member | null>(null);
+  const [currentUser, setCurrentUser] = useState<Member | null>(() => {
+    try {
+      const saved = localStorage.getItem('medifaq_current_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (currentUser) {
+        localStorage.setItem('medifaq_current_user', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('medifaq_current_user');
+      }
+    } catch {}
+  }, [currentUser]);
+
   const [members, setMembers] = useState<Member[]>(INITIAL_MEMBERS);
   const [categories, setCategories] = useState<MainCategory[]>(INITIAL_CATEGORIES);
   const [faqs, setFaqs] = useState<FAQItem[]>(INITIAL_FAQS);
@@ -1732,23 +2029,55 @@ export default function App() {
       return;
     }
 
-    const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
-    if (!found) {
-      setLoginErrorState('no_user');
-      return;
-    }
-
-    if (found.password !== loginForm.password) {
-      setLoginErrorState('wrong_pw');
-      return;
-    }
-
-    setCurrentUser(found);
-    setLoginErrorState('none');
-    setLoginForm({ username: '', password: '' });
-    showToast(`${t('welcome')}, ${found.username}!`);
-    refreshData();
-    navigate('memberPanel');
+    fetch('/api/members/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: loginForm.username.trim(), password: loginForm.password }),
+    })
+      .then(async (res) => {
+        if (res.status === 404) {
+          setLoginErrorState('no_user');
+          return;
+        }
+        if (res.status === 401) {
+          setLoginErrorState('wrong_pw');
+          return;
+        }
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data.user);
+          setLoginErrorState('none');
+          setLoginForm({ username: '', password: '' });
+          showToast(`${t('welcome')}, ${data.user.username}!`);
+          refreshData();
+          navigate('memberPanel');
+          return;
+        }
+        const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
+        if (!found) {
+          setLoginErrorState('no_user');
+          return;
+        }
+        setCurrentUser(found);
+        setLoginErrorState('none');
+        setLoginForm({ username: '', password: '' });
+        showToast(`${t('welcome')}, ${found.username}!`);
+        refreshData();
+        navigate('memberPanel');
+      })
+      .catch(() => {
+        const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
+        if (!found) {
+          setLoginErrorState('no_user');
+          return;
+        }
+        setCurrentUser(found);
+        setLoginErrorState('none');
+        setLoginForm({ username: '', password: '' });
+        showToast(`${t('welcome')}, ${found.username}!`);
+        refreshData();
+        navigate('memberPanel');
+      });
   };
 
   // Create new discussion topic
@@ -1988,7 +2317,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col lg:flex-row bg-[var(--bg)] text-[var(--text)] transition-colors duration-200 ${
+      className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col lg:flex-row bg-[var(--bg)] text-[var(--text)] transition-colors duration-200 ${
         highContrast ? 'contrast-125 saturate-150 font-medium' : ''
       }`}
       style={{ fontSize: `${fontSizeMultiplier}rem` }}
@@ -2481,7 +2810,9 @@ export default function App() {
                     { title: t('discussionBoard'), icon: MessageSquare, page: 'discussionMain', color: 'bg-amber-50 text-amber-800 border-amber-200' },
                     { title: t('searchDiscussionBoard'), icon: Search, page: 'discussionSearch', color: 'bg-orange-50 text-orange-700 border-orange-200' },
                     { title: t('feedback'), icon: Mail, page: 'feedback', color: 'bg-rose-50 text-rose-700 border-rose-200' },
-                    { title: t('administrationBoard'), icon: Shield, page: 'adminBoard', color: 'bg-purple-50 text-purple-700 border-purple-200' }
+                    ...(currentUser?.role === 'admin'
+                      ? [{ title: t('administrationBoard'), icon: Shield, page: 'adminBoard', color: 'bg-purple-50 text-purple-700 border-purple-200' }]
+                      : [{ title: t('memberControlPanel'), icon: CircleUser, page: currentUser ? 'memberPanel' : 'login', color: 'bg-purple-50 text-purple-700 border-purple-200' }])
                   ].map((tile) => (
                     <button
                       key={tile.title}
@@ -2629,13 +2960,13 @@ export default function App() {
                     {t('newMemberRegistration')}
                   </h1>
                   <p className="text-xs text-[var(--muted)] mt-1">
-                    Fill in all fields to become a registered member of the Online Medical Knowledge FAQ Database.
+                    {t('fillFieldsToRegister')}
                   </p>
                 </div>
 
                 <div className="space-y-4 text-xs">
                   <div className="bg-[var(--amber-soft)] p-2.5 rounded-xl border border-amber-200 text-amber-900 font-bold">
-                    Required Information
+                    {t('requiredInformation')}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2708,9 +3039,9 @@ export default function App() {
                         onChange={(e) => setRegForm({ ...regForm, gender: e.target.value })}
                         className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                       >
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
+                        <option value="Male">{t('male')}</option>
+                        <option value="Female">{t('female')}</option>
+                        <option value="Other">{t('otherGender')}</option>
                       </select>
                     </div>
                     <div>
@@ -2761,14 +3092,14 @@ export default function App() {
                     {t('userSignIn')}
                   </h1>
                   <p className="text-xs text-[var(--muted)] mt-1">
-                    If you have not already registered, please{' '}
+                    {t('loginPrompt')}{' '}
                     <button
                       onClick={() => navigate('register')}
                       className="text-[var(--teal)] font-bold underline"
                     >
-                      click here
+                      {t('clickHere')}
                     </button>{' '}
-                    to do so now. Your password is case sensitive.
+                    {t('toRegister')}
                   </p>
                 </div>
 
@@ -2776,11 +3107,11 @@ export default function App() {
                 {loginErrorState === 'wrong_pw' && (
                   <div className="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-300 text-xs space-y-2">
                     <div className="font-bold text-amber-900">
-                      You have entered an invalid password, <span className="underline">{loginForm.username}</span>.
+                      {t('invalidPwMsg')} <span className="underline">{loginForm.username}</span>.
                     </div>
                     <ol className="list-decimal pl-4 space-y-1 text-amber-800">
                       <li>
-                        If you have forgotten your password, please{' '}
+                        {t('forgotPwPrompt')}{' '}
                         <button
                           onClick={() => {
                             showToast(t('emailSent'));
@@ -2788,17 +3119,17 @@ export default function App() {
                           }}
                           className="font-bold text-[var(--teal)] underline"
                         >
-                          click here
+                          {t('clickHere')}
                         </button>
-                        . The system will send your password to your email account.
+                        {t('sendPwEmailMsg')}
                       </li>
                       <li>
-                        To try again, please{' '}
+                        {t('toTryAgain')}{' '}
                         <button
                           onClick={() => setLoginErrorState('none')}
                           className="font-bold text-[var(--teal)] underline"
                         >
-                          click here
+                          {t('clickHere')}
                         </button>
                         .
                       </li>
@@ -2809,17 +3140,17 @@ export default function App() {
                 {loginErrorState === 'no_user' && (
                   <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-300 text-xs text-red-900 space-y-2">
                     <div className="font-bold">
-                      Sorry, the username <span className="underline">{loginForm.username}</span> does not exist.
+                      {t('noUserMsg')} <span className="underline">{loginForm.username}</span> {t('doesNotExist')}
                     </div>
                     <div>
-                      Please{' '}
+                      {t('toTryAgain')}{' '}
                       <button
                         onClick={() => setLoginErrorState('none')}
                         className="font-bold text-red-700 underline"
                       >
-                        click here
+                        {t('clickHere')}
                       </button>{' '}
-                      to try again.
+                      {t('pleaseClickHereToTryAgain')}
                     </div>
                   </div>
                 )}
@@ -2852,10 +3183,10 @@ export default function App() {
                   </button>
 
                   <div className="p-3 rounded-xl bg-[var(--surface-2)] text-[11px] text-[var(--muted)] space-y-1">
-                    <div className="font-bold text-[var(--navy)]">Default Test Accounts:</div>
-                    <div>• Administrator: <b>admin</b> / <b>admin</b></div>
-                    <div>• Doctor / Moderator: <b>dr_lee</b> / <b>doc123</b></div>
-                    <div>• Standard Member: <b>member_tan</b> / <b>tan123</b></div>
+                    <div className="font-bold text-[var(--navy)]">{t('defaultTestAccounts')}</div>
+                    <div>• {t('administratorRole')}: <b>admin</b> / <b>admin</b></div>
+                    <div>• {t('doctorRole')}: <b>dr_lee</b> / <b>doc123</b></div>
+                    <div>• {t('standardMemberRole')}: <b>member_tan</b> / <b>tan123</b></div>
                   </div>
                 </div>
               </div>
@@ -2873,7 +3204,7 @@ export default function App() {
                   {t('loggingOut')}
                 </h2>
                 <p className="text-xs text-blue-700">
-                  Your session has been securely ended so that your data will not be accessed by unauthorized users.
+                  {t('secureLogoutMsg')}
                 </p>
                 <div className="w-full bg-blue-200 rounded-full h-2 overflow-hidden my-3">
                   <div
@@ -2908,10 +3239,10 @@ export default function App() {
                 <div className="border-b pb-3 mb-5 flex items-center justify-between">
                   <div>
                     <h1 className="display text-xl font-bold text-[var(--navy)]">
-                      Welcome To Online Medical Knowledge FAQ Database
+                      {t('welcomeTitle')}
                     </h1>
                     <div className="text-xs text-[var(--muted)] mt-1">
-                      Member Control Panel for <span className="font-bold text-[var(--navy)]">{currentUser?.username}</span>
+                      {t('memberControlPanelFor')} <span className="font-bold text-[var(--navy)]">{currentUser?.username}</span>
                     </div>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-[var(--teal-soft)] text-[var(--teal-deep)] text-xs font-bold uppercase">
@@ -2932,7 +3263,7 @@ export default function App() {
                       {t('changeMyPassword')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      Change your Log In password.
+                      {t('changePwSub')}
                     </div>
                   </button>
 
@@ -2947,7 +3278,7 @@ export default function App() {
                       {t('editMyProfile')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      Change your personal profile.
+                      {t('editProfileSub')}
                     </div>
                   </button>
 
@@ -2962,7 +3293,7 @@ export default function App() {
                       {t('privateMessageCenter')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      View and manage your private messages.
+                      {t('pmCenterSub')}
                     </div>
                   </button>
                 </div>
@@ -2972,24 +3303,24 @@ export default function App() {
                   <div className="mt-6 p-4 rounded-xl border bg-[var(--surface-2)]/60 text-xs space-y-2">
                     <div className="font-bold text-sm text-[var(--navy)] flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      <span>{currentUser.fullName || currentUser.username}'s Profile Summary</span>
+                      <span>{currentUser.fullName || currentUser.username}'s {t('profileSummary')}</span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
                       <div>
-                        <span className="text-[var(--muted)]">Member No:</span>{' '}
+                        <span className="text-[var(--muted)]">{t('memberNo')}:</span>{' '}
                         <b>#{currentUser.memberNumber || 1}</b>
                       </div>
                       <div>
-                        <span className="text-[var(--muted)]">Total Posts:</span>{' '}
+                        <span className="text-[var(--muted)]">{t('totalPosts')}:</span>{' '}
                         <b>{currentUser.posts}</b>
                       </div>
                       <div>
-                        <span className="text-[var(--muted)]">Topics Started:</span>{' '}
+                        <span className="text-[var(--muted)]">{t('topicsStarted')}:</span>{' '}
                         <b>{currentUser.topics}</b>
                       </div>
                       <div>
-                        <span className="text-[var(--muted)]">Email:</span>{' '}
-                        <b>{currentUser.emailPrivate ? '[Private]' : currentUser.email}</b>
+                        <span className="text-[var(--muted)]">{t('email')}:</span>{' '}
+                        <b>{currentUser.emailPrivate ? t('privateTag') : currentUser.email}</b>
                       </div>
                     </div>
                   </div>
@@ -3001,7 +3332,7 @@ export default function App() {
                     <div className="flex items-center justify-between">
                       <div className="font-bold text-purple-950 flex items-center gap-1.5">
                         <Crown className="w-4 h-4 text-purple-700" />
-                        <span>Administrator Inboxes &amp; Quick Status</span>
+                        <span>{t('adminInboxesQuickStatus')}</span>
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[10px] font-bold">
                         Level {currentUser.adminLevel}
@@ -3013,8 +3344,8 @@ export default function App() {
                         className="p-3 rounded-xl bg-white border border-purple-200 hover:border-purple-500 hover:shadow-sm text-left flex items-center justify-between group transition focus-ring"
                       >
                         <div>
-                          <div className="font-bold text-purple-950 group-hover:text-purple-700">Feedback Inbox</div>
-                          <div className="text-[11px] text-[var(--muted)]">{feedbacks.length} submissions</div>
+                          <div className="font-bold text-purple-950 group-hover:text-purple-700">{t('feedbackInbox')}</div>
+                          <div className="text-[11px] text-[var(--muted)]">{feedbacks.length} {t('submissions')}</div>
                         </div>
                         <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[11px] font-bold shadow-sm">
                           {feedbacks.length}
@@ -3025,9 +3356,9 @@ export default function App() {
                         className="p-3 rounded-xl bg-white border border-purple-200 hover:border-purple-500 hover:shadow-sm text-left flex items-center justify-between group transition focus-ring"
                       >
                         <div>
-                          <div className="font-bold text-purple-950 group-hover:text-purple-700">Private Messages</div>
+                          <div className="font-bold text-purple-950 group-hover:text-purple-700">{t('inbox')}</div>
                           <div className="text-[11px] text-[var(--muted)]">
-                            {pms.filter((p) => p.to === currentUser.username && !p.read).length} unread
+                            {pms.filter((p) => p.to === currentUser.username && !p.read).length} {t('unreadMsg')}
                           </div>
                         </div>
                         {pms.filter((p) => p.to === currentUser.username && !p.read).length > 0 ? (
@@ -3035,7 +3366,7 @@ export default function App() {
                             {pms.filter((p) => p.to === currentUser.username && !p.read).length}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-[var(--muted)]">0 new</span>
+                          <span className="text-[11px] text-[var(--muted)]">{t('zeroNew')}</span>
                         )}
                       </button>
                       <button
@@ -3043,8 +3374,8 @@ export default function App() {
                         className="p-3 rounded-xl bg-white border border-purple-200 hover:border-purple-500 hover:shadow-sm text-left flex items-center justify-between group transition focus-ring"
                       >
                         <div>
-                          <div className="font-bold text-purple-950 group-hover:text-purple-700">Administration Board</div>
-                          <div className="text-[11px] text-[var(--muted)]">Admin Control Center</div>
+                          <div className="font-bold text-purple-950 group-hover:text-purple-700">{t('administrationBoard')}</div>
+                          <div className="text-[11px] text-[var(--muted)]">{t('adminControlCenter')}</div>
                         </div>
                         <Shield className="w-4 h-4 text-purple-700" />
                       </button>
@@ -3068,7 +3399,7 @@ export default function App() {
 
               <div className="card p-6 border-t-4 border-t-blue-600">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-4">
-                  Change your Log In password
+                  {t('changePwHeader')}
                 </div>
                 <div className="space-y-3 text-xs">
                   <div>
@@ -3102,7 +3433,7 @@ export default function App() {
                   <button
                     onClick={() => {
                       if (!pwdForm.old || !pwdForm.new || !pwdForm.confirm) {
-                        setModalDialog({ title: t('error'), msg: "Please fill in all password fields.", type: 'alert' });
+                        setModalDialog({ title: t('error'), msg: t('pleaseFillAllPwFields'), type: 'alert' });
                         return;
                       }
                       if (pwdForm.new !== pwdForm.confirm) {
@@ -3110,7 +3441,7 @@ export default function App() {
                         return;
                       }
                       if (currentUser && currentUser.password !== pwdForm.old) {
-                        setModalDialog({ title: t('error'), msg: "Old password does not match current password.", type: 'alert' });
+                        setModalDialog({ title: t('error'), msg: t('oldPwMismatch'), type: 'alert' });
                         return;
                       }
                       if (currentUser) {
@@ -3128,7 +3459,7 @@ export default function App() {
                     }}
                     className="w-full py-2.5 rounded-xl bg-[var(--navy)] text-white font-bold text-xs"
                   >
-                    Change Password!
+                    {t('changePasswordBtn')}
                   </button>
 
                   <div className="text-center pt-2">
@@ -3157,7 +3488,7 @@ export default function App() {
 
               <div className="card p-6 border-t-4 border-t-blue-600">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-4">
-                  Make the required changed to your profile below.
+                  {t('makeRequiredChangesToProfile')}
                 </div>
 
                 <div className="space-y-3 text-xs">
@@ -3255,7 +3586,7 @@ export default function App() {
                     }}
                     className="w-full py-2.5 rounded-xl bg-[var(--teal)] text-white font-bold text-xs shadow-sm hover:bg-[var(--teal-deep)]"
                   >
-                    Update My Profile!
+                    {t('updateMyProfileBtn')}
                   </button>
 
                   <div className="text-center pt-2">
@@ -3313,18 +3644,34 @@ export default function App() {
                     <thead className="bg-amber-500 text-white font-bold text-left">
                       <tr>
                         <th className="p-3">{t('subject')}</th>
-                        <th className="p-3">From</th>
-                        <th className="p-3">Time Received</th>
-                        <th className="p-3">Mailing Options</th>
+                        <th className="p-3">{t('fromSender')}</th>
+                        <th className="p-3">{t('timeReceived')}</th>
+                        <th className="p-3">{t('mailingOptions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {pms
                         .filter((p) => p.to === currentUser.username)
                         .map((pm) => (
-                          <tr key={pm.id} className="hover:bg-[var(--surface-2)]/50">
+                          <tr
+                            key={pm.id}
+                            onClick={() => {
+                              if (!pm.read) {
+                                setPms(pms.map((p) => (p.id === pm.id ? { ...p, read: true } : p)));
+                                fetch(`/api/pms/${pm.id}/read`, { method: 'PUT' }).catch(console.error);
+                              }
+                            }}
+                            className={`hover:bg-[var(--surface-2)]/50 transition cursor-pointer ${
+                              !pm.read ? 'bg-amber-50/70 font-semibold' : ''
+                            }`}
+                          >
                             <td className="p-3 font-semibold text-[var(--navy)]">
-                              <div>{pm.subject}</div>
+                              <div className="flex items-center gap-1.5">
+                                {!pm.read && (
+                                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" title="Unread" />
+                                )}
+                                <span>{pm.subject}</span>
+                              </div>
                               <div className="text-[11px] text-[var(--muted)] font-normal mt-0.5">
                                 {pm.content}
                               </div>
@@ -3360,7 +3707,7 @@ export default function App() {
                       {pms.filter((p) => p.to === currentUser.username).length === 0 && (
                         <tr>
                           <td colSpan={4} className="p-8 text-center text-xs text-[var(--muted)]">
-                            {t('noResults')} - Your message inbox is empty.
+                            {t('noResults')} - {t('emptyInboxMsg')}
                           </td>
                         </tr>
                       )}
@@ -3373,7 +3720,7 @@ export default function App() {
                     onClick={() => navigate('memberPanel')}
                     className="text-[var(--teal)] font-bold hover:underline"
                   >
-                    Go back to Control Panel
+                    {t('goBackToControlPanel')}
                   </button>
                 </div>
               </div>
@@ -3388,15 +3735,15 @@ export default function App() {
               <div className="card p-6 border-t-4 border-t-[var(--teal)]">
                 <div className="text-center mb-6">
                   <h1 className="display text-xl lg:text-2xl font-bold text-[var(--navy)]">
-                    Medical Knowledge Frequently Asked Question
+                    {t('medicalFAQTitle')}
                   </h1>
                   <p className="text-xs text-[var(--muted)] mt-1">
-                    Select a Main Topic below to view related medical subcategories and clinical FAQs.
+                    {t('selectMainTopicDesc')}
                   </p>
                 </div>
 
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-5">
-                  Main Topic
+                  {t('mainTopicHeader')}
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -3439,15 +3786,15 @@ export default function App() {
               <div className="card p-6 border-t-4 border-t-[var(--teal)]">
                 <div className="border-b pb-3 mb-4 flex items-center justify-between">
                   <h1 className="display text-xl font-bold text-[var(--navy)]">
-                    Main Topic &gt; {getLoc(categories.find((c) => c.id === activeMainId)?.name)}
+                    {t('mainTopicHeader')} &gt; {getLoc(categories.find((c) => c.id === activeMainId)?.name)}
                   </h1>
                   <span className="text-xs text-[var(--muted)]">
-                    {categories.find((c) => c.id === activeMainId)?.subs.length} Subtopics
+                    {categories.find((c) => c.id === activeMainId)?.subs.length} {t('subtopicsCount')}
                   </span>
                 </div>
 
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-5">
-                  {getLoc(categories.find((c) => c.id === activeMainId)?.name)} Subtopics
+                  {getLoc(categories.find((c) => c.id === activeMainId)?.name)} {t('subtopicsHeaderSuffix')}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -3467,7 +3814,7 @@ export default function App() {
                             {getLoc(s.name)}
                           </div>
                           <div className="text-[10px] text-[var(--muted)] mt-1">
-                            {faqs.filter((f) => f.subId === s.id).length} FAQs Available
+                            {faqs.filter((f) => f.subId === s.id).length} {t('faqsAvailable')}
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--teal)]" />
@@ -3518,42 +3865,72 @@ export default function App() {
 
                       <div className="flex items-center justify-between text-[11px] text-[var(--muted)] mt-2 pt-2 border-t">
                         <span>
-                          (Clicking : <b className="text-red-600">{faq.views}</b>) Add by <span className="font-semibold">{faq.createdBy}</span> at {faq.createdAt}
+                          ({t('clickingViews')} : <b className="text-red-600">{faq.views}</b>) {t('addBy')} <span className="font-semibold">{faq.createdBy}</span> {t('atTime')} {faq.createdAt}
                         </span>
 
-                        {/* Administrator Action Icons (Figure 44) */}
-                        {currentUser?.role === 'admin' && (
+                        {/* Clinical Staff & Administrator Action Icons */}
+                        {(currentUser?.role === 'admin' || currentUser?.role === 'moderator' || (currentUser?.adminLevel ?? 0) >= 1) && (
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => {
-                                const newQ = prompt("Edit Question:", getLoc(faq.q));
-                                if (newQ) {
-                                  const updatedQ = { EN: newQ, ZH: newQ, BM: newQ };
+                                const currentQ = faq.q[lang] || faq.q.EN;
+                                const newQ = prompt(`Edit Question (${lang}):`, currentQ);
+                                if (newQ !== null && newQ.trim()) {
+                                  const currentA = faq.a[lang] || faq.a.EN;
+                                  const newA = prompt(`Edit Answer / Explanation (${lang}):`, currentA);
+                                  const updatedQ = {
+                                    ...faq.q,
+                                    [lang]: newQ.trim()
+                                  };
+                                  if (!updatedQ.EN) updatedQ.EN = newQ.trim();
+                                  if (!updatedQ.ZH) updatedQ.ZH = newQ.trim();
+                                  if (!updatedQ.BM) updatedQ.BM = newQ.trim();
+
+                                  const updatedA = newA !== null ? {
+                                    ...faq.a,
+                                    [lang]: newA.trim()
+                                  } : faq.a;
+                                  if (newA !== null) {
+                                    if (!updatedA.EN) updatedA.EN = newA.trim();
+                                    if (!updatedA.ZH) updatedA.ZH = newA.trim();
+                                    if (!updatedA.BM) updatedA.BM = newA.trim();
+                                  }
+
                                   setFaqs(faqs.map((f) => f.id === faq.id ? {
                                     ...f,
-                                    q: updatedQ
+                                    q: updatedQ,
+                                    a: updatedA
                                   } : f));
                                   fetch(`/api/faqs/${faq.id}`, {
                                     method: 'PUT',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ q: updatedQ }),
+                                    body: JSON.stringify({ q: updatedQ, a: updatedA }),
                                   }).catch(console.error);
                                   showToast(t('success'));
                                 }
                               }}
                               className="p-1 rounded hover:bg-gray-100 text-blue-600"
                               title="Edit FAQ"
+                              aria-label="Edit FAQ"
                             >
                               <PenLine className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => {
-                                setFaqs(faqs.filter((f) => f.id !== faq.id));
-                                fetch(`/api/faqs/${faq.id}`, { method: 'DELETE' }).catch(console.error);
-                                showToast(t('deleteSuccess'));
+                                setModalDialog({
+                                  title: "Delete FAQ",
+                                  msg: "Are you sure you want to permanently delete this Medical Knowledge FAQ?",
+                                  type: "confirm",
+                                  onConfirm: () => {
+                                    setFaqs(faqs.filter((f) => f.id !== faq.id));
+                                    fetch(`/api/faqs/${faq.id}`, { method: 'DELETE' }).catch(console.error);
+                                    showToast(t('deleteSuccess'));
+                                  }
+                                });
                               }}
                               className="p-1 rounded hover:bg-red-50 text-red-600"
                               title="Delete FAQ"
+                              aria-label="Delete FAQ"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -3569,21 +3946,24 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Figure 44: Administrator "Create Medical Knowledge FAQ" hyperlink */}
-                  {currentUser?.role === 'admin' && (
+                  {/* Figure 44: Doctor / Moderator / Administrator "Create Medical Knowledge FAQ" hyperlink */}
+                  {(currentUser?.role === 'admin' || currentUser?.role === 'moderator' || (currentUser?.adminLevel ?? 0) >= 1) && (
                     <div className="pt-4 text-center border-t">
                       <button
                         onClick={() => {
                           const qTitle = prompt("Enter new FAQ Question:");
                           const aContent = prompt("Enter new FAQ Answer / Explanation:");
-                          if (qTitle && aContent) {
+                          if (qTitle && aContent && currentUser) {
+                            const docAttribution = (currentUser.role === 'moderator' || (currentUser.adminLevel ?? 0) >= 1)
+                              ? (currentUser.fullName || "Dr. " + currentUser.username)
+                              : "Verified Medical Officer";
                             const newFaq: FAQItem = {
                               id: "f_" + Date.now(),
                               mainId: activeMainId,
                               subId: activeSubId,
                               q: { EN: qTitle, ZH: qTitle, BM: qTitle },
                               a: { EN: aContent, ZH: aContent, BM: aContent },
-                              doctorName: "Verified Medical Officer",
+                              doctorName: docAttribution,
                               createdBy: currentUser.username,
                               createdAt: new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString(),
                               views: 0
@@ -3615,7 +3995,7 @@ export default function App() {
 
               <div className="card p-6 border-t-4 border-t-[var(--teal)]">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-5">
-                  Search for Medical Knowledge FAQ in Database
+                  {t('searchMedicalKnowledgeFAQ')}
                 </div>
 
                 <div className="space-y-3 text-xs bg-[var(--surface-2)]/60 p-4 rounded-xl border">
@@ -3637,7 +4017,7 @@ export default function App() {
                         onChange={(e) => setFaqSearchCat(e.target.value)}
                         className="w-full px-3 py-2 rounded-xl border bg-white"
                       >
-                        <option value="all">All Categories</option>
+                        <option value="all">{t('allCategories')}</option>
                         {categories.map((cat) => (
                           <optgroup key={cat.id} label={getLoc(cat.name)}>
                             <option value={cat.id}>{getLoc(cat.name)} (All)</option>
@@ -3668,7 +4048,7 @@ export default function App() {
                 {/* Results Section (Figure 20) */}
                 <div className="mt-5 space-y-3">
                   <div className="bg-amber-100 border border-amber-300 text-amber-900 p-2 text-center rounded-lg text-xs font-bold">
-                    Found {faqSearchResults.length} Results!
+                    Found {faqSearchResults.length} {t('results')}!
                   </div>
 
                   <div className="overflow-x-auto">
@@ -3676,7 +4056,7 @@ export default function App() {
                       <thead className="bg-blue-600 text-white font-bold text-left">
                         <tr>
                           <th className="p-3">FAQ</th>
-                          <th className="p-3 w-48">Created by</th>
+                          <th className="p-3 w-48">{t('createdBy')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y border">
@@ -3722,7 +4102,7 @@ export default function App() {
                 {/* Header buttons (Figure 22: MEMBERS, SEARCH) */}
                 <div className="bg-[var(--surface-2)] p-4 border-b flex items-center justify-between">
                   <h1 className="font-bold text-sm text-[var(--navy)]">
-                    Medical Knowledge FAQ Discussion Board
+                    {t('medicalKnowledgeFAQDiscussionBoard')}
                   </h1>
                   <div className="flex gap-2">
                     <button
@@ -3855,10 +4235,10 @@ export default function App() {
                   <table className="w-full text-xs">
                     <thead className="bg-amber-500 text-white font-bold text-left">
                       <tr>
-                        <th className="p-3">Topic Title</th>
-                        <th className="p-3">Author</th>
-                        <th className="p-3 text-center">Replies / Views</th>
-                        <th className="p-3">Last Post</th>
+                        <th className="p-3">{t('topicTitle')}</th>
+                        <th className="p-3">{t('author')}</th>
+                        <th className="p-3 text-center">{t('repliesViews')}</th>
+                        <th className="p-3">{t('lastPost')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y border-b">
@@ -3883,14 +4263,14 @@ export default function App() {
                             {top.replies} / {top.views}
                           </td>
                           <td className="p-3 text-[11px] text-[var(--muted)]">
-                            By <span className="font-semibold text-blue-700">{top.lastAuthor}</span> at {top.lastTime}
+                            {t('byUserAtTime')} <span className="font-semibold text-blue-700">{top.lastAuthor}</span> {t('atTime')} {top.lastTime}
                           </td>
                         </tr>
                       ))}
                       {filteredForumTopics.length === 0 && (
                         <tr>
                           <td colSpan={4} className="p-8 text-center text-xs text-[var(--muted)]">
-                            {t('noResults')} - No topics have been posted in this subforum yet.
+                            {t('noResults')} - {t('noTopicsPostedYet')}
                           </td>
                         </tr>
                       )}
@@ -3907,14 +4287,14 @@ export default function App() {
               <Breadcrumbs
                 items={[
                   { label: t('discussionBoard'), onClick: () => navigate('discussionMain') },
-                  { label: "Sub Forum", onClick: () => navigate('discussionSub') },
+                  { label: t('subForumBreadcrumb'), onClick: () => navigate('discussionSub') },
                   { label: t('createNewTopic') }
                 ]}
               />
 
               <div className="card p-6 border-t-4 border-t-[var(--amber)]">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-4">
-                  Create New Topic for Discussion
+                  {t('createNewTopicForDiscussion')}
                 </div>
 
                 <div className="space-y-4 text-xs">
@@ -3923,7 +4303,7 @@ export default function App() {
                     <input
                       value={newTopicForm.title}
                       onChange={(e) => setNewTopicForm({ ...newTopicForm, title: e.target.value })}
-                      placeholder="Enter topic title"
+                      placeholder={t('enterTopicTitle')}
                       className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                     />
                   </div>
@@ -3934,7 +4314,7 @@ export default function App() {
                       rows={6}
                       value={newTopicForm.message}
                       onChange={(e) => setNewTopicForm({ ...newTopicForm, message: e.target.value })}
-                      placeholder="Type your discussion content here..."
+                      placeholder={t('typeDiscussionContent')}
                       className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                     />
                   </div>
@@ -4026,6 +4406,27 @@ export default function App() {
                     >
                       TOPICS
                     </button>
+                    {(currentUser?.role === 'admin' || (currentUser?.adminLevel ?? 0) >= 1 || currentUser?.username === activeTopic.author) && (
+                      <button
+                        onClick={() => {
+                          setModalDialog({
+                            title: t('confirmDelete'),
+                            msg: "Delete this entire topic and all its responses?",
+                            type: 'confirm',
+                            onConfirm: () => {
+                              setTopics(topics.filter((t) => t.id !== activeTopic.id));
+                              setPosts(posts.filter((p) => p.topicId !== activeTopic.id));
+                              fetch(`/api/topics/${activeTopic.id}`, { method: 'DELETE' }).catch(console.error);
+                              showToast(t('deleteSuccess'));
+                              navigate('discussionSub');
+                            }
+                          });
+                        }}
+                        className="px-2.5 py-1 rounded bg-red-700 hover:bg-red-800 text-white text-[11px] font-bold"
+                      >
+                        DELETE TOPIC
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -4478,24 +4879,24 @@ export default function App() {
                 <div className="p-3 rounded-xl bg-blue-100/70 border border-blue-200 text-[11px] text-blue-900 text-left space-y-1.5">
                   <div className="font-bold flex items-center gap-1.5 text-blue-950">
                     <Mail className="w-3.5 h-3.5 text-blue-700" />
-                    <span>Notification &amp; Routing Status:</span>
+                    <span>{t('routingStatus')}</span>
                   </div>
-                  <div>• Persisted to PostgreSQL database and Feedback Message Center.</div>
-                  <div>• Dispatched internal notification to Administrator Message Center.</div>
-                  <div>• Notification queued for Administrator email account.</div>
+                  <div>{t('routingPersisted')}</div>
+                  <div>{t('routingDispatched')}</div>
+                  <div>{t('routingQueued')}</div>
                 </div>
                 <div className="pt-2 flex justify-center gap-2">
                   <button
                     onClick={() => navigate('feedback')}
                     className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-xs font-bold transition"
                   >
-                    Send Another
+                    {t('sendAnother')}
                   </button>
                   <button
                     onClick={() => navigate('home')}
                     className="px-5 py-2 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] transition"
                   >
-                    Home
+                    {t('home')}
                   </button>
                 </div>
               </div>
@@ -4504,6 +4905,16 @@ export default function App() {
 
           {/* 19. SECTION 6 - ADMINISTRATOR & MODERATOR'S MODULE (Figure 41 - 51) */}
           {currentPage === 'adminBoard' && (
+            currentUser?.role !== 'admin' ? (
+              <div className="card p-8 text-center space-y-4 max-w-lg mx-auto border-t-4 border-t-red-600">
+                <Shield className="w-12 h-12 text-red-500 mx-auto" />
+                <h2 className="text-base font-bold text-red-950">{t('accessDeniedTitle')}</h2>
+                <p className="text-xs text-[var(--muted)]">{t('accessDeniedDesc')}</p>
+                <button onClick={() => navigate('login')} className="px-4 py-2 rounded-xl bg-[var(--navy)] text-white text-xs font-bold">
+                  {t('userSignIn')}
+                </button>
+              </div>
+            ) : (
             <div className="max-w-4xl mx-auto space-y-5">
               <Breadcrumbs items={[{ label: t('home'), onClick: () => navigate('home') }, { label: t('administrationBoard') }]} />
 
@@ -4515,16 +4926,16 @@ export default function App() {
                       <span>{t('administrationBoard')}</span>
                     </h1>
                     <div className="text-xs text-[var(--muted)] mt-1">
-                      System Administrative Control Panel • Access Level: {currentUser?.adminLevel || 3}
+                      {t('sysAdminControlPanel')} • Access Level: {currentUser?.adminLevel || 3}
                     </div>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-bold">
-                    Super Administrator
+                    {t('superAdmin')}
                   </span>
                 </div>
 
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-5">
-                  Admin Control Panel (5 Function Units)
+                  {t('adminControlPanelUnits')}
                 </div>
 
                 {/* The 5 Main Function Units (Figure 42) */}
@@ -4537,10 +4948,10 @@ export default function App() {
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
-                      Medical Knowledge FAQ Administration
+                      {t('medFaqAdminUnit')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      Add, delete or edit FAQ &amp; categories (Figure 43).
+                      {t('medFaqAdminUnitDesc')}
                     </div>
                   </button>
 
@@ -4552,10 +4963,10 @@ export default function App() {
                       <MessageSquare className="w-4 h-4" />
                     </div>
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
-                      Discussion Board Administration
+                      {t('discussionBoardAdminUnit')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      Add, delete or edit forum and subforums (Figure 45).
+                      {t('discussionBoardAdminUnitDesc')}
                     </div>
                   </button>
 
@@ -4567,10 +4978,10 @@ export default function App() {
                       <Send className="w-4 h-4" />
                     </div>
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
-                      Send Email to All Members
+                      {t('sendEmailToAllUnit')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      Broadcast system-wide email announcements (Figure 46).
+                      {t('sendEmailToAllUnitDesc')}
                     </div>
                   </button>
 
@@ -4582,10 +4993,10 @@ export default function App() {
                       <Users className="w-4 h-4" />
                     </div>
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
-                      Membership Management
+                      {t('membershipMgmtUnit')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      Delete membership, set moderator/admin access (Figure 47).
+                      {t('membershipMgmtUnitDesc')}
                     </div>
                   </button>
 
@@ -4598,19 +5009,20 @@ export default function App() {
                         <Mail className="w-4 h-4" />
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-bold">
-                        {feedbacks.length} messages
+                        {feedbacks.length} {t('messagesCount')}
                       </span>
                     </div>
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
-                      Read User's Feedback
+                      {t('readUserFeedbackUnit')}
                     </div>
                     <div className="text-[11px] text-[var(--muted)] mt-1">
-                      Inspect inbox comments and suggestions (Figure 50).
+                      {t('readUserFeedbackUnitDesc')}
                     </div>
                   </button>
                 </div>
               </div>
             </div>
+            )
           )}
 
           {/* Admin Unit 1: Medical Knowledge FAQ Admin Center (Figure 43) */}
@@ -4636,6 +5048,7 @@ export default function App() {
                           <button
                             onClick={() => {
                               setCategories(categories.filter((c) => c.id !== cat.id));
+                              fetch(`/api/categories/${cat.id}`, { method: 'DELETE' }).catch(console.error);
                               showToast(t('deleteSuccess'));
                             }}
                             className="text-red-500 hover:text-red-700"
@@ -4650,10 +5063,16 @@ export default function App() {
                           onClick={() => {
                             const newTitle = prompt("Enter new category name:", getLoc(cat.name));
                             if (newTitle) {
+                              const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
                               setCategories(categories.map((c) => c.id === cat.id ? {
                                 ...c,
-                                name: { EN: newTitle, ZH: newTitle, BM: newTitle }
+                                name: updatedName
                               } : c));
+                              fetch(`/api/categories/${cat.id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name: updatedName }),
+                              }).catch(console.error);
                               showToast(t('success'));
                             }
                           }}
@@ -4673,6 +5092,7 @@ export default function App() {
                                     ...c,
                                     subs: c.subs.filter((sub) => sub.id !== s.id)
                                   } : c));
+                                  fetch(`/api/subcategories/${s.id}`, { method: 'DELETE' }).catch(console.error);
                                   showToast(t('deleteSuccess'));
                                 }}
                                 className="text-red-400 hover:text-red-600"
@@ -4686,13 +5106,19 @@ export default function App() {
                               onClick={() => {
                                 const newTitle = prompt("Change sub category's title:", getLoc(s.name));
                                 if (newTitle) {
+                                  const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
                                   setCategories(categories.map((c) => c.id === cat.id ? {
                                     ...c,
                                     subs: c.subs.map((sub) => sub.id === s.id ? {
                                       ...sub,
-                                      name: { EN: newTitle, ZH: newTitle, BM: newTitle }
+                                      name: updatedName
                                     } : sub)
                                   } : c));
+                                  fetch(`/api/subcategories/${s.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ name: updatedName }),
+                                  }).catch(console.error);
                                   showToast(t('success'));
                                 }
                               }}
@@ -4717,6 +5143,11 @@ export default function App() {
                                   ...c,
                                   subs: [...c.subs, newSub]
                                 } : c));
+                                fetch('/api/subcategories', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify(newSub),
+                                }).catch(console.error);
                                 showToast(t('createSuccess'));
                               }
                             }}
@@ -4744,6 +5175,11 @@ export default function App() {
                             subs: []
                           };
                           setCategories([...categories, newCat]);
+                          fetch('/api/categories', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(newCat),
+                          }).catch(console.error);
                           showToast(t('createSuccess'));
                         }
                       }}
@@ -4783,10 +5219,35 @@ export default function App() {
                     <div key={cat.id} className="border rounded-xl p-3 bg-blue-50/30">
                       <div className="flex items-center justify-between pb-2 border-b">
                         <div className="flex items-center gap-2">
-                          <Trash2 className="w-4 h-4 text-red-500 cursor-pointer" onClick={() => showToast(t('deleteSuccess'))} />
+                          <Trash2
+                            className="w-4 h-4 text-red-500 cursor-pointer"
+                            onClick={() => {
+                              setCategories(categories.filter((c) => c.id !== cat.id));
+                              fetch(`/api/categories/${cat.id}`, { method: 'DELETE' }).catch(console.error);
+                              showToast(t('deleteSuccess'));
+                            }}
+                          />
                           <span className="font-bold text-blue-900">{getLoc(cat.name)}</span>
                           <span className="text-[10px] text-[var(--muted)]">List Order: {cat.listOrder}</span>
                         </div>
+                        <button
+                          onClick={() => {
+                            const newTitle = prompt("Rename Forum Category:", getLoc(cat.name));
+                            if (newTitle) {
+                              const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
+                              setCategories(categories.map((c) => c.id === cat.id ? { ...c, name: updatedName } : c));
+                              fetch(`/api/categories/${cat.id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name: updatedName }),
+                              }).catch(console.error);
+                              showToast(t('success'));
+                            }
+                          }}
+                          className="text-[11px] text-blue-700 font-bold hover:underline"
+                        >
+                          Change title
+                        </button>
                       </div>
                       <div className="pl-4 pt-2 space-y-2">
                         {cat.subs.map((s) => (
@@ -4795,12 +5256,42 @@ export default function App() {
                               <span className="font-bold text-blue-800">{getLoc(s.name)}</span>
                               <div className="text-[10px] text-[var(--muted)]">{s.desc ? getLoc(s.desc) : 'Standard subforum'}</div>
                             </div>
-                            <button
-                              onClick={() => showToast(t('success'))}
-                              className="text-[11px] text-blue-600 hover:underline"
-                            >
-                              Edit Subforum
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  const newTitle = prompt("Rename Subforum:", getLoc(s.name));
+                                  if (newTitle) {
+                                    const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
+                                    setCategories(categories.map((c) => c.id === cat.id ? {
+                                      ...c,
+                                      subs: c.subs.map((sub) => sub.id === s.id ? { ...sub, name: updatedName } : sub)
+                                    } : c));
+                                    fetch(`/api/subcategories/${s.id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ name: updatedName }),
+                                    }).catch(console.error);
+                                    showToast(t('success'));
+                                  }
+                                }}
+                                className="text-[11px] text-blue-600 hover:underline"
+                              >
+                                Edit Subforum
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setCategories(categories.map((c) => c.id === cat.id ? {
+                                    ...c,
+                                    subs: c.subs.filter((sub) => sub.id !== s.id)
+                                  } : c));
+                                  fetch(`/api/subcategories/${s.id}`, { method: 'DELETE' }).catch(console.error);
+                                  showToast(t('deleteSuccess'));
+                                }}
+                                className="text-[11px] text-red-500 hover:underline"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -5052,15 +5543,41 @@ export default function App() {
                     <div>
                       <button
                         onClick={() => {
+                          if (selectedMemberForAdmin.username === currentUser?.username) {
+                            setModalDialog({
+                              title: "Action Not Permitted",
+                              msg: "You cannot cancel or delete your own active administrator account.",
+                              type: "alert",
+                            });
+                            return;
+                          }
+                          const adminCount = members.filter((m) => m.role === 'admin' || (m.adminLevel ?? 0) >= 3).length;
+                          if ((selectedMemberForAdmin.role === 'admin' || (selectedMemberForAdmin.adminLevel ?? 0) >= 3) && adminCount <= 1) {
+                            setModalDialog({
+                              title: "Action Not Permitted",
+                              msg: "Cannot cancel the only remaining administrator account in the system.",
+                              type: "alert",
+                            });
+                            return;
+                          }
                           setModalDialog({
                             title: t('cancelMembership'),
                             msg: `Are you sure you want to cancel and exclude ${selectedMemberForAdmin.username} from the system?`,
                             type: 'confirm',
-                            onConfirm: () => {
-                              setMembers(members.filter((x) => x.username !== selectedMemberForAdmin.username));
-                              fetch(`/api/members/${selectedMemberForAdmin.username}`, { method: 'DELETE' }).catch(console.error);
-                              setSelectedMemberForAdmin(null);
-                              showToast(t('deleteSuccess'));
+                            onConfirm: async () => {
+                              try {
+                                const res = await fetch(`/api/members/${selectedMemberForAdmin.username}`, { method: 'DELETE' });
+                                if (!res.ok) {
+                                  const errData = await res.json().catch(() => ({ error: 'Failed to delete member' }));
+                                  showToast(errData.error || 'Failed to delete member', 'error');
+                                  return;
+                                }
+                                setMembers(members.filter((x) => x.username !== selectedMemberForAdmin.username));
+                                setSelectedMemberForAdmin(null);
+                                showToast(t('deleteSuccess'));
+                              } catch {
+                                showToast('Server communication error', 'error');
+                              }
                             }
                           });
                         }}
@@ -5095,17 +5612,46 @@ export default function App() {
                       <span className="font-bold">Choose Admin Level:</span>
                       <select
                         value={selectedMemberForAdmin.adminLevel}
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const lvl = Number(e.target.value);
                           const role = lvl === 3 ? 'admin' : lvl === 1 ? 'moderator' : 'user';
-                          setMembers(members.map((x) => x.username === selectedMemberForAdmin.username ? { ...x, adminLevel: lvl, role } : x));
-                          setSelectedMemberForAdmin({ ...selectedMemberForAdmin, adminLevel: lvl, role });
-                          fetch(`/api/members/${selectedMemberForAdmin.username}`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ adminLevel: lvl, role }),
-                          }).catch(console.error);
-                          showToast(t('success'));
+
+                          if (selectedMemberForAdmin.username === currentUser?.username && lvl < 3) {
+                            setModalDialog({
+                              title: "Self-Demotion Prevented",
+                              msg: "You cannot demote your own active administrator account to prevent accidental lockout.",
+                              type: "alert",
+                            });
+                            return;
+                          }
+
+                          const adminCount = members.filter((m) => m.role === 'admin' || (m.adminLevel ?? 0) >= 3).length;
+                          if ((selectedMemberForAdmin.role === 'admin' || (selectedMemberForAdmin.adminLevel ?? 0) >= 3) && lvl < 3 && adminCount <= 1) {
+                            setModalDialog({
+                              title: "Action Not Permitted",
+                              msg: "Cannot demote the only remaining administrator account in the system.",
+                              type: "alert",
+                            });
+                            return;
+                          }
+
+                          try {
+                            const res = await fetch(`/api/members/${selectedMemberForAdmin.username}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ adminLevel: lvl, role }),
+                            });
+                            if (!res.ok) {
+                              const errData = await res.json().catch(() => ({ error: 'Update failed' }));
+                              showToast(errData.error || 'Failed to update admin level', 'error');
+                              return;
+                            }
+                            setMembers(members.map((x) => x.username === selectedMemberForAdmin.username ? { ...x, adminLevel: lvl, role } : x));
+                            setSelectedMemberForAdmin({ ...selectedMemberForAdmin, adminLevel: lvl, role });
+                            showToast(t('success'));
+                          } catch {
+                            showToast('Server communication error', 'error');
+                          }
                         }}
                         className="px-3 py-1.5 rounded-xl border bg-white font-semibold"
                       >
@@ -5219,8 +5765,16 @@ export default function App() {
                     </div>
                     <button
                       onClick={() => {
-                        setFeedbacks([]);
-                        showToast(t('deleteSuccess'));
+                        setModalDialog({
+                          title: "Clear All Feedback Messages",
+                          msg: "Are you sure you want to permanently delete all user feedback messages from the database?",
+                          type: "confirm",
+                          onConfirm: () => {
+                            setFeedbacks([]);
+                            fetch('/api/feedbacks', { method: 'DELETE' }).catch(console.error);
+                            showToast(t('deleteSuccess'));
+                          }
+                        });
                       }}
                       className="px-2 py-0.5 rounded bg-blue-700 text-white text-[10px] font-bold"
                     >
@@ -5311,13 +5865,19 @@ export default function App() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setActiveFaqDetail(null)}
           />
-          <div className="relative w-full max-w-2xl card p-0 overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border-2 border-[var(--teal)] animate-in">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="faq-modal-title"
+            className="relative w-full max-w-2xl card p-0 overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border-2 border-[var(--teal)] animate-in"
+          >
             {/* Modal Header */}
             <div className="bg-amber-500 text-white font-bold p-3 text-center text-xs relative">
-              <span>Medical Knowledge Frequently Asked Question</span>
+              <span id="faq-modal-title">Medical Knowledge Frequently Asked Question</span>
               <button
                 onClick={() => setActiveFaqDetail(null)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg bg-black/20 hover:bg-black/30"
+                aria-label="Close FAQ dialog"
               >
                 <X className="w-4 h-4 text-white" />
               </button>
@@ -5388,19 +5948,28 @@ export default function App() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setPmModalOpen(false)}
           />
-          <div className="relative w-full max-w-md card p-6 overflow-hidden shadow-2xl space-y-4 border border-[var(--border)]">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pm-modal-title"
+            className="relative w-full max-w-md card p-6 overflow-hidden shadow-2xl space-y-4 border border-[var(--border)]"
+          >
             <div className="flex items-center justify-between border-b pb-3">
-              <h3 className="font-bold text-sm text-[var(--navy)]">
+              <h3 id="pm-modal-title" className="font-bold text-sm text-[var(--navy)]">
                 {t('sendNewMessage')}
               </h3>
-              <button onClick={() => setPmModalOpen(false)} className="p-1 rounded-lg hover:bg-gray-100">
+              <button
+                onClick={() => setPmModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-gray-100"
+                aria-label="Close message compose dialog"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="font-bold block mb-1">Recipient Username:</label>
+                <label className="font-bold block mb-1">{t('recipientUsername')}</label>
                 <input
                   value={pmForm.to}
                   onChange={(e) => setPmForm({ ...pmForm, to: e.target.value })}
@@ -5410,7 +5979,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="font-bold block mb-1">Subject:</label>
+                <label className="font-bold block mb-1">{t('subject')}:</label>
                 <input
                   value={pmForm.subject}
                   onChange={(e) => setPmForm({ ...pmForm, subject: e.target.value })}
@@ -5419,7 +5988,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="font-bold block mb-1">Message Content:</label>
+                <label className="font-bold block mb-1">{t('messageContentLabel')}</label>
                 <textarea
                   rows={4}
                   value={pmForm.content}
@@ -5454,13 +6023,19 @@ export default function App() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setModalDialog(null)}
           />
-          <div className="relative w-full max-w-sm card p-5 overflow-hidden shadow-2xl border-2 border-gray-400 animate-in bg-[#ece9d8] text-black">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-modal-title"
+            className="relative w-full max-w-sm card p-5 overflow-hidden shadow-2xl border-2 border-gray-400 animate-in bg-[#ece9d8] text-black"
+          >
             {/* Retro title bar homage with clean typography */}
             <div className="flex items-center justify-between pb-2 mb-3 border-b border-gray-300">
-              <span className="font-bold text-xs text-blue-900">{modalDialog.title}</span>
+              <span id="dialog-modal-title" className="font-bold text-xs text-blue-900">{modalDialog.title}</span>
               <button
                 onClick={() => setModalDialog(null)}
                 className="w-5 h-5 grid place-items-center rounded bg-gray-200 hover:bg-gray-300 text-xs font-bold"
+                aria-label="Close dialog"
               >
                 ✕
               </button>

@@ -245,6 +245,17 @@ const T_DATA: Translations = {
     faqQuestionLabel: "FAQ Question:",
     faqAnswerLabel: "FAQ Answer / Explanation:",
     noResultsInSubtopic: "No results found in this subtopic.",
+    dlgChangeCategoryTitle: "Change Category Title",
+    dlgChangeSubcategoryTitle: "Change Sub Category Title",
+    dlgAddSubcategory: "Add a New Sub Category",
+    dlgAddMainCategory: "Add a Main Category",
+    dlgRenameForumCategory: "Rename Forum Category",
+    dlgRenameSubforum: "Rename Subforum",
+    dlgEditMemberName: "Edit Member Full Name",
+    categoryNameLabel: "Category name:",
+    subcategoryNameLabel: "Sub category name:",
+    subforumNameLabel: "Subforum name:",
+    memberFullNameLabel: "Full name:",
     add: "Add",
     save: "Save",
     deleteSuccess: "Deleted successfully",
@@ -561,6 +572,17 @@ const T_DATA: Translations = {
     faqQuestionLabel: "常问问题：",
     faqAnswerLabel: "常问答案 / 说明：",
     noResultsInSubtopic: "此子主题下未找到相关结果。",
+    dlgChangeCategoryTitle: "修改类别标题",
+    dlgChangeSubcategoryTitle: "修改子类别标题",
+    dlgAddSubcategory: "新增子类别",
+    dlgAddMainCategory: "新增主类别",
+    dlgRenameForumCategory: "重命名论坛类别",
+    dlgRenameSubforum: "重命名子论坛",
+    dlgEditMemberName: "编辑会员全名",
+    categoryNameLabel: "类别名称：",
+    subcategoryNameLabel: "子类别名称：",
+    subforumNameLabel: "子论坛名称：",
+    memberFullNameLabel: "全名：",
     add: "添加",
     save: "保存",
     deleteSuccess: "删除成功",
@@ -877,6 +899,17 @@ const T_DATA: Translations = {
     faqQuestionLabel: "Soalan FAQ:",
     faqAnswerLabel: "Jawapan / Penerangan FAQ:",
     noResultsInSubtopic: "Tiada keputusan dijumpai dalam subtopik ini.",
+    dlgChangeCategoryTitle: "Tukar Tajuk Kategori",
+    dlgChangeSubcategoryTitle: "Tukar Tajuk Subkategori",
+    dlgAddSubcategory: "Tambah Subkategori Baharu",
+    dlgAddMainCategory: "Tambah Kategori Utama",
+    dlgRenameForumCategory: "Namakan Semula Kategori Forum",
+    dlgRenameSubforum: "Namakan Semula Subforum",
+    dlgEditMemberName: "Sunting Nama Penuh Ahli",
+    categoryNameLabel: "Nama kategori:",
+    subcategoryNameLabel: "Nama subkategori:",
+    subforumNameLabel: "Nama subforum:",
+    memberFullNameLabel: "Nama penuh:",
     add: "Tambah",
     save: "Simpan",
     deleteSuccess: "Berjaya dipadam",
@@ -1711,6 +1744,16 @@ const INITIAL_PMS: PrivateMessage[] = [
   }
 ];
 
+// Stores `text` for the active language and copies it into any empty locale, so a name or FAQ
+// text entered in one language never leaves the other locales blank.
+const setLocalized = (prev: Record<Lang, string> | undefined, lang: Lang, text: string): Record<Lang, string> => {
+  const next = { ...(prev || { EN: '', ZH: '', BM: '' }), [lang]: text } as Record<Lang, string>;
+  (['EN', 'ZH', 'BM'] as Lang[]).forEach((l) => {
+    if (!next[l]) next[l] = text;
+  });
+  return next;
+};
+
 // Discrete text-size steps (multipliers of the browser's base size).
 const FONT_SIZE_STEPS = [0.85, 1, 1.15, 1.3] as const;
 const DEFAULT_FONT_STEP = 1;
@@ -1757,14 +1800,13 @@ export default function App() {
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   // In-app FAQ create/edit form (window.prompt is blocked inside sandboxed preview iframes)
   const [faqEditor, setFaqEditor] = useState<{ id?: string; q: string; a: string; submitted: boolean } | null>(null);
-  const [subforumEditor, setSubforumEditor] = useState<{ subforum: any; category: any; name: string; submitted: boolean } | null>(null);
-  const [titleEditor, setTitleEditor] = useState<{ category: any; name: string; submitted: boolean } | null>(null);
-  const [genericEditor, setGenericEditor] = useState<{
+  // Reusable single-field input dialog (replaces window.prompt for admin rename/add actions)
+  const [textPrompt, setTextPrompt] = useState<{
     title: string;
     label: string;
     value: string;
-    onSave: (val: string) => void;
     submitted: boolean;
+    onSubmit: (value: string) => void;
   } | null>(null);
   const [modalDialog, setModalDialog] = useState<{
     title: string;
@@ -2488,15 +2530,8 @@ export default function App() {
       return;
     }
     const existing = faqEditor.id ? faqs.find((f) => f.id === faqEditor.id) : undefined;
-    const withFallback = (prev: Record<Lang, string> | undefined, text: string): Record<Lang, string> => {
-      const next = { ...(prev || { EN: '', ZH: '', BM: '' }), [lang]: text } as Record<Lang, string>;
-      (['EN', 'ZH', 'BM'] as Lang[]).forEach((l) => {
-        if (!next[l]) next[l] = text;
-      });
-      return next;
-    };
-    const newQ = withFallback(existing?.q, q);
-    const newA = withFallback(existing?.a, a);
+    const newQ = setLocalized(existing?.q, lang, q);
+    const newA = setLocalized(existing?.a, lang, a);
 
     if (existing) {
       setFaqs(faqs.map((f) => (f.id === existing.id ? { ...f, q: newQ, a: newA } : f)));
@@ -2529,47 +2564,30 @@ export default function App() {
     setFaqEditor(null);
   };
 
-  const saveSubforumEditor = () => {
-    if (!subforumEditor || !currentUser) return;
-    const name = subforumEditor.name.trim();
-    if (!name) {
-      setSubforumEditor({ ...subforumEditor, submitted: true });
+  const openTextPrompt = (title: string, label: string, value: string, onSubmit: (value: string) => void) =>
+    setTextPrompt({ title, label, value, submitted: false, onSubmit });
+
+  const submitTextPrompt = () => {
+    if (!textPrompt) return;
+    const v = textPrompt.value.trim();
+    if (!v) {
+      setTextPrompt({ ...textPrompt, submitted: true });
       return;
     }
-    const updatedName = { EN: name, ZH: name, BM: name };
-    setCategories(categories.map((c) => c.id === subforumEditor.category.id ? {
-      ...c,
-      subs: c.subs.map((sub) => sub.id === subforumEditor.subforum.id ? { ...sub, name: updatedName } : sub)
-    } : c));
-    fetch(`/api/subcategories/${subforumEditor.subforum.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: updatedName }),
-    }).catch(console.error);
-    showToast(t('success'));
-    setSubforumEditor(null);
+    const { onSubmit } = textPrompt;
+    setTextPrompt(null);
+    onSubmit(v);
   };
 
-  const saveTitleEditor = () => {
-    if (!titleEditor || !currentUser) return;
-    const name = titleEditor.name.trim();
-    if (!name) {
-      setTitleEditor({ ...titleEditor, submitted: true });
-      return;
-    }
-    const updatedName = { EN: name, ZH: name, BM: name };
-    setCategories(categories.map((c) => c.id === titleEditor.category.id ? {
-      ...c,
-      name: updatedName
-    } : c));
-    fetch(`/api/categories/${titleEditor.category.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: updatedName }),
-    }).catch(console.error);
-    showToast(t('success'));
-    setTitleEditor(null);
-  };
+  const setGenericEditor = (config: {
+    title: string;
+    label: string;
+    value: string;
+    onSave: (val: string) => void;
+    submitted?: boolean;
+  }) => openTextPrompt(config.title, config.label, config.value, config.onSave);
+
+
 
   // Accessibility: font size & high contrast (rendered in the header on >=md and in the mobile drawer below md)
   const accessibilityControls = (
@@ -5353,9 +5371,16 @@ export default function App() {
                           <span className="text-[0.625rem] text-[var(--muted)]">List Order: {cat.listOrder}</span>
                         </div>
                         <button
-                          onClick={() => {
-                            setTitleEditor({ category: cat, name: getLoc(cat.name), submitted: false });
-                          }}
+                          onClick={() => openTextPrompt(t('dlgChangeCategoryTitle'), t('categoryNameLabel'), getLoc(cat.name), (v) => {
+                            const updatedName = setLocalized(cat.name, lang, v);
+                            setCategories(categories.map((c) => c.id === cat.id ? { ...c, name: updatedName } : c));
+                            fetch(`/api/categories/${cat.id}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ name: updatedName }),
+                            }).catch(console.error);
+                            showToast(t('success'));
+                          })}
                           className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
                           Change title
@@ -5517,7 +5542,16 @@ export default function App() {
                           <span className="text-[0.625rem] text-[var(--muted)]">List Order: {cat.listOrder}</span>
                         </div>
                         <button
-                          onClick={() => setTitleEditor({ category: cat, name: getLoc(cat.name), submitted: false })}
+                          onClick={() => openTextPrompt(t('dlgRenameForumCategory'), t('categoryNameLabel'), getLoc(cat.name), (v) => {
+                            const updatedName = setLocalized(cat.name, lang, v);
+                            setCategories(categories.map((c) => c.id === cat.id ? { ...c, name: updatedName } : c));
+                            fetch(`/api/categories/${cat.id}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ name: updatedName }),
+                            }).catch(console.error);
+                            showToast(t('success'));
+                          })}
                           className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
                           Change title
@@ -5532,7 +5566,19 @@ export default function App() {
                             </div>
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() => setSubforumEditor({ subforum: s, category: cat, name: getLoc(s.name), submitted: false })}
+                                onClick={() => openTextPrompt(t('dlgRenameSubforum'), t('subforumNameLabel'), getLoc(s.name), (v) => {
+                                  const updatedName = setLocalized(s.name, lang, v);
+                                  setCategories(categories.map((c) => c.id === cat.id ? {
+                                    ...c,
+                                    subs: c.subs.map((sub) => sub.id === s.id ? { ...sub, name: updatedName } : sub)
+                                  } : c));
+                                  fetch(`/api/subcategories/${s.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ name: updatedName }),
+                                  }).catch(console.error);
+                                  showToast(t('success'));
+                                })}
                                 className="text-[0.6875rem] text-blue-600 hover:underline pointer-events-auto"
                               >
                                 Edit Subforum
@@ -6349,23 +6395,21 @@ export default function App() {
         </div>
       )}
 
-      {/* SUBFORUM RENAME FORM (replaces window.prompt, which sandboxed previews block) */}
-      {subforumEditor && (
+      {/* SINGLE-FIELD TEXT DIALOG (replaces window.prompt for admin rename / add actions) */}
+      {textPrompt && (
         <div className="fixed inset-0 z-[60] grid place-items-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSubforumEditor(null)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setTextPrompt(null)} />
           <div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="subforum-editor-title"
-            className="relative w-full max-w-md card p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
+            aria-labelledby="text-prompt-title"
+            className="relative w-full max-w-sm card p-5 shadow-2xl"
           >
             <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
-              <span id="subforum-editor-title" className="font-bold text-sm text-[var(--navy)]">
-                Rename Subforum
-              </span>
+              <span id="text-prompt-title" className="font-bold text-sm text-[var(--navy)]">{textPrompt.title}</span>
               <button
                 type="button"
-                onClick={() => setSubforumEditor(null)}
+                onClick={() => setTextPrompt(null)}
                 className="w-7 h-7 grid place-items-center rounded-lg bg-[var(--surface-2)] hover:bg-[var(--border)] focus-ring"
                 aria-label={t('close')}
               >
@@ -6373,156 +6417,35 @@ export default function App() {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <label className="block space-y-1">
-                <span className="font-bold">Subforum Name</span>
-                <input
-                  type="text"
-                  value={subforumEditor.name}
-                  onChange={(e) => setSubforumEditor({ ...subforumEditor, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
-                />
-                {subforumEditor.submitted && !subforumEditor.name.trim() && (
-                  <span className="text-red-600 font-semibold">{t('required')}</span>
-                )}
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
-              <button
-                type="button"
-                onClick={() => setSubforumEditor(null)}
-                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                type="button"
-                onClick={saveSubforumEditor}
-                className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
-              >
-                {t('save')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {titleEditor && (
-        <div className="fixed inset-0 z-[60] grid place-items-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setTitleEditor(null)} />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="title-editor-title"
-            className="relative w-full max-w-md card p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
-              <span id="title-editor-title" className="font-bold text-sm text-[var(--navy)]">
-                Change Category Title
-              </span>
-              <button
-                type="button"
-                onClick={() => setTitleEditor(null)}
-                className="w-7 h-7 grid place-items-center rounded-lg bg-[var(--surface-2)] hover:bg-[var(--border)] focus-ring"
-                aria-label={t('close')}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <label className="block space-y-1">
-                <span className="font-bold">Category Title</span>
-                <input
-                  type="text"
-                  value={titleEditor.name}
-                  onChange={(e) => setTitleEditor({ ...titleEditor, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
-                />
-                {titleEditor.submitted && !titleEditor.name.trim() && (
-                  <span className="text-red-600 font-semibold">{t('required')}</span>
-                )}
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
-              <button
-                type="button"
-                onClick={() => setTitleEditor(null)}
-                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                type="button"
-                onClick={saveTitleEditor}
-                className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
-              >
-                {t('save')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* GENERIC INPUT DIALOG (replaces window.prompt, which sandboxed previews block) */}
-      {genericEditor && (
-        <div className="fixed inset-0 z-[60] grid place-items-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setGenericEditor(null)} />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="generic-editor-title"
-            className="relative w-full max-w-md card p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
-              <span id="generic-editor-title" className="font-bold text-sm text-[var(--navy)]">
-                {genericEditor.title}
-              </span>
-              <button
-                type="button"
-                onClick={() => setGenericEditor(null)}
-                className="w-7 h-7 grid place-items-center rounded-lg bg-[var(--surface-2)] hover:bg-[var(--border)] focus-ring"
-                aria-label={t('close')}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <label className="block space-y-1">
-                <span className="font-bold">{genericEditor.label}</span>
-                <input
-                  type="text"
-                  value={genericEditor.value}
-                  onChange={(e) => setGenericEditor({ ...genericEditor, value: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
-                />
-                {genericEditor.submitted && !genericEditor.value.trim() && (
-                  <span className="text-red-600 font-semibold">{t('required')}</span>
-                )}
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
-              <button
-                type="button"
-                onClick={() => setGenericEditor(null)}
-                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (genericEditor.value.trim()) {
-                    genericEditor.onSave(genericEditor.value);
-                    setGenericEditor(null);
-                  } else {
-                    setGenericEditor({ ...genericEditor, submitted: true });
-                  }
+            <label className="block space-y-1 text-xs">
+              <span className="font-bold">{textPrompt.label}</span>
+              <input
+                type="text"
+                autoFocus
+                value={textPrompt.value}
+                onChange={(e) => setTextPrompt({ ...textPrompt, value: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submitTextPrompt();
+                  if (e.key === 'Escape') setTextPrompt(null);
                 }}
+                className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
+              />
+              {textPrompt.submitted && !textPrompt.value.trim() && (
+                <span className="text-red-600 font-semibold">{t('required')}</span>
+              )}
+            </label>
+
+            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
+              <button
+                type="button"
+                onClick={() => setTextPrompt(null)}
+                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={submitTextPrompt}
                 className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
               >
                 {t('save')}

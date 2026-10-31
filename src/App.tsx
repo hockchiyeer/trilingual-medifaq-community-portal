@@ -1757,6 +1757,8 @@ export default function App() {
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   // In-app FAQ create/edit form (window.prompt is blocked inside sandboxed preview iframes)
   const [faqEditor, setFaqEditor] = useState<{ id?: string; q: string; a: string; submitted: boolean } | null>(null);
+  const [subforumEditor, setSubforumEditor] = useState<{ subforum: any; category: any; name: string; submitted: boolean } | null>(null);
+  const [titleEditor, setTitleEditor] = useState<{ category: any; name: string; submitted: boolean } | null>(null);
   const [modalDialog, setModalDialog] = useState<{
     title: string;
     msg: string;
@@ -2518,6 +2520,48 @@ export default function App() {
       showToast(t('createSuccess'));
     }
     setFaqEditor(null);
+  };
+
+  const saveSubforumEditor = () => {
+    if (!subforumEditor || !currentUser) return;
+    const name = subforumEditor.name.trim();
+    if (!name) {
+      setSubforumEditor({ ...subforumEditor, submitted: true });
+      return;
+    }
+    const updatedName = { EN: name, ZH: name, BM: name };
+    setCategories(categories.map((c) => c.id === subforumEditor.category.id ? {
+      ...c,
+      subs: c.subs.map((sub) => sub.id === subforumEditor.subforum.id ? { ...sub, name: updatedName } : sub)
+    } : c));
+    fetch(`/api/subcategories/${subforumEditor.subforum.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: updatedName }),
+    }).catch(console.error);
+    showToast(t('success'));
+    setSubforumEditor(null);
+  };
+
+  const saveTitleEditor = () => {
+    if (!titleEditor || !currentUser) return;
+    const name = titleEditor.name.trim();
+    if (!name) {
+      setTitleEditor({ ...titleEditor, submitted: true });
+      return;
+    }
+    const updatedName = { EN: name, ZH: name, BM: name };
+    setCategories(categories.map((c) => c.id === titleEditor.category.id ? {
+      ...c,
+      name: updatedName
+    } : c));
+    fetch(`/api/categories/${titleEditor.category.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: updatedName }),
+    }).catch(console.error);
+    showToast(t('success'));
+    setTitleEditor(null);
   };
 
   // Accessibility: font size & high contrast (rendered in the header on >=md and in the mobile drawer below md)
@@ -5303,20 +5347,7 @@ export default function App() {
                         </div>
                         <button
                           onClick={() => {
-                            const newTitle = prompt("Enter new category name:", getLoc(cat.name));
-                            if (newTitle) {
-                              const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
-                              setCategories(categories.map((c) => c.id === cat.id ? {
-                                ...c,
-                                name: updatedName
-                              } : c));
-                              fetch(`/api/categories/${cat.id}`, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ name: updatedName }),
-                              }).catch(console.error);
-                              showToast(t('success'));
-                            }
+                            setTitleEditor({ category: cat, name: getLoc(cat.name), submitted: false });
                           }}
                           className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
@@ -5473,19 +5504,7 @@ export default function App() {
                           <span className="text-[0.625rem] text-[var(--muted)]">List Order: {cat.listOrder}</span>
                         </div>
                         <button
-                          onClick={() => {
-                            const newTitle = prompt("Rename Forum Category:", getLoc(cat.name));
-                            if (newTitle) {
-                              const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
-                              setCategories(categories.map((c) => c.id === cat.id ? { ...c, name: updatedName } : c));
-                              fetch(`/api/categories/${cat.id}`, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ name: updatedName }),
-                              }).catch(console.error);
-                              showToast(t('success'));
-                            }
-                          }}
+                          onClick={() => setTitleEditor({ category: cat, name: getLoc(cat.name), submitted: false })}
                           className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
                           Change title
@@ -5500,23 +5519,8 @@ export default function App() {
                             </div>
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() => {
-                                  const newTitle = prompt("Rename Subforum:", getLoc(s.name));
-                                  if (newTitle) {
-                                    const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
-                                    setCategories(categories.map((c) => c.id === cat.id ? {
-                                      ...c,
-                                      subs: c.subs.map((sub) => sub.id === s.id ? { ...sub, name: updatedName } : sub)
-                                    } : c));
-                                    fetch(`/api/subcategories/${s.id}`, {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ name: updatedName }),
-                                    }).catch(console.error);
-                                    showToast(t('success'));
-                                  }
-                                }}
-                                className="text-[0.6875rem] text-blue-600 hover:underline"
+                                onClick={() => setSubforumEditor({ subforum: s, category: cat, name: getLoc(s.name), submitted: false })}
+                                className="text-[0.6875rem] text-blue-600 hover:underline pointer-events-auto"
                               >
                                 Edit Subforum
                               </button>
@@ -6320,6 +6324,123 @@ export default function App() {
               <button
                 type="button"
                 onClick={saveFaqEditor}
+                className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
+              >
+                {t('save')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUBFORUM RENAME FORM (replaces window.prompt, which sandboxed previews block) */}
+      {subforumEditor && (
+        <div className="fixed inset-0 z-[60] grid place-items-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSubforumEditor(null)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="subforum-editor-title"
+            className="relative w-full max-w-md card p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
+              <span id="subforum-editor-title" className="font-bold text-sm text-[var(--navy)]">
+                Rename Subforum
+              </span>
+              <button
+                type="button"
+                onClick={() => setSubforumEditor(null)}
+                className="w-7 h-7 grid place-items-center rounded-lg bg-[var(--surface-2)] hover:bg-[var(--border)] focus-ring"
+                aria-label={t('close')}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <label className="block space-y-1">
+                <span className="font-bold">Subforum Name</span>
+                <input
+                  type="text"
+                  value={subforumEditor.name}
+                  onChange={(e) => setSubforumEditor({ ...subforumEditor, name: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
+                />
+                {subforumEditor.submitted && !subforumEditor.name.trim() && (
+                  <span className="text-red-600 font-semibold">{t('required')}</span>
+                )}
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
+              <button
+                type="button"
+                onClick={() => setSubforumEditor(null)}
+                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={saveSubforumEditor}
+                className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
+              >
+                {t('save')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {titleEditor && (
+        <div className="fixed inset-0 z-[60] grid place-items-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setTitleEditor(null)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="title-editor-title"
+            className="relative w-full max-w-md card p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
+              <span id="title-editor-title" className="font-bold text-sm text-[var(--navy)]">
+                Change Category Title
+              </span>
+              <button
+                type="button"
+                onClick={() => setTitleEditor(null)}
+                className="w-7 h-7 grid place-items-center rounded-lg bg-[var(--surface-2)] hover:bg-[var(--border)] focus-ring"
+                aria-label={t('close')}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <label className="block space-y-1">
+                <span className="font-bold">Category Title</span>
+                <input
+                  type="text"
+                  value={titleEditor.name}
+                  onChange={(e) => setTitleEditor({ ...titleEditor, name: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
+                />
+                {titleEditor.submitted && !titleEditor.name.trim() && (
+                  <span className="text-red-600 font-semibold">{t('required')}</span>
+                )}
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
+              <button
+                type="button"
+                onClick={() => setTitleEditor(null)}
+                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={saveTitleEditor}
                 className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
               >
                 {t('save')}

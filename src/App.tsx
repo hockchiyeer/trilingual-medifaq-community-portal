@@ -2521,7 +2521,7 @@ export default function App() {
             <div className="font-bold text-lg leading-tight tracking-tight text-[var(--navy)] group-hover:text-[var(--teal)] transition">
               {t('appName')}
             </div>
-            <div className="text-[11px] text-[var(--muted)] leading-snug">
+            <div className="text-[0.6875rem] text-[var(--muted)] leading-snug">
               {t('fullTitle')}
             </div>
           </div>
@@ -2531,7 +2531,7 @@ export default function App() {
         <div className="space-y-6">
           {/* Main Modules */}
           <div>
-            <div className="text-[11px] font-bold tracking-widest text-[var(--muted)] uppercase mb-2 flex items-center gap-2">
+            <div className="text-[0.6875rem] font-bold tracking-widest text-[var(--muted)] uppercase mb-2 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--teal)]" />
               {t('generalAccess')}
             </div>
@@ -2562,7 +2562,7 @@ export default function App() {
 
           {/* User Membership & Control Panel */}
           <div>
-            <div className="text-[11px] font-bold tracking-widest text-[var(--muted)] uppercase mb-2 flex items-center gap-2">
+            <div className="text-[0.6875rem] font-bold tracking-widest text-[var(--muted)] uppercase mb-2 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--amber)]" />
               {t('memberAccess')}
             </div>
@@ -2618,7 +2618,7 @@ export default function App() {
                       <span>{t('privateMessageCenter')}</span>
                     </span>
                     {pms.filter((p) => p.to === currentUser.username && !p.read).length > 0 && (
-                      <span className="px-1.5 py-0.5 rounded-full bg-[var(--amber)] text-white text-[10px] font-bold">
+                      <span className="px-1.5 py-0.5 rounded-full bg-[var(--amber)] text-white text-[0.625rem] font-bold">
                         {pms.filter((p) => p.to === currentUser.username && !p.read).length}
                       </span>
                     )}
@@ -2648,7 +2648,7 @@ export default function App() {
           {/* Section 6: Administrator and Moderator's Module (Figure 41: Purple Box) */}
           {currentUser && (currentUser.role === 'admin' || currentUser.adminLevel >= 3) && (
             <div className="rounded-2xl bg-[var(--purple-soft)] border-2 border-purple-300 p-3.5 shadow-sm space-y-2">
-              <div className="text-[11px] font-bold tracking-widest text-purple-800 uppercase mb-1 flex items-center gap-1.5">
+              <div className="text-[0.6875rem] font-bold tracking-widest text-purple-800 uppercase mb-1 flex items-center gap-1.5">
                 <Crown className="w-3.5 h-3.5 text-purple-700" />
                 <span>{t('adminSection')}</span>
               </div>
@@ -2671,7 +2671,7 @@ export default function App() {
                   <Mail className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                   <span>Feedback Inbox</span>
                 </span>
-                <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">
+                <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[0.625rem] font-bold">
                   {feedbacks.length}
                 </span>
               </button>
@@ -2680,7 +2680,7 @@ export default function App() {
         </div>
 
         {/* Footer info in sidebar */}
-        <div className="mt-auto card p-3.5 text-[11px] bg-[var(--surface-2)]/60 space-y-1.5">
+        <div className="mt-auto card p-3.5 text-[0.6875rem] bg-[var(--surface-2)]/60 space-y-1.5">
           <div className="font-bold text-[var(--navy)] flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[var(--amber)]" />
             <span>Interactive Demo Ready</span>
@@ -2695,11 +2695,11 @@ export default function App() {
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top App Bar with Tri-lingual selector and Accessibility controls */}
         <header
-          className="sticky top-0 z-30 backdrop-blur-xl bg-[var(--surface)]/85 border-b border-[var(--border)] px-4 lg:px-8 py-3 flex items-center justify-between gap-3"
+          className="sticky top-0 z-30 backdrop-blur-xl bg-[var(--surface)]/85 border-b border-[var(--border)] px-3 sm:px-4 lg:px-8 py-3 flex items-center justify-between gap-2 sm:gap-3"
           style={{ top: 'var(--safe-area-inset-top)' }}
         >
           {/* Mobile menu button & brand */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="lg:hidden p-2 rounded-xl bg-[var(--surface-2)] text-[var(--navy)] hover:bg-[var(--border)] focus-ring"
@@ -2711,7 +2711,7 @@ export default function App() {
               <div className="w-8 h-8 rounded-xl bg-[var(--teal)] text-white grid place-items-center font-bold text-sm">
                 M
               </div>
-              <span className="font-bold text-sm text-[var(--navy)]">MediFAQ</span>
+              <span className="hidden min-[400px]:inline font-bold text-sm text-[var(--navy)]">MediFAQ</span>
             </div>
             <div className="hidden lg:flex items-center gap-2 text-xs text-[var(--muted)]">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -2720,14 +2720,14 @@ export default function App() {
           </div>
 
           {/* Right Header Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Tri-lingual Language Switcher (EN, 华语, Bahasa Melayu) */}
-            <div className="flex items-center rounded-full border border-[var(--border)] p-1 bg-[var(--surface-2)]">
+            <div className="flex items-center rounded-full border border-[var(--border)] p-1 bg-[var(--surface-2)] shrink-0">
               {(['EN', 'ZH', 'BM'] as Lang[]).map((l) => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition focus-ring ${
+                  className={`px-2 sm:px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition focus-ring ${
                     lang === l
                       ? 'bg-[var(--teal)] text-white shadow-sm'
                       : 'text-[var(--muted)] hover:text-[var(--text)]'
@@ -2738,8 +2738,8 @@ export default function App() {
               ))}
             </div>
 
-            {/* Accessibility: Font size & High contrast */}
-            {accessibilityControls}
+            {/* Accessibility: Font size & High contrast (header, >= sm; mobile uses the drawer) */}
+            <div className="hidden sm:block">{accessibilityControls}</div>
 
             {/* User status badge with dropdown and quick sign in */}
             {currentUser ? (
@@ -2767,7 +2767,7 @@ export default function App() {
                     <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[var(--border)] shadow-xl z-40 py-2 text-xs divide-y divide-gray-100 animate-in fade-in slide-in-from-top-2 duration-150">
                       <div className="px-4 py-2.5">
                         <p className="font-bold text-[var(--navy)] truncate">{currentUser.username}</p>
-                        <p className="text-[10px] text-[var(--muted)] capitalize">
+                        <p className="text-[0.625rem] text-[var(--muted)] capitalize">
                           {accessLevelLabel(currentUser)}
                         </p>
                       </div>
@@ -2815,7 +2815,7 @@ export default function App() {
             ) : (
               <button
                 onClick={() => navigate('login')}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] transition focus-ring"
+                className="shrink-0 whitespace-nowrap flex items-center justify-center gap-1.5 p-2.5 sm:px-3.5 sm:py-1.5 rounded-full bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] transition focus-ring"
                 title={t('userSignIn')}
                 aria-label={t('userSignIn')}
               >
@@ -2841,7 +2841,7 @@ export default function App() {
                   </div>
                   <div>
                     <div className="font-bold text-sm text-[var(--navy)]">MediFAQ</div>
-                    <div className="text-[10px] text-[var(--muted)]">{t('fullTitle')}</div>
+                    <div className="text-[0.625rem] text-[var(--muted)]">{t('fullTitle')}</div>
                   </div>
                 </div>
                 <button
@@ -2866,6 +2866,9 @@ export default function App() {
                   </button>
                 ))}
               </div>
+
+              {/* Accessibility controls in mobile (hidden in header below sm) */}
+              <div className="sm:hidden">{accessibilityControls}</div>
 
               {/* Nav Links */}
               <nav className="space-y-1">
@@ -2948,7 +2951,7 @@ export default function App() {
               {/* Hero Banner */}
               <div className="card p-6 lg:p-10 bg-gradient-to-br from-[var(--teal-soft)] via-white to-[var(--amber-soft)] overflow-hidden relative border border-[var(--border)]">
                 <div className="max-w-2xl relative z-10 space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-[var(--border)] text-[11px] font-bold text-[var(--teal-deep)] shadow-sm">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-[var(--border)] text-[0.6875rem] font-bold text-[var(--teal-deep)] shadow-sm">
                     <Sparkles className="w-3.5 h-3.5 text-[var(--teal)]" />
                     <span>{t('malaysianHealthPortal')}</span>
                   </div>
@@ -3060,14 +3063,14 @@ export default function App() {
                             <div className="w-9 h-9 rounded-xl bg-[var(--teal-soft)] text-[var(--teal-deep)] grid place-items-center">
                               <CatIcon className="w-5 h-5" />
                             </div>
-                            <span className="text-[10px] font-bold text-[var(--muted)] uppercase">
+                            <span className="text-[0.625rem] font-bold text-[var(--muted)] uppercase">
                               #{cat.listOrder}
                             </span>
                           </div>
                           <h3 className="font-bold text-sm text-[var(--navy)] mb-1">
                             {getLoc(cat.name)}
                           </h3>
-                          <p className="text-[11px] text-[var(--muted)] leading-relaxed mb-3">
+                          <p className="text-[0.6875rem] text-[var(--muted)] leading-relaxed mb-3">
                             {getLoc(cat.desc)}
                           </p>
                         </div>
@@ -3082,7 +3085,7 @@ export default function App() {
                                   setActiveSubId(s.id);
                                   navigate('faqList');
                                 }}
-                                className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface-2)] hover:bg-[var(--teal-soft)] text-[var(--text)] transition font-medium"
+                                className="text-[0.625rem] px-2 py-0.5 rounded-md bg-[var(--surface-2)] hover:bg-[var(--teal-soft)] text-[var(--text)] transition font-medium"
                               >
                                 {getLoc(s.name)}
                               </button>
@@ -3093,7 +3096,7 @@ export default function App() {
                               setActiveMainId(cat.id);
                               navigate('faqSub');
                             }}
-                            className="w-full py-1.5 rounded-lg bg-[var(--surface-2)] text-[11px] font-bold text-[var(--teal-deep)] hover:bg-[var(--teal-soft)] transition text-center"
+                            className="w-full py-1.5 rounded-lg bg-[var(--surface-2)] text-[0.6875rem] font-bold text-[var(--teal-deep)] hover:bg-[var(--teal-soft)] transition text-center"
                           >
                             Explore {getLoc(cat.name)}
                           </button>
@@ -3131,7 +3134,7 @@ export default function App() {
                         >
                           {getLoc(top.title)}
                         </button>
-                        <div className="text-[10px] text-[var(--muted)]">
+                        <div className="text-[0.625rem] text-[var(--muted)]">
                           {t('author')}: <span className="font-semibold">{top.author}</span> • {top.replies} {t('repliesViews')} • Last activity: {top.lastTime}
                         </div>
                       </div>
@@ -3140,7 +3143,7 @@ export default function App() {
                           setActiveTopic(top);
                           navigate('discussionTopic');
                         }}
-                        className="px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[11px] font-semibold hover:bg-[var(--teal-soft)] shrink-0"
+                        className="px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[0.6875rem] font-semibold hover:bg-[var(--teal-soft)] shrink-0"
                       >
                         Read Post
                       </button>
@@ -3427,7 +3430,7 @@ export default function App() {
                     style={{ width: `${Math.max(15, ((2 - logoutCountdown) / 2) * 100)}%` }}
                   />
                 </div>
-                <p className="text-[11px] text-blue-600 font-medium">
+                <p className="text-[0.6875rem] text-blue-600 font-medium">
                   Automatically redirecting to Homepage in {logoutCountdown}s...
                 </p>
                 <div className="pt-2">
@@ -3477,7 +3480,7 @@ export default function App() {
                     <div className="text-xs font-bold group-hover:text-[var(--teal)]">
                       {t('changeMyPassword')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('changePwSub')}
                     </div>
                   </button>
@@ -3492,7 +3495,7 @@ export default function App() {
                     <div className="text-xs font-bold group-hover:text-[var(--teal)]">
                       {t('editMyProfile')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('editProfileSub')}
                     </div>
                   </button>
@@ -3507,7 +3510,7 @@ export default function App() {
                     <div className="text-xs font-bold group-hover:text-[var(--teal)]">
                       {t('privateMessageCenter')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('pmCenterSub')}
                     </div>
                   </button>
@@ -3526,7 +3529,7 @@ export default function App() {
                           : `${currentUser.fullName || currentUser.username}'s ${t('profileSummary')}`}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[0.6875rem]">
                       <div>
                         <span className="text-[var(--muted)]">{t('memberNo')}:</span>{' '}
                         <b>#{currentUser.memberNumber || 1}</b>
@@ -3555,7 +3558,7 @@ export default function App() {
                         <Crown className="w-4 h-4 text-purple-700" />
                         <span>{t('adminInboxesQuickStatus')}</span>
                       </div>
-                      <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[0.625rem] font-bold">
                         {accessLevelLabel(currentUser)}
                       </span>
                     </div>
@@ -3566,9 +3569,9 @@ export default function App() {
                       >
                         <div>
                           <div className="font-bold text-purple-950 group-hover:text-purple-700">{t('feedbackInbox')}</div>
-                          <div className="text-[11px] text-[var(--muted)]">{feedbacks.length} {t('submissions')}</div>
+                          <div className="text-[0.6875rem] text-[var(--muted)]">{feedbacks.length} {t('submissions')}</div>
                         </div>
-                        <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[11px] font-bold shadow-sm">
+                        <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[0.6875rem] font-bold shadow-sm">
                           {feedbacks.length}
                         </span>
                       </button>
@@ -3578,16 +3581,16 @@ export default function App() {
                       >
                         <div>
                           <div className="font-bold text-purple-950 group-hover:text-purple-700">{t('inbox')}</div>
-                          <div className="text-[11px] text-[var(--muted)]">
+                          <div className="text-[0.6875rem] text-[var(--muted)]">
                             {pms.filter((p) => p.to === currentUser.username && !p.read).length} {t('unreadMsg')}
                           </div>
                         </div>
                         {pms.filter((p) => p.to === currentUser.username && !p.read).length > 0 ? (
-                          <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[11px] font-bold shadow-sm">
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[0.6875rem] font-bold shadow-sm">
                             {pms.filter((p) => p.to === currentUser.username && !p.read).length}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-[var(--muted)]">{t('zeroNew')}</span>
+                          <span className="text-[0.6875rem] text-[var(--muted)]">{t('zeroNew')}</span>
                         )}
                       </button>
                       <button
@@ -3596,7 +3599,7 @@ export default function App() {
                       >
                         <div>
                           <div className="font-bold text-purple-950 group-hover:text-purple-700">{t('administrationBoard')}</div>
-                          <div className="text-[11px] text-[var(--muted)]">{t('adminControlCenter')}</div>
+                          <div className="text-[0.6875rem] text-[var(--muted)]">{t('adminControlCenter')}</div>
                         </div>
                         <Shield className="w-4 h-4 text-purple-700" />
                       </button>
@@ -3893,14 +3896,14 @@ export default function App() {
                                 )}
                                 <span>{pm.subject}</span>
                               </div>
-                              <div className="text-[11px] text-[var(--muted)] font-normal mt-0.5">
+                              <div className="text-[0.6875rem] text-[var(--muted)] font-normal mt-0.5">
                                 {pm.content}
                               </div>
                             </td>
                             <td className="p-3 font-bold text-[var(--teal-deep)]">{pm.from}</td>
                             <td className="p-3 text-[var(--muted)]">{pm.date}</td>
                             <td className="p-3">
-                              <div className="flex gap-2 text-[11px]">
+                              <div className="flex gap-2 text-[0.6875rem]">
                                 <button
                                   onClick={() => {
                                     setPmForm({ to: pm.from, subject: `Re: ${pm.subject}`, content: '' });
@@ -4034,7 +4037,7 @@ export default function App() {
                           <div className="text-xs font-bold text-blue-800 group-hover:text-[var(--teal-deep)]">
                             {getLoc(s.name)}
                           </div>
-                          <div className="text-[10px] text-[var(--muted)] mt-1">
+                          <div className="text-[0.625rem] text-[var(--muted)] mt-1">
                             {faqs.filter((f) => f.subId === s.id).length} {t('faqsAvailable')}
                           </div>
                         </div>
@@ -4084,7 +4087,7 @@ export default function App() {
                         {getLoc(faq.q)}
                       </button>
 
-                      <div className="flex items-center justify-between text-[11px] text-[var(--muted)] mt-2 pt-2 border-t">
+                      <div className="flex items-center justify-between text-[0.6875rem] text-[var(--muted)] mt-2 pt-2 border-t">
                         <span>
                           ({t('clickingViews')} : <b className="text-red-600">{faq.views}</b>) {t('addBy')} <span className="font-semibold">{faq.createdBy}</span> {t('atTime')} {faq.createdAt}
                         </span>
@@ -4294,7 +4297,7 @@ export default function App() {
                                 {getLoc(faq.q)}
                               </button>
                             </td>
-                            <td className="p-3 text-[11px] text-[var(--muted)]">
+                            <td className="p-3 text-[0.6875rem] text-[var(--muted)]">
                               {faq.createdBy} at {faq.createdAt}
                             </td>
                           </tr>
@@ -4367,11 +4370,11 @@ export default function App() {
                               >
                                 {getLoc(s.name)}
                               </button>
-                              <div className="text-[11px] text-[var(--muted)] mt-1">
+                              <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                                 {s.desc ? getLoc(s.desc) : `Discussion thread for ${getLoc(s.name)}`}
                               </div>
                             </div>
-                            <div className="text-[11px] text-[var(--muted)] text-right shrink-0">
+                            <div className="text-[0.6875rem] text-[var(--muted)] text-right shrink-0">
                               <b>{topics.filter((top) => top.subId === s.id).length}</b> Topics
                             </div>
                           </div>
@@ -4407,13 +4410,13 @@ export default function App() {
                       <>
                         <button
                           onClick={() => navigate('pmCenter')}
-                          className="px-2.5 py-1 rounded bg-amber-500 text-white text-[11px] font-bold"
+                          className="px-2.5 py-1 rounded bg-amber-500 text-white text-[0.6875rem] font-bold"
                         >
                           PM INBOX
                         </button>
                         <button
                           onClick={() => navigate('memberPanel')}
-                          className="px-2.5 py-1 rounded bg-blue-600 text-white text-[11px] font-bold"
+                          className="px-2.5 py-1 rounded bg-blue-600 text-white text-[0.6875rem] font-bold"
                         >
                           CONTROL PANEL
                         </button>
@@ -4421,7 +4424,7 @@ export default function App() {
                     )}
                     <button
                       onClick={() => navigate('discussionSearch')}
-                      className="px-2.5 py-1 rounded bg-blue-700 text-white text-[11px] font-bold"
+                      className="px-2.5 py-1 rounded bg-blue-700 text-white text-[0.6875rem] font-bold"
                     >
                       SEARCH
                     </button>
@@ -4437,7 +4440,7 @@ export default function App() {
                         }
                         navigate('createTopicForm');
                       }}
-                      className="px-2.5 py-1 rounded bg-[var(--teal)] text-white text-[11px] font-bold"
+                      className="px-2.5 py-1 rounded bg-[var(--teal)] text-white text-[0.6875rem] font-bold"
                     >
                       {t('createNewTopic')}
                     </button>
@@ -4475,7 +4478,7 @@ export default function App() {
                             >
                               {getLoc(top.title)}
                             </button>
-                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold">
+                            <span className="ml-2 text-[0.625rem] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold">
                               {top.priority}
                             </span>
                           </td>
@@ -4483,7 +4486,7 @@ export default function App() {
                           <td className="p-3 text-center text-[var(--muted)]">
                             {top.replies} / {top.views}
                           </td>
-                          <td className="p-3 text-[11px] text-[var(--muted)]">
+                          <td className="p-3 text-[0.6875rem] text-[var(--muted)]">
                             {t('byUserAtTime')} <span className="font-semibold text-blue-700">{top.lastAuthor}</span> {t('atTime')} {top.lastTime}
                           </td>
                         </tr>
@@ -4594,13 +4597,13 @@ export default function App() {
                       <>
                         <button
                           onClick={() => navigate('memberPanel')}
-                          className="px-2.5 py-1 rounded bg-blue-600 text-white text-[11px] font-bold"
+                          className="px-2.5 py-1 rounded bg-blue-600 text-white text-[0.6875rem] font-bold"
                         >
                           CONTROL PANEL
                         </button>
                         <button
                           onClick={() => navigate('pmCenter')}
-                          className="px-2.5 py-1 rounded bg-amber-500 text-white text-[11px] font-bold"
+                          className="px-2.5 py-1 rounded bg-amber-500 text-white text-[0.6875rem] font-bold"
                         >
                           PM INBOX
                         </button>
@@ -4611,19 +4614,19 @@ export default function App() {
                         const replyBox = document.getElementById('post-reply-box');
                         if (replyBox) replyBox.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="px-2.5 py-1 rounded bg-emerald-600 text-white text-[11px] font-bold"
+                      className="px-2.5 py-1 rounded bg-emerald-600 text-white text-[0.6875rem] font-bold"
                     >
                       ADD REPLY
                     </button>
                     <button
                       onClick={() => navigate('createTopicForm')}
-                      className="px-2.5 py-1 rounded bg-[var(--teal)] text-white text-[11px] font-bold"
+                      className="px-2.5 py-1 rounded bg-[var(--teal)] text-white text-[0.6875rem] font-bold"
                     >
                       NEW TOPIC
                     </button>
                     <button
                       onClick={() => navigate('discussionSub')}
-                      className="px-2.5 py-1 rounded bg-blue-700 text-white text-[11px] font-bold"
+                      className="px-2.5 py-1 rounded bg-blue-700 text-white text-[0.6875rem] font-bold"
                     >
                       TOPICS
                     </button>
@@ -4643,7 +4646,7 @@ export default function App() {
                             }
                           });
                         }}
-                        className="px-2.5 py-1 rounded bg-red-700 hover:bg-red-800 text-white text-[11px] font-bold"
+                        className="px-2.5 py-1 rounded bg-red-700 hover:bg-red-800 text-white text-[0.6875rem] font-bold"
                       >
                         DELETE TOPIC
                       </button>
@@ -4669,10 +4672,10 @@ export default function App() {
                             </div>
                             <div>
                               <div className="font-bold text-xs text-blue-900">{post.author}</div>
-                              <div className="text-[10px] text-[var(--muted)]">
+                              <div className="text-[0.625rem] text-[var(--muted)]">
                                 {post.postCount} Posts
                               </div>
-                              <div className="text-[10px] text-[var(--muted)] mt-1">
+                              <div className="text-[0.625rem] text-[var(--muted)] mt-1">
                                 Posted at {post.time}
                               </div>
                             </div>
@@ -4688,7 +4691,7 @@ export default function App() {
                                     setPmForm({ to: post.author, subject: `PM regarding ${getLoc(activeTopic.title)}`, content: '' });
                                     setPmModalOpen(true);
                                   }}
-                                  className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold hover:bg-blue-200"
+                                  className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[0.625rem] font-bold hover:bg-blue-200"
                                 >
                                   PM
                                 </button>
@@ -4703,7 +4706,7 @@ export default function App() {
                                       });
                                     }
                                   }}
-                                  className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[10px] font-bold hover:bg-gray-200"
+                                  className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[0.625rem] font-bold hover:bg-gray-200"
                                 >
                                   Profile
                                 </button>
@@ -4713,7 +4716,7 @@ export default function App() {
                                     const replyBox = document.getElementById('post-reply-box');
                                     if (replyBox) replyBox.scrollIntoView({ behavior: 'smooth' });
                                   }}
-                                  className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold hover:bg-amber-200"
+                                  className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[0.625rem] font-bold hover:bg-amber-200"
                                 >
                                   Quote
                                 </button>
@@ -4727,14 +4730,14 @@ export default function App() {
                                       setEditingPostId(post.id);
                                       setEditingPostContent(getLoc(post.content));
                                     }}
-                                    className="px-2 py-0.5 rounded bg-teal-100 text-[var(--teal-deep)] text-[10px] font-bold hover:bg-teal-200 flex items-center gap-1"
+                                    className="px-2 py-0.5 rounded bg-teal-100 text-[var(--teal-deep)] text-[0.625rem] font-bold hover:bg-teal-200 flex items-center gap-1"
                                   >
                                     <PenLine className="w-3 h-3" />
                                     <span>Edit</span>
                                   </button>
                                   <button
                                     onClick={() => handleDeletePost(post.id)}
-                                    className="px-2 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold hover:bg-red-200 flex items-center gap-1"
+                                    className="px-2 py-0.5 rounded bg-red-100 text-red-700 text-[0.625rem] font-bold hover:bg-red-200 flex items-center gap-1"
                                   >
                                     <Trash2 className="w-3 h-3" />
                                     <span>Delete</span>
@@ -4913,7 +4916,7 @@ export default function App() {
                                         type: 'alert'
                                       });
                                     }}
-                                    className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[11px] font-bold hover:bg-blue-200"
+                                    className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[0.6875rem] font-bold hover:bg-blue-200"
                                   >
                                     Profile
                                   </button>
@@ -4962,11 +4965,11 @@ export default function App() {
                             <div className="font-bold text-blue-700">
                               {item.title ? getLoc(item.title) : `Post in topic: ${item.topicId}`}
                             </div>
-                            <div className="text-[11px] text-[var(--muted)] mt-1">
+                            <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                               Author: <span className="font-semibold">{item.author}</span> • Time: {item.lastTime || item.time}
                             </div>
                             {item.content && (
-                              <div className="text-[11px] text-[var(--text)] mt-1 italic">
+                              <div className="text-[0.6875rem] text-[var(--text)] mt-1 italic">
                                 "{getLoc(item.content).slice(0, 100)}..."
                               </div>
                             )}
@@ -5097,7 +5100,7 @@ export default function App() {
                 <div className="p-4 rounded-xl bg-white border border-blue-200 text-xs font-bold text-blue-800">
                   {t('feedbackSent')}
                 </div>
-                <div className="p-3 rounded-xl bg-blue-100/70 border border-blue-200 text-[11px] text-blue-900 text-left space-y-1.5">
+                <div className="p-3 rounded-xl bg-blue-100/70 border border-blue-200 text-[0.6875rem] text-blue-900 text-left space-y-1.5">
                   <div className="font-bold flex items-center gap-1.5 text-blue-950">
                     <Mail className="w-3.5 h-3.5 text-blue-700" />
                     <span>{t('routingStatus')}</span>
@@ -5171,7 +5174,7 @@ export default function App() {
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
                       {t('medFaqAdminUnit')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('medFaqAdminUnitDesc')}
                     </div>
                   </button>
@@ -5186,7 +5189,7 @@ export default function App() {
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
                       {t('discussionBoardAdminUnit')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('discussionBoardAdminUnitDesc')}
                     </div>
                   </button>
@@ -5201,7 +5204,7 @@ export default function App() {
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
                       {t('sendEmailToAllUnit')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('sendEmailToAllUnitDesc')}
                     </div>
                   </button>
@@ -5216,7 +5219,7 @@ export default function App() {
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
                       {t('membershipMgmtUnit')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('membershipMgmtUnitDesc')}
                     </div>
                   </button>
@@ -5229,14 +5232,14 @@ export default function App() {
                       <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 grid place-items-center">
                         <Mail className="w-4 h-4" />
                       </div>
-                      <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[0.625rem] font-bold">
                         {feedbacks.length} {t('messagesCount')}
                       </span>
                     </div>
                     <div className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
                       {t('readUserFeedbackUnit')}
                     </div>
-                    <div className="text-[11px] text-[var(--muted)] mt-1">
+                    <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
                       {t('readUserFeedbackUnitDesc')}
                     </div>
                   </button>
@@ -5278,7 +5281,7 @@ export default function App() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <span className="font-bold text-xs text-blue-900">{getLoc(cat.name)}</span>
-                          <span className="text-[10px] text-[var(--muted)]">List Order: {cat.listOrder}</span>
+                          <span className="text-[0.625rem] text-[var(--muted)]">List Order: {cat.listOrder}</span>
                         </div>
                         <button
                           onClick={() => {
@@ -5297,7 +5300,7 @@ export default function App() {
                               showToast(t('success'));
                             }
                           }}
-                          className="text-[11px] text-blue-700 font-bold hover:underline"
+                          className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
                           Change title
                         </button>
@@ -5343,7 +5346,7 @@ export default function App() {
                                   showToast(t('success'));
                                 }
                               }}
-                              className="text-[11px] text-blue-600 hover:underline"
+                              className="text-[0.6875rem] text-blue-600 hover:underline"
                             >
                               Change sub category's title
                             </button>
@@ -5449,7 +5452,7 @@ export default function App() {
                             }}
                           />
                           <span className="font-bold text-blue-900">{getLoc(cat.name)}</span>
-                          <span className="text-[10px] text-[var(--muted)]">List Order: {cat.listOrder}</span>
+                          <span className="text-[0.625rem] text-[var(--muted)]">List Order: {cat.listOrder}</span>
                         </div>
                         <button
                           onClick={() => {
@@ -5465,7 +5468,7 @@ export default function App() {
                               showToast(t('success'));
                             }
                           }}
-                          className="text-[11px] text-blue-700 font-bold hover:underline"
+                          className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
                           Change title
                         </button>
@@ -5475,7 +5478,7 @@ export default function App() {
                           <div key={s.id} className="flex items-center justify-between py-1 border-b border-dashed">
                             <div>
                               <span className="font-bold text-blue-800">{getLoc(s.name)}</span>
-                              <div className="text-[10px] text-[var(--muted)]">{s.desc ? getLoc(s.desc) : 'Standard subforum'}</div>
+                              <div className="text-[0.625rem] text-[var(--muted)]">{s.desc ? getLoc(s.desc) : 'Standard subforum'}</div>
                             </div>
                             <div className="flex items-center gap-2">
                               <button
@@ -5495,7 +5498,7 @@ export default function App() {
                                     showToast(t('success'));
                                   }
                                 }}
-                                className="text-[11px] text-blue-600 hover:underline"
+                                className="text-[0.6875rem] text-blue-600 hover:underline"
                               >
                                 Edit Subforum
                               </button>
@@ -5508,7 +5511,7 @@ export default function App() {
                                   fetch(`/api/subcategories/${s.id}`, { method: 'DELETE' }).catch(console.error);
                                   showToast(t('deleteSuccess'));
                                 }}
-                                className="text-[11px] text-red-500 hover:underline"
+                                className="text-[0.6875rem] text-red-500 hover:underline"
                               >
                                 Delete
                               </button>
@@ -5604,25 +5607,25 @@ export default function App() {
                         <Mail className="w-3.5 h-3.5 text-purple-700" />
                         <span>Email System Status &amp; Notification Outbox</span>
                       </h3>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold ${
                         emailStatus?.smtpConfigured ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                       }`}>
                         {emailStatus?.smtpConfigured ? 'SMTP Online' : 'Local Simulation Mode'}
                       </span>
                     </div>
 
-                    <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-200 text-[11px] space-y-1">
+                    <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-200 text-[0.6875rem] space-y-1">
                       <div><b>Admin Notification Email:</b> <span className="text-purple-800 font-bold">{currentUser?.email || 'admin@medifaq.my'}</span></div>
                       <div><b>SMTP Host:</b> {emailStatus?.smtpHost || 'None (Simulated delivery logged to system outbox & internal PMs)'}</div>
-                      <div className="text-[10px] text-[var(--muted)]">
+                      <div className="text-[0.625rem] text-[var(--muted)]">
                         Tip: To receive real emails in your Gmail inbox, define SMTP_HOST="smtp.gmail.com", SMTP_USER and SMTP_PASS (Gmail App Password) in your local .env file.
                       </div>
                     </div>
 
                     {emailStatus?.logs && emailStatus.logs.length > 0 && (
                       <div className="space-y-1.5">
-                        <div className="font-bold text-[11px] text-[var(--navy)]">Recent Dispatched Notifications ({emailStatus.logs.length}):</div>
-                        <div className="max-h-48 overflow-y-auto divide-y border rounded-xl bg-white text-[10px]">
+                        <div className="font-bold text-[0.6875rem] text-[var(--navy)]">Recent Dispatched Notifications ({emailStatus.logs.length}):</div>
+                        <div className="max-h-48 overflow-y-auto divide-y border rounded-xl bg-white text-[0.625rem]">
                           {emailStatus.logs.map((log) => (
                             <div key={log.id} className="p-2 space-y-0.5 hover:bg-gray-50">
                               <div className="flex items-center justify-between font-bold text-gray-800">
@@ -5685,7 +5688,7 @@ export default function App() {
                             <td className="p-2.5">
                               <button
                                 onClick={() => setSelectedMemberForAdmin(m)}
-                                className="px-2.5 py-1 rounded bg-blue-100 text-blue-800 text-[11px] font-bold hover:bg-blue-200"
+                                className="px-2.5 py-1 rounded bg-blue-100 text-blue-800 text-[0.6875rem] font-bold hover:bg-blue-200"
                               >
                                 EDIT PROFILE
                               </button>
@@ -5915,7 +5918,7 @@ export default function App() {
                         setSelectedFeedback(null);
                         showToast(t('deleteSuccess'));
                       }}
-                      className="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-bold"
+                      className="px-2 py-0.5 rounded bg-red-600 text-white text-[0.625rem] font-bold"
                     >
                       DELETE MSG
                     </button>
@@ -5923,7 +5926,7 @@ export default function App() {
 
                   <div className="bg-amber-100 p-2 text-center text-xs font-bold text-amber-900 rounded">
                     Subject: {selectedFeedback.subject}
-                    <div className="text-[10px] font-normal text-amber-700">From: {selectedFeedback.name} at {selectedFeedback.date}</div>
+                    <div className="text-[0.625rem] font-normal text-amber-700">From: {selectedFeedback.name} at {selectedFeedback.date}</div>
                   </div>
 
                   <div className="space-y-2 text-xs bg-emerald-50/60 p-4 rounded-xl border border-emerald-200">
@@ -5978,7 +5981,7 @@ export default function App() {
                       <span>User's Feedback ({feedbacks.length})</span>
                       <button
                         onClick={refreshData}
-                        className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-white text-[10px] font-semibold transition"
+                        className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-white text-[0.625rem] font-semibold transition"
                         title="Reload messages from database"
                       >
                         ↻ Refresh
@@ -5997,7 +6000,7 @@ export default function App() {
                           }
                         });
                       }}
-                      className="px-2 py-0.5 rounded bg-blue-700 text-white text-[10px] font-bold"
+                      className="px-2 py-0.5 rounded bg-blue-700 text-white text-[0.625rem] font-bold"
                     >
                       DELETE ALL
                     </button>
@@ -6113,7 +6116,7 @@ export default function App() {
             <div className="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed bg-white">
               <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-bold flex items-center justify-between">
                 <span>Answer from {activeFaqDetail.doctorName || t('answerFromDoctor')}</span>
-                <span className="text-[10px] font-normal text-amber-700">Created at {activeFaqDetail.createdAt}</span>
+                <span className="text-[0.625rem] font-normal text-amber-700">Created at {activeFaqDetail.createdAt}</span>
               </div>
 
               <div className="whitespace-pre-wrap text-[var(--text)] text-sm leading-relaxed">

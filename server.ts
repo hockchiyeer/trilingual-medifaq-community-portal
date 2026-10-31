@@ -840,7 +840,7 @@ app.post('/api/feedbacks', async (req, res) => {
         read: false,
       });
 
-      // 3. Dispatch email notification to the administrator's email address (e.g. cheshiruanjian@gmail.com)
+      // 3. Dispatch email notification to the administrator's email address (e.g. admin@medifaq.my)
       if (admin.email) {
         const safeName = escapeHtml(name);
         const safeEmail = escapeHtml(email);
@@ -1012,7 +1012,7 @@ app.delete('/api/pms/:id', async (req, res) => {
 app.get('/api/admin/email-status', async (_req, res) => {
   try {
     const adminRows = await getAdministrators();
-    const configuredAdminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || 'cheshiruanjian@gmail.com';
+    const configuredAdminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || 'admin@medifaq.my';
     const adminEmails = Array.from(new Set([...adminRows.map((a) => a.email).filter(Boolean), configuredAdminEmail]));
     const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
     res.json({

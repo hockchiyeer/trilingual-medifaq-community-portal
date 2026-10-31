@@ -158,7 +158,7 @@ async function seed() {
       uid: 'uid_admin',
       username: 'admin',
       password: 'admin',
-      email: 'cheshiruanjian@gmail.com',
+      email: 'admin@medifaq.my',
       emailPrivate: false,
       fullName: 'System Administrator',
       firstName: 'Sys',

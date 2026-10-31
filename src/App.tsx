@@ -166,6 +166,13 @@ const T_DATA: Translations = {
     mustLoginToPost: "You must log in or register to post a reply!",
     edit: "Edit",
     delete: "Delete",
+    adminForumCenter: "Discussion Board Admin Center",
+    addDeleteRenameForums: "Add, delete or rename forums",
+    changeTitle: "Change title",
+    editSubforum: "Edit Subforum",
+    listOrder: "List Order",
+    changeSubcategoryTitle: "Change sub category's title",
+    sendEmailToAllMembers: "Send Email to All Members",
     profile: "Profile",
     quote: "Quote",
     pm: "PM",
@@ -493,6 +500,13 @@ const T_DATA: Translations = {
     mustLoginToPost: "您必须先登录或注册才能发表回复！",
     edit: "编辑",
     delete: "删除",
+    adminForumCenter: "论坛管理中心",
+    addDeleteRenameForums: "添加、删除或重命名论坛",
+    changeTitle: "修改标题",
+    editSubforum: "编辑子论坛",
+    listOrder: "列表顺序",
+    changeSubcategoryTitle: "修改子类别标题",
+    sendEmailToAllMembers: "群发邮件给所有会员",
     profile: "资料",
     quote: "引用",
     pm: "私信",
@@ -820,6 +834,13 @@ const T_DATA: Translations = {
     mustLoginToPost: "Anda mesti log masuk atau daftar untuk membalas!",
     edit: "Sunting",
     delete: "Padam",
+    adminForumCenter: "Pusat Pentadbiran Forum",
+    addDeleteRenameForums: "Tambah, padam atau namakan semula forum",
+    changeTitle: "Tukar Tajuk",
+    editSubforum: "Sunting Subforum",
+    listOrder: "Susunan Senarai",
+    changeSubcategoryTitle: "Tukar tajuk sub kategori",
+    sendEmailToAllMembers: "Hantar E-mel kepada Semua Ahli",
     profile: "Profil",
     quote: "Petik",
     pm: "PM",
@@ -2578,9 +2599,6 @@ export default function App() {
     setTextPrompt(null);
     onSubmit(v);
   };
-
-
-
 
 
   // Accessibility: font size & high contrast (rendered in the header on >=md and in the mobile drawer below md)
@@ -4918,7 +4936,7 @@ export default function App() {
                       <input
                         value={forumSearchQuery}
                         onChange={(e) => setForumSearchQuery(e.target.value)}
-                        placeholder="admin, quit smoking, allergy, asthma..."
+                        placeholder={`${t('searchExample')}`}
                         className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                       />
                     </div>
@@ -5342,7 +5360,7 @@ export default function App() {
 
               <div className="card p-6 border-t-4 border-t-purple-600 space-y-4">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs">
-                  Add, delete or rename FAQ categories: Medical Knowledge FAQ Admin Center
+                  {t('addDeleteRenameForums')}: {t('faqAdminBoard')}
                 </div>
 
                 <div className="space-y-4">
@@ -5362,7 +5380,7 @@ export default function App() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <span className="font-bold text-xs text-blue-900">{getLoc(cat.name)}</span>
-                          <span className="text-[0.625rem] text-[var(--muted)]">List Order: {cat.listOrder}</span>
+                          <span className="text-[0.625rem] text-[var(--muted)]">{t('listOrder')}: {cat.listOrder}</span>
                         </div>
                         <button
                           onClick={() => openTextPrompt(t('dlgChangeCategoryTitle'), t('categoryNameLabel'), getLoc(cat.name), (v) => {
@@ -5377,7 +5395,7 @@ export default function App() {
                           })}
                           className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
-                          Change title
+                          {t('changeTitle')}
                         </button>
                       </div>
 
@@ -5417,7 +5435,7 @@ export default function App() {
                               })}
                               className="text-[0.6875rem] text-blue-600 hover:underline"
                             >
-                              Change sub category's title
+                              {t('changeSubcategoryTitle')}
                             </button>
                           </div>
                         ))}
@@ -5440,7 +5458,7 @@ export default function App() {
                             })}
                             className="text-xs text-[var(--teal-deep)] font-bold hover:underline"
                           >
-                            + Add a New Sub Category
+                            + {t('dlgAddSubcategory')}
                           </button>
                         </div>
                       </div>
@@ -5489,13 +5507,13 @@ export default function App() {
               <Breadcrumbs
                 items={[
                   { label: t('administrationBoard'), onClick: () => navigate('adminBoard') },
-                  { label: "Discussion Board Admin Center" }
+                  { label: t('adminForumCenter') }
                 ]}
               />
 
               <div className="card p-6 border-t-4 border-t-purple-600 space-y-4">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs">
-                  Add, delete or rename forums: Discussion Board Admin Center
+                  {t('addDeleteRenameForums')}: {t('adminForumCenter')}
                 </div>
 
                 <div className="space-y-4 text-xs">
@@ -5512,7 +5530,7 @@ export default function App() {
                             }}
                           />
                           <span className="font-bold text-blue-900">{getLoc(cat.name)}</span>
-                          <span className="text-[0.625rem] text-[var(--muted)]">List Order: {cat.listOrder}</span>
+                          <span className="text-[0.625rem] text-[var(--muted)]">{t('listOrder')}: {cat.listOrder}</span>
                         </div>
                         <button
                           onClick={() => openTextPrompt(t('dlgRenameForumCategory'), t('categoryNameLabel'), getLoc(cat.name), (v) => {
@@ -5527,7 +5545,7 @@ export default function App() {
                           })}
                           className="text-[0.6875rem] text-blue-700 font-bold hover:underline"
                         >
-                          Change title
+                          {t('changeTitle')}
                         </button>
                       </div>
                       <div className="pl-4 pt-2 space-y-2">
@@ -5554,7 +5572,7 @@ export default function App() {
                                 })}
                                 className="text-[0.6875rem] text-blue-600 hover:underline pointer-events-auto"
                               >
-                                Edit Subforum
+                                {t('editSubforum')}
                               </button>
                               <button
                                 onClick={() => {
@@ -5567,7 +5585,7 @@ export default function App() {
                                 }}
                                 className="text-[0.6875rem] text-red-500 hover:underline"
                               >
-                                Delete
+                                {t('delete')}
                               </button>
                             </div>
                           </div>

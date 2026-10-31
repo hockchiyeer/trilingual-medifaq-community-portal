@@ -14,3 +14,5 @@ public/*
 .aistudio/*
 firebase-applet-config.json
 *.patch
+*.rej
+*.orig

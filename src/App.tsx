@@ -257,6 +257,7 @@ const T_DATA: Translations = {
     dlgChangeSubcategoryTitle: "Change Sub Category Title",
     dlgAddSubcategory: "Add a New Sub Category",
     dlgAddMainCategory: "Add a Main Category",
+    addMainCategory: "+ Add a Main Category",
     dlgRenameForumCategory: "Rename Forum Category",
     dlgRenameSubforum: "Rename Subforum",
     dlgEditMemberName: "Edit Member Full Name",
@@ -395,7 +396,9 @@ const T_DATA: Translations = {
     editPost: "Edit Post",
     neverPosted: "Never Posted!",
     createdAt: "Created at",
-    systemNotice: "System Notice"
+    systemNotice: "System Notice",
+    standardSubforum: "Standard subforum",
+    emailSystemStatus: "Email System Status & Notification Outbox"
   },
   ZH: {
     appName: "MediFAQ",
@@ -592,6 +595,7 @@ const T_DATA: Translations = {
     dlgChangeSubcategoryTitle: "修改子类别标题",
     dlgAddSubcategory: "新增子类别",
     dlgAddMainCategory: "新增主类别",
+    addMainCategory: "+ 新增主类别",
     dlgRenameForumCategory: "重命名论坛类别",
     dlgRenameSubforum: "重命名子论坛",
     dlgEditMemberName: "编辑会员全名",
@@ -730,7 +734,9 @@ const T_DATA: Translations = {
     editPost: "编辑帖子",
     neverPosted: "尚未发帖！",
     createdAt: "创建于",
-    systemNotice: "系统提示"
+    systemNotice: "系统提示",
+    standardSubforum: "标准子论坛",
+    emailSystemStatus: "邮件系统状态与通知发件箱"
   },
   BM: {
     appName: "MediFAQ",
@@ -927,6 +933,7 @@ const T_DATA: Translations = {
     dlgChangeSubcategoryTitle: "Tukar Tajuk Subkategori",
     dlgAddSubcategory: "Tambah Subkategori Baharu",
     dlgAddMainCategory: "Tambah Kategori Utama",
+    addMainCategory: "+ Tambah Kategori Utama",
     dlgRenameForumCategory: "Namakan Semula Kategori Forum",
     dlgRenameSubforum: "Namakan Semula Subforum",
     dlgEditMemberName: "Sunting Nama Penuh Ahli",
@@ -1065,7 +1072,9 @@ const T_DATA: Translations = {
     editPost: "Sunting Pos",
     neverPosted: "Belum Pernah Pos!",
     createdAt: "Dicipta pada",
-    systemNotice: "Notis Sistem"
+    systemNotice: "Notis Sistem",
+    standardSubforum: "Subforum standard",
+    emailSystemStatus: "Status Sistem E-mel & Peti Keluar Pemberitahuan"
   }
 };
 
@@ -5490,7 +5499,7 @@ export default function App() {
                       })}
                       className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs"
                     >
-                      + Add A Main Category
+                      {t('addMainCategory')}
                     </button>
                   </div>
                 </div>
@@ -5556,7 +5565,7 @@ export default function App() {
                           <div key={s.id} className="flex items-center justify-between py-1 border-b border-dashed">
                             <div>
                               <span className="font-bold text-blue-800">{getLoc(s.name)}</span>
-                              <div className="text-[0.625rem] text-[var(--muted)]">{s.desc ? getLoc(s.desc) : 'Standard subforum'}</div>
+                              <div className="text-[0.625rem] text-[var(--muted)]">{s.desc ? getLoc(s.desc) : t('standardSubforum')}</div>
                             </div>
                             <div className="flex items-center gap-2">
                               <button
@@ -5680,7 +5689,7 @@ export default function App() {
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold text-purple-950 text-xs flex items-center gap-1.5">
                         <Mail className="w-3.5 h-3.5 text-purple-700" />
-                        <span>Email System Status &amp; Notification Outbox</span>
+                        <span>{t('emailSystemStatus')}</span>
                       </h3>
                       <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold ${
                         emailStatus?.smtpConfigured ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
@@ -5833,7 +5842,7 @@ export default function App() {
                         })}
                         className="text-blue-700 font-bold hover:underline"
                       >
-                        Edit Member's Profile
+                        {t('editMemberProfile')}
                       </button>
                     </div>
                     <div>

@@ -1759,6 +1759,13 @@ export default function App() {
   const [faqEditor, setFaqEditor] = useState<{ id?: string; q: string; a: string; submitted: boolean } | null>(null);
   const [subforumEditor, setSubforumEditor] = useState<{ subforum: any; category: any; name: string; submitted: boolean } | null>(null);
   const [titleEditor, setTitleEditor] = useState<{ category: any; name: string; submitted: boolean } | null>(null);
+  const [genericEditor, setGenericEditor] = useState<{
+    title: string;
+    label: string;
+    value: string;
+    onSave: (val: string) => void;
+    submitted: boolean;
+  } | null>(null);
   const [modalDialog, setModalDialog] = useState<{
     title: string;
     msg: string;
@@ -5376,9 +5383,11 @@ export default function App() {
                               <span>{getLoc(s.name)}</span>
                             </div>
                             <button
-                              onClick={() => {
-                                const newTitle = prompt("Change sub category's title:", getLoc(s.name));
-                                if (newTitle) {
+                              onClick={() => setGenericEditor({
+                                title: "Change sub category's title",
+                                label: "Sub Category Title",
+                                value: getLoc(s.name),
+                                onSave: (newTitle) => {
                                   const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
                                   setCategories(categories.map((c) => c.id === cat.id ? {
                                     ...c,
@@ -5393,8 +5402,9 @@ export default function App() {
                                     body: JSON.stringify({ name: updatedName }),
                                   }).catch(console.error);
                                   showToast(t('success'));
-                                }
-                              }}
+                                },
+                                submitted: false
+                              })}
                               className="text-[0.6875rem] text-blue-600 hover:underline"
                             >
                               Change sub category's title
@@ -5435,9 +5445,11 @@ export default function App() {
 
                   <div className="pt-2 text-center">
                     <button
-                      onClick={() => {
-                        const mName = prompt("Enter New Main Category name:");
-                        if (mName) {
+                      onClick={() => setGenericEditor({
+                        title: "Add New Main Category",
+                        label: "Main Category Name",
+                        value: "",
+                        onSave: (mName) => {
                           const newCat: MainCategory = {
                             id: "main_" + Date.now(),
                             name: { EN: mName, ZH: mName, BM: mName },
@@ -5454,8 +5466,9 @@ export default function App() {
                             body: JSON.stringify(newCat),
                           }).catch(console.error);
                           showToast(t('createSuccess'));
-                        }
-                      }}
+                        },
+                        submitted: false
+                      })}
                       className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs"
                     >
                       + Add A Main Category
@@ -5768,9 +5781,11 @@ export default function App() {
                   <div className="space-y-2 text-xs">
                     <div>
                       <button
-                        onClick={() => {
-                          const newName = prompt("Edit Member Full Name:", selectedMemberForAdmin.fullName);
-                          if (newName) {
+                        onClick={() => setGenericEditor({
+                          title: "Edit Member Full Name",
+                          label: "Full Name",
+                          value: selectedMemberForAdmin.fullName,
+                          onSave: (newName) => {
                             setMembers(members.map((x) => x.username === selectedMemberForAdmin.username ? { ...x, fullName: newName } : x));
                             setSelectedMemberForAdmin({ ...selectedMemberForAdmin, fullName: newName });
                             fetch(`/api/members/${selectedMemberForAdmin.username}`, {
@@ -5779,8 +5794,9 @@ export default function App() {
                               body: JSON.stringify({ fullName: newName }),
                             }).catch(console.error);
                             showToast(t('profileUpdated'));
-                          }
-                        }}
+                          },
+                          submitted: false
+                        })}
                         className="text-blue-700 font-bold hover:underline"
                       >
                         Edit Member's Profile
@@ -6441,6 +6457,72 @@ export default function App() {
               <button
                 type="button"
                 onClick={saveTitleEditor}
+                className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
+              >
+                {t('save')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GENERIC INPUT DIALOG (replaces window.prompt, which sandboxed previews block) */}
+      {genericEditor && (
+        <div className="fixed inset-0 z-[60] grid place-items-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setGenericEditor(null)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="generic-editor-title"
+            className="relative w-full max-w-md card p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
+              <span id="generic-editor-title" className="font-bold text-sm text-[var(--navy)]">
+                {genericEditor.title}
+              </span>
+              <button
+                type="button"
+                onClick={() => setGenericEditor(null)}
+                className="w-7 h-7 grid place-items-center rounded-lg bg-[var(--surface-2)] hover:bg-[var(--border)] focus-ring"
+                aria-label={t('close')}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <label className="block space-y-1">
+                <span className="font-bold">{genericEditor.label}</span>
+                <input
+                  type="text"
+                  value={genericEditor.value}
+                  onChange={(e) => setGenericEditor({ ...genericEditor, value: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
+                />
+                {genericEditor.submitted && !genericEditor.value.trim() && (
+                  <span className="text-red-600 font-semibold">{t('required')}</span>
+                )}
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
+              <button
+                type="button"
+                onClick={() => setGenericEditor(null)}
+                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (genericEditor.value.trim()) {
+                    genericEditor.onSave(genericEditor.value);
+                    setGenericEditor(null);
+                  } else {
+                    setGenericEditor({ ...genericEditor, submitted: true });
+                  }
+                }}
                 className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
               >
                 {t('save')}

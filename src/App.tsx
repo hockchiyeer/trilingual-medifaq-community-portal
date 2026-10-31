@@ -238,6 +238,13 @@ const T_DATA: Translations = {
     today: "Today",
     yesterday: "Yesterday",
     createFAQ: "Create Medical Knowledge FAQ",
+    createFAQLink: "Please click here to Create Medical Knowledge FAQ !",
+    editFAQ: "Edit Medical Knowledge FAQ",
+    deleteFAQ: "Delete FAQ",
+    deleteFAQConfirm: "Are you sure you want to permanently delete this Medical Knowledge FAQ?",
+    faqQuestionLabel: "FAQ Question:",
+    faqAnswerLabel: "FAQ Answer / Explanation:",
+    noResultsInSubtopic: "No results found in this subtopic.",
     add: "Add",
     save: "Save",
     deleteSuccess: "Deleted successfully",
@@ -547,6 +554,13 @@ const T_DATA: Translations = {
     today: "今天",
     yesterday: "昨天",
     createFAQ: "创建医学常问条目",
+    createFAQLink: "请点击此处创建医学常问条目！",
+    editFAQ: "编辑医学常问条目",
+    deleteFAQ: "删除常问条目",
+    deleteFAQConfirm: "确定要永久删除此医学常问条目吗？",
+    faqQuestionLabel: "常问问题：",
+    faqAnswerLabel: "常问答案 / 说明：",
+    noResultsInSubtopic: "此子主题下未找到相关结果。",
     add: "添加",
     save: "保存",
     deleteSuccess: "删除成功",
@@ -856,6 +870,13 @@ const T_DATA: Translations = {
     today: "Hari Ini",
     yesterday: "Semalam",
     createFAQ: "Cipta FAQ Pengetahuan Perubatan",
+    createFAQLink: "Sila klik di sini untuk Mencipta FAQ Pengetahuan Perubatan !",
+    editFAQ: "Sunting FAQ Pengetahuan Perubatan",
+    deleteFAQ: "Padam FAQ",
+    deleteFAQConfirm: "Adakah anda pasti mahu memadam FAQ Pengetahuan Perubatan ini secara kekal?",
+    faqQuestionLabel: "Soalan FAQ:",
+    faqAnswerLabel: "Jawapan / Penerangan FAQ:",
+    noResultsInSubtopic: "Tiada keputusan dijumpai dalam subtopik ini.",
     add: "Tambah",
     save: "Simpan",
     deleteSuccess: "Berjaya dipadam",
@@ -1734,6 +1755,8 @@ export default function App() {
     };
   }, [fontSizeStep]);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  // In-app FAQ create/edit form (window.prompt is blocked inside sandboxed preview iframes)
+  const [faqEditor, setFaqEditor] = useState<{ id?: string; q: string; a: string; submitted: boolean } | null>(null);
   const [modalDialog, setModalDialog] = useState<{
     title: string;
     msg: string;
@@ -2440,6 +2463,62 @@ export default function App() {
       ))}
     </nav>
   );
+
+  const openCreateFaq = () => setFaqEditor({ q: '', a: '', submitted: false });
+  const openEditFaq = (faq: FAQItem) =>
+    setFaqEditor({ id: faq.id, q: faq.q[lang] || faq.q.EN, a: faq.a[lang] || faq.a.EN, submitted: false });
+
+  // One save path for both creating and editing a FAQ entry.
+  // The text is stored for the active language; any empty locale falls back to it.
+  const saveFaqEditor = () => {
+    if (!faqEditor || !currentUser) return;
+    const q = faqEditor.q.trim();
+    const a = faqEditor.a.trim();
+    if (!q || !a) {
+      setFaqEditor({ ...faqEditor, submitted: true });
+      return;
+    }
+    const existing = faqEditor.id ? faqs.find((f) => f.id === faqEditor.id) : undefined;
+    const withFallback = (prev: Record<Lang, string> | undefined, text: string): Record<Lang, string> => {
+      const next = { ...(prev || { EN: '', ZH: '', BM: '' }), [lang]: text } as Record<Lang, string>;
+      (['EN', 'ZH', 'BM'] as Lang[]).forEach((l) => {
+        if (!next[l]) next[l] = text;
+      });
+      return next;
+    };
+    const newQ = withFallback(existing?.q, q);
+    const newA = withFallback(existing?.a, a);
+
+    if (existing) {
+      setFaqs(faqs.map((f) => (f.id === existing.id ? { ...f, q: newQ, a: newA } : f)));
+      fetch(`/api/faqs/${existing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: newQ, a: newA }),
+      }).catch(console.error);
+      showToast(t('success'));
+    } else {
+      const newFaq: FAQItem = {
+        id: 'f_' + Date.now(),
+        mainId: activeMainId,
+        subId: activeSubId,
+        q: newQ,
+        a: newA,
+        doctorName: currentUser.fullName || 'Dr. ' + currentUser.username,
+        createdBy: currentUser.username,
+        createdAt: new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString(),
+        views: 0,
+      };
+      setFaqs([newFaq, ...faqs]);
+      fetch('/api/faqs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newFaq),
+      }).catch(console.error);
+      showToast(t('createSuccess'));
+    }
+    setFaqEditor(null);
+  };
 
   // Accessibility: font size & high contrast (rendered in the header on >=md and in the mobile drawer below md)
   const accessibilityControls = (
@@ -4096,54 +4175,18 @@ export default function App() {
                         {isModeratorOrAbove(currentUser) && (
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => {
-                                const currentQ = faq.q[lang] || faq.q.EN;
-                                const newQ = prompt(`Edit Question (${lang}):`, currentQ);
-                                if (newQ !== null && newQ.trim()) {
-                                  const currentA = faq.a[lang] || faq.a.EN;
-                                  const newA = prompt(`Edit Answer / Explanation (${lang}):`, currentA);
-                                  const updatedQ = {
-                                    ...faq.q,
-                                    [lang]: newQ.trim()
-                                  };
-                                  if (!updatedQ.EN) updatedQ.EN = newQ.trim();
-                                  if (!updatedQ.ZH) updatedQ.ZH = newQ.trim();
-                                  if (!updatedQ.BM) updatedQ.BM = newQ.trim();
-
-                                  const updatedA = newA !== null ? {
-                                    ...faq.a,
-                                    [lang]: newA.trim()
-                                  } : faq.a;
-                                  if (newA !== null) {
-                                    if (!updatedA.EN) updatedA.EN = newA.trim();
-                                    if (!updatedA.ZH) updatedA.ZH = newA.trim();
-                                    if (!updatedA.BM) updatedA.BM = newA.trim();
-                                  }
-
-                                  setFaqs(faqs.map((f) => f.id === faq.id ? {
-                                    ...f,
-                                    q: updatedQ,
-                                    a: updatedA
-                                  } : f));
-                                  fetch(`/api/faqs/${faq.id}`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ q: updatedQ, a: updatedA }),
-                                  }).catch(console.error);
-                                  showToast(t('success'));
-                                }
-                              }}
+                              onClick={() => openEditFaq(faq)}
                               className="p-1 rounded hover:bg-gray-100 text-blue-600"
-                              title="Edit FAQ"
-                              aria-label="Edit FAQ"
+                              title={t('editFAQ')}
+                              aria-label={t('editFAQ')}
                             >
                               <PenLine className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => {
                                 setModalDialog({
-                                  title: "Delete FAQ",
-                                  msg: "Are you sure you want to permanently delete this Medical Knowledge FAQ?",
+                                  title: t('deleteFAQ'),
+                                  msg: t('deleteFAQConfirm'),
                                   type: "confirm",
                                   onConfirm: () => {
                                     setFaqs(faqs.filter((f) => f.id !== faq.id));
@@ -4153,8 +4196,8 @@ export default function App() {
                                 });
                               }}
                               className="p-1 rounded hover:bg-red-50 text-red-600"
-                              title="Delete FAQ"
-                              aria-label="Delete FAQ"
+                              title={t('deleteFAQ')}
+                              aria-label={t('deleteFAQ')}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -4166,7 +4209,7 @@ export default function App() {
 
                   {filteredFaqs.length === 0 && (
                     <div className="text-center py-8 text-xs text-[var(--muted)]">
-                      {t('noResults')} in this subtopic.
+                      {t('noResultsInSubtopic')}
                     </div>
                   )}
 
@@ -4174,36 +4217,11 @@ export default function App() {
                   {isModeratorOrAbove(currentUser) && (
                     <div className="pt-4 text-center border-t">
                       <button
-                        onClick={() => {
-                          const qTitle = prompt("Enter new FAQ Question:");
-                          const aContent = prompt("Enter new FAQ Answer / Explanation:");
-                          if (qTitle && aContent && currentUser) {
-                            const docAttribution = isModeratorOrAbove(currentUser)
-                              ? (currentUser.fullName || "Dr. " + currentUser.username)
-                              : "Verified Medical Officer";
-                            const newFaq: FAQItem = {
-                              id: "f_" + Date.now(),
-                              mainId: activeMainId,
-                              subId: activeSubId,
-                              q: { EN: qTitle, ZH: qTitle, BM: qTitle },
-                              a: { EN: aContent, ZH: aContent, BM: aContent },
-                              doctorName: docAttribution,
-                              createdBy: currentUser.username,
-                              createdAt: new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString(),
-                              views: 0
-                            };
-                            setFaqs([newFaq, ...faqs]);
-                            fetch('/api/faqs', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify(newFaq),
-                            }).catch(console.error);
-                            showToast(t('createSuccess'));
-                          }
-                        }}
+                        type="button"
+                        onClick={openCreateFaq}
                         className="text-xs text-blue-700 font-bold hover:underline"
                       >
-                        Please click here to Create Medical Knowledge FAQ !
+                        {t('createFAQLink')}
                       </button>
                     </div>
                   )}
@@ -6235,6 +6253,77 @@ export default function App() {
                   {t('send')}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FAQ CREATE / EDIT FORM (replaces window.prompt, which sandboxed previews block) */}
+      {faqEditor && (
+        <div className="fixed inset-0 z-[60] grid place-items-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setFaqEditor(null)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="faq-editor-title"
+            className="relative w-full max-w-md card p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
+              <span id="faq-editor-title" className="font-bold text-sm text-[var(--navy)]">
+                {faqEditor.id ? t('editFAQ') : t('createFAQ')}
+              </span>
+              <button
+                type="button"
+                onClick={() => setFaqEditor(null)}
+                className="w-7 h-7 grid place-items-center rounded-lg bg-[var(--surface-2)] hover:bg-[var(--border)] focus-ring"
+                aria-label={t('close')}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <label className="block space-y-1">
+                <span className="font-bold">{t('faqQuestionLabel')}</span>
+                <input
+                  type="text"
+                  value={faqEditor.q}
+                  onChange={(e) => setFaqEditor({ ...faqEditor, q: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
+                />
+                {faqEditor.submitted && !faqEditor.q.trim() && (
+                  <span className="text-red-600 font-semibold">{t('required')}</span>
+                )}
+              </label>
+              <label className="block space-y-1">
+                <span className="font-bold">{t('faqAnswerLabel')}</span>
+                <textarea
+                  rows={6}
+                  value={faqEditor.a}
+                  onChange={(e) => setFaqEditor({ ...faqEditor, a: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-white focus-ring"
+                />
+                {faqEditor.submitted && !faqEditor.a.trim() && (
+                  <span className="text-red-600 font-semibold">{t('required')}</span>
+                )}
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-[var(--border)]">
+              <button
+                type="button"
+                onClick={() => setFaqEditor(null)}
+                className="px-4 py-1.5 rounded-xl bg-white border border-[var(--border)] text-xs font-semibold hover:bg-[var(--surface-2)] focus-ring"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={saveFaqEditor}
+                className="px-5 py-1.5 rounded-xl bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] focus-ring"
+              >
+                {t('save')}
+              </button>
             </div>
           </div>
         </div>

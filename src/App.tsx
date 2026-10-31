@@ -168,11 +168,11 @@ const T_DATA: Translations = {
     delete: "Delete",
     adminForumCenter: "Discussion Board Admin Center",
     addDeleteRenameForums: "Add, delete or rename forums",
+    addDeleteRenameFaqCategories: "Add, delete or rename FAQ categories",
     changeTitle: "Change title",
     editSubforum: "Edit Subforum",
     listOrder: "List Order",
     changeSubcategoryTitle: "Change sub category's title",
-    sendEmailToAllMembers: "Send Email to All Members",
     profile: "Profile",
     quote: "Quote",
     pm: "PM",
@@ -231,6 +231,7 @@ const T_DATA: Translations = {
     feedbackSent: "Your feedback comment was sent. Thank you!",
     feedbackError: "You didn't fill in the required field(s) properly.",
     searchExample: "e.g., cancer, vitamin, smoking, fever",
+    forumSearchExample: "e.g., admin, quit smoking, allergy, asthma",
     allFieldsRequired: "All fields marked * are required",
     accessibility: "Accessibility",
     highContrast: "High Contrast",
@@ -502,11 +503,11 @@ const T_DATA: Translations = {
     delete: "删除",
     adminForumCenter: "论坛管理中心",
     addDeleteRenameForums: "添加、删除或重命名论坛",
+    addDeleteRenameFaqCategories: "添加、删除或重命名常问类别",
     changeTitle: "修改标题",
     editSubforum: "编辑子论坛",
     listOrder: "列表顺序",
     changeSubcategoryTitle: "修改子类别标题",
-    sendEmailToAllMembers: "群发邮件给所有会员",
     profile: "资料",
     quote: "引用",
     pm: "私信",
@@ -565,6 +566,7 @@ const T_DATA: Translations = {
     feedbackSent: "您的反馈评论已成功发送。非常感谢！",
     feedbackError: "请正确填写所有必填字段。",
     searchExample: "例如：癌症、维生素、戒烟、发烧",
+    forumSearchExample: "例如：管理员，戒烟，过敏，哮喘",
     allFieldsRequired: "标有 * 的字段均为必填项",
     accessibility: "无障碍辅助",
     highContrast: "高对比度",
@@ -836,11 +838,11 @@ const T_DATA: Translations = {
     delete: "Padam",
     adminForumCenter: "Pusat Pentadbiran Forum",
     addDeleteRenameForums: "Tambah, padam atau namakan semula forum",
+    addDeleteRenameFaqCategories: "Tambah, padam atau namakan semula kategori FAQ",
     changeTitle: "Tukar Tajuk",
     editSubforum: "Sunting Subforum",
     listOrder: "Susunan Senarai",
     changeSubcategoryTitle: "Tukar tajuk sub kategori",
-    sendEmailToAllMembers: "Hantar E-mel kepada Semua Ahli",
     profile: "Profil",
     quote: "Petik",
     pm: "PM",
@@ -899,6 +901,7 @@ const T_DATA: Translations = {
     feedbackSent: "Komen maklum balas anda telah dihantar. Terima kasih!",
     feedbackError: "Sila isi semua medan wajib dengan betul.",
     searchExample: "cth: kanser, vitamin, merokok, demam",
+    forumSearchExample: "cth: admin, berhenti merokok, alahan, asma",
     allFieldsRequired: "Semua medan bertanda * adalah wajib",
     accessibility: "Kebolehcapaian",
     highContrast: "Kontras Tinggi",
@@ -4936,7 +4939,7 @@ export default function App() {
                       <input
                         value={forumSearchQuery}
                         onChange={(e) => setForumSearchQuery(e.target.value)}
-                        placeholder={`${t('searchExample')}`}
+                        placeholder={t('forumSearchExample')}
                         className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                       />
                     </div>
@@ -5360,7 +5363,7 @@ export default function App() {
 
               <div className="card p-6 border-t-4 border-t-purple-600 space-y-4">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs">
-                  {t('addDeleteRenameForums')}: {t('faqAdminBoard')}
+                  {t('addDeleteRenameFaqCategories')}: {t('faqAdminBoard')}
                 </div>
 
                 <div className="space-y-4">

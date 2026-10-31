@@ -78,9 +78,23 @@ Users with administrator privileges gain access to a dedicated **Administration 
 3. **Mass Email Announcements**: Broadcast system-wide email announcements to all registered community members.
 4. **Membership & Access Management**:
    * Inspect all registered members, their join dates, activity history, and post counts.
-   * Assign access levels: **No Admin Rights (Regular Member)**, **Moderator (Level 1)**, or **Administrator (Level 3)**.
+   * Assign access levels (see [Membership Access Levels](#-membership-access-levels)): **No Admin Rights (Level 0)**, **Moderator (Level 1)**, or **Administrator (Level 3)**. Labels follow the active language (EN / 华语 / BM).
    * Manage accounts with options to edit member profiles, exclude/cancel membership, or purge all posts by a specific user.
 5. **Feedback Message Center**: Read, filter, and respond to incoming user suggestions, compliments, or service complaints submitted through the public feedback form.
+
+---
+
+## 🪪 Membership Access Levels
+
+Access levels are stored as numbers in `users.admin_level` and mirrored by the `role` field. The values are **0 / 1 / 3** by design (Level 2 is intentionally unassigned and reserved for a future tier), so they must not be renumbered without a data migration. The hierarchy is defined once in `src/accessLevels.ts` and shared by the UI (`App.tsx`) and the API (`server.ts`).
+
+| Level | Role value | EN | 华语 | BM |
+| :---: | :--- | :--- | :--- | :--- |
+| 0 | `user` | Standard Member / No Admin Rights | 普通会员 / 无管理权限 | Ahli Biasa / Tiada Hak Pentadbir |
+| 1 | `moderator` | Doctor / Moderator | 医生 / 版主 | Doktor / Moderator |
+| 3 | `admin` | Administrator | 管理员 | Pentadbir |
+
+Badges and tables render as e.g. `Administrator (Level 3)`, `管理员 (级别 3)` or `Pentadbir (Tahap 3)`. Translation keys: `administratorRole`, `doctorRole`, `standardMemberRole`, `levelWord`, `accessLevelNone`, `accessLevelModerator`, `accessLevelAdministrator`, `chooseAdminLevel`.
 
 ---
 

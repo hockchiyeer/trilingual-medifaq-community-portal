@@ -603,8 +603,7 @@ app.put('/api/members/:username', async (req, res) => {
       if (isAdministrator(targetUser)) {
         const isDemoting = (body.role && body.role !== 'admin') || (body.adminLevel !== undefined && body.adminLevel < ADMIN_LEVEL.ADMINISTRATOR);
         if (isDemoting) {
-          const allUsers = await db.select().from(users);
-          const allAdmins = allUsers.filter((u) => isAdministrator(u));
+          const allAdmins = await getAdministrators();
           if (allAdmins.length <= 1) {
             return res.status(400).json({ error: 'Cannot demote the only remaining administrator' });
           }
@@ -644,8 +643,7 @@ app.delete('/api/members/:username', async (req, res) => {
     // Safety guard: prevent deleting the only remaining administrator
     const targetUser = (await db.select().from(users).where(eq(users.username, username)))[0];
     if (isAdministrator(targetUser)) {
-      const allUsers = await db.select().from(users);
-      const allAdmins = allUsers.filter((u) => isAdministrator(u));
+      const allAdmins = await getAdministrators();
       if (allAdmins.length <= 1) {
         return res.status(400).json({ error: 'Cannot delete the only remaining administrator' });
       }

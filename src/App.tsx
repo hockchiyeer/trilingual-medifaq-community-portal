@@ -2441,7 +2441,7 @@ export default function App() {
     </nav>
   );
 
-  // Accessibility: font size & high contrast (rendered in the header on >=sm and in the mobile drawer below sm)
+  // Accessibility: font size & high contrast (rendered in the header on >=md and in the mobile drawer below md)
   const accessibilityControls = (
     <div className="flex items-center gap-1 rounded-full border border-[var(--border)] p-1 bg-[var(--surface-2)] w-fit">
       <button
@@ -2738,8 +2738,8 @@ export default function App() {
               ))}
             </div>
 
-            {/* Accessibility: Font size & High contrast (header, >= sm; mobile uses the drawer) */}
-            <div className="hidden sm:block">{accessibilityControls}</div>
+            {/* Accessibility: Font size & High contrast (header, >= md; smaller screens use the drawer) */}
+            <div className="hidden md:block">{accessibilityControls}</div>
 
             {/* User status badge with dropdown and quick sign in */}
             {currentUser ? (
@@ -2867,8 +2867,8 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Accessibility controls in mobile (hidden in header below sm) */}
-              <div className="sm:hidden">{accessibilityControls}</div>
+              {/* Accessibility controls in mobile (hidden in header below md) */}
+              <div className="md:hidden">{accessibilityControls}</div>
 
               {/* Nav Links */}
               <nav className="space-y-1">

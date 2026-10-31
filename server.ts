@@ -792,6 +792,13 @@ app.get('/api/feedbacks', async (_req, res) => {
   }
 });
 
+// Returns every account that counts as an administrator (see src/accessLevels.ts),
+// so notification look-ups use the same definition as the permission guards.
+async function getAdministrators() {
+  const allUsers = await db.select().from(users);
+  return allUsers.filter((u) => isAdministrator(u));
+}
+
 function escapeHtml(str: string): string {
   return String(str || '')
     .replace(/&/g, '&amp;')
@@ -821,7 +828,7 @@ app.post('/api/feedbacks', async (req, res) => {
     });
 
     // 1. Find all administrators to notify
-    const adminUsers = await db.select().from(users).where(eq(users.role, 'admin'));
+    const adminUsers = await getAdministrators();
 
     // 2. Automatically dispatch internal Private Message to all administrators
     for (const admin of adminUsers) {
@@ -1006,7 +1013,7 @@ app.delete('/api/pms/:id', async (req, res) => {
 // 7. Admin Email Notification Status & Outbox Logs
 app.get('/api/admin/email-status', async (_req, res) => {
   try {
-    const adminRows = await db.select().from(users).where(eq(users.role, 'admin'));
+    const adminRows = await getAdministrators();
     const configuredAdminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || 'erhc79@gmail.com';
     const adminEmails = Array.from(new Set([...adminRows.map((a) => a.email).filter(Boolean), configuredAdminEmail]));
     const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);

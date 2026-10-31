@@ -199,7 +199,7 @@ const T_DATA: Translations = {
     confirmLogout: "Are you sure you want to logout?",
     editMemberProfile: "Edit Member's Profile",
     cancelMembership: "Cancel Membership",
-    deleteAllPosts: "Delete All Post of This Member",
+    deleteAllPosts: "Delete All Posts of This Member",
     setAdminLevel: "Set Admin Level",
     membershipManagement: "Membership Management",
     feedbackMessageCenter: "Feedback Message Center",
@@ -257,7 +257,6 @@ const T_DATA: Translations = {
     dlgChangeSubcategoryTitle: "Change Sub Category Title",
     dlgAddSubcategory: "Add a New Sub Category",
     dlgAddMainCategory: "Add a Main Category",
-    addMainCategory: "+ Add a Main Category",
     dlgRenameForumCategory: "Rename Forum Category",
     dlgRenameSubforum: "Rename Subforum",
     dlgEditMemberName: "Edit Member Full Name",
@@ -396,9 +395,53 @@ const T_DATA: Translations = {
     editPost: "Edit Post",
     neverPosted: "Never Posted!",
     createdAt: "Created at",
-    systemNotice: "System Notice",
+    faqAdminCenter: "FAQ Admin Center",
+    deleteMainCategory: "Delete Main Category",
+    deleteSubCategory: "Delete Sub Category",
     standardSubforum: "Standard subforum",
-    emailSystemStatus: "Email System Status & Notification Outbox"
+    announcementSubject: "Announcement Subject",
+    typeMessageHere: "Type message here:",
+    fillSubjectAndMessage: "Please fill in both subject and message.",
+    announcementDispatched: "Announcement email dispatched to {count} registered members!",
+    dispatchFailed: "Failed to dispatch email",
+    sendExclaim: "Send!",
+    emailSystemStatus: "Email System Status & Notification Outbox",
+    smtpOnline: "SMTP Online",
+    localSimulationMode: "Local Simulation Mode",
+    adminNotificationEmail: "Admin Notification Email:",
+    smtpHostLabel: "SMTP Host:",
+    smtpHostNone: "None (Simulated delivery logged to system outbox & internal PMs)",
+    smtpTip: "Tip: To receive real emails in your Gmail inbox, define SMTP_HOST=\"smtp.gmail.com\", SMTP_USER and SMTP_PASS (Gmail App Password) in your local .env file.",
+    recentNotifications: "Recent Dispatched Notifications",
+    toLabel: "To",
+    manageMembership: "Manage Membership",
+    editProfileHeader: "Edit Profile",
+    unknownValue: "Unknown",
+    memberProfileTitle: "{name}'s Profile",
+    actionNotPermitted: "Action Not Permitted",
+    cannotCancelOwnAdmin: "You cannot cancel or delete your own active administrator account.",
+    cannotCancelLastAdmin: "Cannot cancel the only remaining administrator account in the system.",
+    confirmCancelMembership: "Are you sure you want to cancel and exclude {name} from the system?",
+    confirmDeleteAllPosts: "Delete all forum postings created by {name}?",
+    selfDemotionPrevented: "Self-Demotion Prevented",
+    cannotDemoteSelf: "You cannot demote your own active administrator account to prevent accidental lockout.",
+    cannotDemoteLastAdmin: "Cannot demote the only remaining administrator account in the system.",
+    failedDeleteMember: "Failed to delete member",
+    failedUpdateLevel: "Failed to update admin level",
+    serverCommError: "Server communication error",
+    usersFeedback: "User's Feedback",
+    deleteMsg: "DELETE MSG",
+    feedbackMessageLabel: "Feedback Message:",
+    replyViaEmail: "Reply via Email",
+    replyViaPM: "Reply via Internal PM",
+    feedbackReplyBody: "Hi {name},\n\nThank you for reaching out regarding \"{subject}\".\n\n",
+    backToFeedbackInbox: "Back to Feedback Inbox",
+    reloadMessages: "Reload messages from database",
+    refresh: "Refresh",
+    clearAllFeedback: "Clear All Feedback Messages",
+    confirmClearAllFeedback: "Are you sure you want to permanently delete all user feedback messages from the database?",
+    noFeedbackMessages: "No feedback messages in inbox.",
+    systemNotice: "System Notice"
   },
   ZH: {
     appName: "MediFAQ",
@@ -595,7 +638,6 @@ const T_DATA: Translations = {
     dlgChangeSubcategoryTitle: "修改子类别标题",
     dlgAddSubcategory: "新增子类别",
     dlgAddMainCategory: "新增主类别",
-    addMainCategory: "+ 新增主类别",
     dlgRenameForumCategory: "重命名论坛类别",
     dlgRenameSubforum: "重命名子论坛",
     dlgEditMemberName: "编辑会员全名",
@@ -734,9 +776,53 @@ const T_DATA: Translations = {
     editPost: "编辑帖子",
     neverPosted: "尚未发帖！",
     createdAt: "创建于",
-    systemNotice: "系统提示",
+    faqAdminCenter: "常问管理中心",
+    deleteMainCategory: "删除主类别",
+    deleteSubCategory: "删除子类别",
     standardSubforum: "标准子论坛",
-    emailSystemStatus: "邮件系统状态与通知发件箱"
+    announcementSubject: "公告主题",
+    typeMessageHere: "请在此输入内容：",
+    fillSubjectAndMessage: "请填写主题和内容。",
+    announcementDispatched: "公告邮件已发送给 {count} 位注册会员！",
+    dispatchFailed: "邮件发送失败",
+    sendExclaim: "发送！",
+    emailSystemStatus: "邮件系统状态与通知发件箱",
+    smtpOnline: "SMTP 在线",
+    localSimulationMode: "本地模拟模式",
+    adminNotificationEmail: "管理员通知邮箱：",
+    smtpHostLabel: "SMTP 主机：",
+    smtpHostNone: "无（模拟投递，已记录于系统发件箱和内部私信）",
+    smtpTip: "提示：若要在 Gmail 收件箱接收真实邮件，请在本地 .env 文件中设置 SMTP_HOST=\"smtp.gmail.com\"、SMTP_USER 和 SMTP_PASS（Gmail 应用专用密码）。",
+    recentNotifications: "最近发送的通知",
+    toLabel: "收件人",
+    manageMembership: "管理会员",
+    editProfileHeader: "编辑资料",
+    unknownValue: "未知",
+    memberProfileTitle: "{name}的资料",
+    actionNotPermitted: "操作不被允许",
+    cannotCancelOwnAdmin: "您不能取消或删除自己当前使用的管理员账号。",
+    cannotCancelLastAdmin: "无法取消系统中唯一剩余的管理员账号。",
+    confirmCancelMembership: "确定要取消 {name} 的会员资格并将其从系统中移除吗？",
+    confirmDeleteAllPosts: "删除 {name} 发布的所有论坛帖子？",
+    selfDemotionPrevented: "已阻止自我降级",
+    cannotDemoteSelf: "为防止意外锁定，您不能降低自己当前管理员账号的权限。",
+    cannotDemoteLastAdmin: "无法降低系统中唯一剩余管理员账号的权限。",
+    failedDeleteMember: "删除会员失败",
+    failedUpdateLevel: "更新管理级别失败",
+    serverCommError: "服务器通信错误",
+    usersFeedback: "用户反馈",
+    deleteMsg: "删除信息",
+    feedbackMessageLabel: "反馈内容：",
+    replyViaEmail: "通过邮件回复",
+    replyViaPM: "通过内部私信回复",
+    feedbackReplyBody: "{name} 您好，\n\n感谢您就“{subject}”与我们联系。\n\n",
+    backToFeedbackInbox: "返回反馈收件箱",
+    reloadMessages: "从数据库重新加载信息",
+    refresh: "刷新",
+    clearAllFeedback: "清除所有反馈信息",
+    confirmClearAllFeedback: "确定要从数据库中永久删除所有用户反馈信息吗？",
+    noFeedbackMessages: "收件箱中没有反馈信息。",
+    systemNotice: "系统提示"
   },
   BM: {
     appName: "MediFAQ",
@@ -933,7 +1019,6 @@ const T_DATA: Translations = {
     dlgChangeSubcategoryTitle: "Tukar Tajuk Subkategori",
     dlgAddSubcategory: "Tambah Subkategori Baharu",
     dlgAddMainCategory: "Tambah Kategori Utama",
-    addMainCategory: "+ Tambah Kategori Utama",
     dlgRenameForumCategory: "Namakan Semula Kategori Forum",
     dlgRenameSubforum: "Namakan Semula Subforum",
     dlgEditMemberName: "Sunting Nama Penuh Ahli",
@@ -1072,9 +1157,53 @@ const T_DATA: Translations = {
     editPost: "Sunting Pos",
     neverPosted: "Belum Pernah Pos!",
     createdAt: "Dicipta pada",
-    systemNotice: "Notis Sistem",
+    faqAdminCenter: "Pusat Pentadbiran FAQ",
+    deleteMainCategory: "Padam Kategori Utama",
+    deleteSubCategory: "Padam Subkategori",
     standardSubforum: "Subforum standard",
-    emailSystemStatus: "Status Sistem E-mel & Peti Keluar Pemberitahuan"
+    announcementSubject: "Subjek Pengumuman",
+    typeMessageHere: "Taip mesej di sini:",
+    fillSubjectAndMessage: "Sila isi subjek dan mesej.",
+    announcementDispatched: "E-mel pengumuman telah dihantar kepada {count} ahli berdaftar!",
+    dispatchFailed: "Gagal menghantar e-mel",
+    sendExclaim: "Hantar!",
+    emailSystemStatus: "Status Sistem E-mel & Peti Keluar Notifikasi",
+    smtpOnline: "SMTP Dalam Talian",
+    localSimulationMode: "Mod Simulasi Tempatan",
+    adminNotificationEmail: "E-mel Notifikasi Pentadbir:",
+    smtpHostLabel: "Hos SMTP:",
+    smtpHostNone: "Tiada (Penghantaran simulasi direkodkan dalam peti keluar sistem & PM dalaman)",
+    smtpTip: "Petua: Untuk menerima e-mel sebenar dalam peti masuk Gmail anda, tetapkan SMTP_HOST=\"smtp.gmail.com\", SMTP_USER dan SMTP_PASS (Kata Laluan Aplikasi Gmail) dalam fail .env tempatan anda.",
+    recentNotifications: "Notifikasi Terkini yang Dihantar",
+    toLabel: "Kepada",
+    manageMembership: "Urus Keahlian",
+    editProfileHeader: "Sunting Profil",
+    unknownValue: "Tidak diketahui",
+    memberProfileTitle: "Profil {name}",
+    actionNotPermitted: "Tindakan Tidak Dibenarkan",
+    cannotCancelOwnAdmin: "Anda tidak boleh membatalkan atau memadam akaun pentadbir aktif anda sendiri.",
+    cannotCancelLastAdmin: "Tidak boleh membatalkan satu-satunya akaun pentadbir yang tinggal dalam sistem.",
+    confirmCancelMembership: "Adakah anda pasti mahu membatalkan dan mengecualikan {name} daripada sistem?",
+    confirmDeleteAllPosts: "Padam semua kiriman forum yang dibuat oleh {name}?",
+    selfDemotionPrevented: "Penurunan Taraf Sendiri Dihalang",
+    cannotDemoteSelf: "Anda tidak boleh menurunkan taraf akaun pentadbir aktif anda sendiri bagi mengelakkan terkunci secara tidak sengaja.",
+    cannotDemoteLastAdmin: "Tidak boleh menurunkan taraf satu-satunya akaun pentadbir yang tinggal dalam sistem.",
+    failedDeleteMember: "Gagal memadam ahli",
+    failedUpdateLevel: "Gagal mengemas kini tahap pentadbir",
+    serverCommError: "Ralat komunikasi pelayan",
+    usersFeedback: "Maklum Balas Pengguna",
+    deleteMsg: "PADAM MESEJ",
+    feedbackMessageLabel: "Mesej Maklum Balas:",
+    replyViaEmail: "Balas melalui E-mel",
+    replyViaPM: "Balas melalui PM Dalaman",
+    feedbackReplyBody: "Hai {name},\n\nTerima kasih kerana menghubungi kami mengenai \"{subject}\".\n\n",
+    backToFeedbackInbox: "Kembali ke Peti Masuk Maklum Balas",
+    reloadMessages: "Muat semula mesej daripada pangkalan data",
+    refresh: "Muat Semula",
+    clearAllFeedback: "Kosongkan Semua Mesej Maklum Balas",
+    confirmClearAllFeedback: "Adakah anda pasti mahu memadam semua mesej maklum balas pengguna daripada pangkalan data secara kekal?",
+    noFeedbackMessages: "Tiada mesej maklum balas dalam peti masuk.",
+    systemNotice: "Notis Sistem"
   }
 };
 
@@ -1776,6 +1905,10 @@ const INITIAL_PMS: PrivateMessage[] = [
     read: true
   }
 ];
+
+// Replaces {placeholders} in a translated string, e.g. fmt(t('memberProfileTitle'), { name })
+const fmt = (text: string, vars: Record<string, string | number>): string =>
+  text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 // Stores `text` for the active language and copies it into any empty locale, so a name or FAQ
 // text entered in one language never leaves the other locales blank.
@@ -2841,7 +2974,7 @@ export default function App() {
               >
                 <span className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                  <span>Feedback Inbox</span>
+                  <span>{t('feedbackInbox')}</span>
                 </span>
                 <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[0.625rem] font-bold">
                   {feedbacks.length}
@@ -2855,7 +2988,7 @@ export default function App() {
         <div className="mt-auto card p-3.5 text-[0.6875rem] bg-[var(--surface-2)]/60 space-y-1.5">
           <div className="font-bold text-[var(--navy)] flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[var(--amber)]" />
-            <span>Interactive Demo Ready</span>
+            <span>{t('demoStatus')}</span>
           </div>
           <div className="text-[var(--muted)] leading-relaxed">
             {t('adminHint')}
@@ -5050,7 +5183,7 @@ export default function App() {
                                       {getLoc(userLastTopic.title)} - {userLastTopic.lastTime}
                                     </button>
                                   ) : (
-                                    <span className="text-[var(--muted)]">Never Posted!</span>
+                                    <span className="text-[var(--muted)]">{t('neverPosted')}</span>
                                   )}
                                 </td>
                                 <td className="p-2.5 text-center text-[var(--muted)]">No</td>
@@ -5366,7 +5499,7 @@ export default function App() {
               <Breadcrumbs
                 items={[
                   { label: t('administrationBoard'), onClick: () => navigate('adminBoard') },
-                  { label: "FAQ Admin Center" }
+                  { label: t('faqAdminCenter') }
                 ]}
               />
 
@@ -5387,7 +5520,7 @@ export default function App() {
                               showToast(t('deleteSuccess'));
                             }}
                             className="text-red-500 hover:text-red-700"
-                            title="Delete Main Category"
+                            title={t('deleteMainCategory')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -5425,7 +5558,7 @@ export default function App() {
                                   showToast(t('deleteSuccess'));
                                 }}
                                 className="text-red-400 hover:text-red-600"
-                                title="Delete Sub Category"
+                                title={t('deleteSubCategory')}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -5499,7 +5632,7 @@ export default function App() {
                       })}
                       className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs"
                     >
-                      {t('addMainCategory')}
+                      + {t('dlgAddMainCategory')}
                     </button>
                   </div>
                 </div>
@@ -5628,22 +5761,22 @@ export default function App() {
 
               <div className="card p-6 border-t-4 border-t-purple-600">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-4">
-                  Send Email to All Members
+                  {t('sendEmailToAll')}
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="font-bold block mb-1">Subject:</label>
+                    <label className="font-bold block mb-1">{t('subject')}:</label>
                     <input
                       value={adminEmailForm.subject}
                       onChange={(e) => setAdminEmailForm({ ...adminEmailForm, subject: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-purple-400 outline-none"
-                      placeholder="Announcement Subject"
+                      placeholder={t('announcementSubject')}
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold block mb-1">Type message here:</label>
+                    <label className="font-bold block mb-1">{t('typeMessageHere')}</label>
                     <textarea
                       rows={6}
                       value={adminEmailForm.message}
@@ -5656,7 +5789,7 @@ export default function App() {
                     <button
                       onClick={async () => {
                         if (!adminEmailForm.subject || !adminEmailForm.message) {
-                          setModalDialog({ title: t('error'), msg: "Please fill in both subject and message.", type: 'alert' });
+                          setModalDialog({ title: t('error'), msg: t('fillSubjectAndMessage'), type: 'alert' });
                           return;
                         }
                         try {
@@ -5667,20 +5800,20 @@ export default function App() {
                           });
                           const data = await res.json();
                           if (res.ok) {
-                            showToast(`Announcement email dispatched to ${data.count || members.length} registered members!`);
+                            showToast(fmt(t('announcementDispatched'), { count: data.count || members.length }));
                             setAdminEmailForm({ subject: '', message: '' });
                             refreshData();
                           } else {
-                            showToast(data.error || 'Failed to dispatch email', 'error');
+                            showToast(data.error || t('dispatchFailed'), 'error');
                           }
                         } catch {
-                          showToast(`Announcement email dispatched to all ${members.length} registered members!`);
+                          showToast(fmt(t('announcementDispatched'), { count: members.length }));
                           setAdminEmailForm({ subject: '', message: '' });
                         }
                       }}
                       className="px-8 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 shadow-sm transition"
                     >
-                      Send!
+                      {t('sendExclaim')}
                     </button>
                   </div>
 
@@ -5694,26 +5827,26 @@ export default function App() {
                       <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold ${
                         emailStatus?.smtpConfigured ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                       }`}>
-                        {emailStatus?.smtpConfigured ? 'SMTP Online' : 'Local Simulation Mode'}
+                        {emailStatus?.smtpConfigured ? t('smtpOnline') : t('localSimulationMode')}
                       </span>
                     </div>
 
                     <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-200 text-[0.6875rem] space-y-1">
-                      <div><b>Admin Notification Email:</b> <span className="text-purple-800 font-bold">{currentUser?.email || 'admin@medifaq.my'}</span></div>
-                      <div><b>SMTP Host:</b> {emailStatus?.smtpHost || 'None (Simulated delivery logged to system outbox & internal PMs)'}</div>
+                      <div><b>{t('adminNotificationEmail')}</b> <span className="text-purple-800 font-bold">{currentUser?.email || 'admin@medifaq.my'}</span></div>
+                      <div><b>{t('smtpHostLabel')}</b> {emailStatus?.smtpHost || t('smtpHostNone')}</div>
                       <div className="text-[0.625rem] text-[var(--muted)]">
-                        Tip: To receive real emails in your Gmail inbox, define SMTP_HOST="smtp.gmail.com", SMTP_USER and SMTP_PASS (Gmail App Password) in your local .env file.
+                        {t('smtpTip')}
                       </div>
                     </div>
 
                     {emailStatus?.logs && emailStatus.logs.length > 0 && (
                       <div className="space-y-1.5">
-                        <div className="font-bold text-[0.6875rem] text-[var(--navy)]">Recent Dispatched Notifications ({emailStatus.logs.length}):</div>
+                        <div className="font-bold text-[0.6875rem] text-[var(--navy)]">{t('recentNotifications')} ({emailStatus.logs.length}):</div>
                         <div className="max-h-48 overflow-y-auto divide-y border rounded-xl bg-white text-[0.625rem]">
                           {emailStatus.logs.map((log) => (
                             <div key={log.id} className="p-2 space-y-0.5 hover:bg-gray-50">
                               <div className="flex items-center justify-between font-bold text-gray-800">
-                                <span>To: {log.to}</span>
+                                <span>{t('toLabel')}: {log.to}</span>
                                 <span className="text-gray-400 font-normal">{log.timestamp}</span>
                               </div>
                               <div className="text-blue-700 font-semibold">{log.subject}</div>
@@ -5747,21 +5880,21 @@ export default function App() {
 
               <div className="card overflow-hidden border border-[var(--border)]">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center text-xs">
-                  Manage Membership
+                  {t('manageMembership')}
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead className="bg-blue-600 text-white font-bold text-left">
                       <tr>
-                        <th className="p-2.5">Edit Profile</th>
-                        <th className="p-2.5">User Name</th>
-                        <th className="p-2.5 text-center">Admin Level</th>
-                        <th className="p-2.5 text-center">Posts</th>
-                        <th className="p-2.5 text-center">Topics</th>
-                        <th className="p-2.5">Join Date</th>
-                        <th className="p-2.5">Birthday</th>
-                        <th className="p-2.5">Last Post</th>
+                        <th className="p-2.5">{t('editProfileHeader')}</th>
+                        <th className="p-2.5">{t('username')}</th>
+                        <th className="p-2.5 text-center">{t('adminLevel')}</th>
+                        <th className="p-2.5 text-center">{t('posts')}</th>
+                        <th className="p-2.5 text-center">{t('topics')}</th>
+                        <th className="p-2.5">{t('joinDate')}</th>
+                        <th className="p-2.5">{t('birthday')}</th>
+                        <th className="p-2.5">{t('lastPost')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y border">
@@ -5774,7 +5907,7 @@ export default function App() {
                                 onClick={() => setSelectedMemberForAdmin(m)}
                                 className="px-2.5 py-1 rounded bg-blue-100 text-blue-800 text-[0.6875rem] font-bold hover:bg-blue-200"
                               >
-                                EDIT PROFILE
+                                {t('editProfileHeader').toUpperCase()}
                               </button>
                             </td>
                             <td className="p-2.5 font-bold text-[var(--navy)]">{m.username}</td>
@@ -5782,7 +5915,7 @@ export default function App() {
                             <td className="p-2.5 text-center">{m.posts}</td>
                             <td className="p-2.5 text-center">{m.topics}</td>
                             <td className="p-2.5 text-[var(--muted)]">{m.joinDate}</td>
-                            <td className="p-2.5 text-[var(--muted)]">{m.birthday || 'Unknown'}</td>
+                            <td className="p-2.5 text-[var(--muted)]">{m.birthday || t('unknownValue')}</td>
                             <td className="p-2.5">
                               {mTopic ? (
                                 <button
@@ -5795,7 +5928,7 @@ export default function App() {
                                   {getLoc(mTopic.title)} - {mTopic.lastTime}
                                 </button>
                               ) : (
-                                <span className="text-[var(--muted)]">Never Posted!</span>
+                                <span className="text-[var(--muted)]">{t('neverPosted')}</span>
                               )}
                             </td>
                           </tr>
@@ -5816,14 +5949,14 @@ export default function App() {
               {selectedMemberForAdmin && (
                 <div className="card p-6 border-2 border-purple-300 bg-purple-50/20 space-y-4">
                   <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs">
-                    {selectedMemberForAdmin.username}'s Profile
+                    {fmt(t('memberProfileTitle'), { name: selectedMemberForAdmin.username })}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-xs border p-3 rounded-xl bg-white">
-                    <div>Member Number: <b>{selectedMemberForAdmin.memberNumber || 16}</b></div>
-                    <div>Posts: <b>{selectedMemberForAdmin.posts}</b></div>
-                    <div>Topics Started: <b>{selectedMemberForAdmin.topics}</b></div>
-                    <div>Email: <b>{selectedMemberForAdmin.email}</b></div>
+                    <div>{t('memberNo')}: <b>{selectedMemberForAdmin.memberNumber || 16}</b></div>
+                    <div>{t('posts')}: <b>{selectedMemberForAdmin.posts}</b></div>
+                    <div>{t('topicsStarted')}: <b>{selectedMemberForAdmin.topics}</b></div>
+                    <div>{t('email')}: <b>{selectedMemberForAdmin.email}</b></div>
                   </div>
 
                   {/* Figure 48 Actions */}
@@ -5850,8 +5983,8 @@ export default function App() {
                         onClick={() => {
                           if (selectedMemberForAdmin.username === currentUser?.username) {
                             setModalDialog({
-                              title: "Action Not Permitted",
-                              msg: "You cannot cancel or delete your own active administrator account.",
+                              title: t('actionNotPermitted'),
+                              msg: t('cannotCancelOwnAdmin'),
                               type: "alert",
                             });
                             return;
@@ -5859,36 +5992,36 @@ export default function App() {
                           const adminCount = members.filter(isAdministrator).length;
                           if (isAdministrator(selectedMemberForAdmin) && adminCount <= 1) {
                             setModalDialog({
-                              title: "Action Not Permitted",
-                              msg: "Cannot cancel the only remaining administrator account in the system.",
+                              title: t('actionNotPermitted'),
+                              msg: t('cannotCancelLastAdmin'),
                               type: "alert",
                             });
                             return;
                           }
                           setModalDialog({
                             title: t('cancelMembership'),
-                            msg: `Are you sure you want to cancel and exclude ${selectedMemberForAdmin.username} from the system?`,
+                            msg: fmt(t('confirmCancelMembership'), { name: selectedMemberForAdmin.username }),
                             type: 'confirm',
                             onConfirm: async () => {
                               try {
                                 const res = await fetch(`/api/members/${selectedMemberForAdmin.username}`, { method: 'DELETE' });
                                 if (!res.ok) {
-                                  const errData = await res.json().catch(() => ({ error: 'Failed to delete member' }));
-                                  showToast(errData.error || 'Failed to delete member', 'error');
+                                  const errData = await res.json().catch(() => ({ error: t('failedDeleteMember') }));
+                                  showToast(errData.error || t('failedDeleteMember'), 'error');
                                   return;
                                 }
                                 setMembers(members.filter((x) => x.username !== selectedMemberForAdmin.username));
                                 setSelectedMemberForAdmin(null);
                                 showToast(t('deleteSuccess'));
                               } catch {
-                                showToast('Server communication error', 'error');
+                                showToast(t('serverCommError'), 'error');
                               }
                             }
                           });
                         }}
                         className="text-red-600 font-bold hover:underline"
                       >
-                        Cancel Membership
+                        {t('cancelMembership')}
                       </button>
                     </div>
                     <div>
@@ -5896,7 +6029,7 @@ export default function App() {
                         onClick={() => {
                           setModalDialog({
                             title: t('deleteAllPosts'),
-                            msg: `Delete all forum postings created by ${selectedMemberForAdmin.username}?`,
+                            msg: fmt(t('confirmDeleteAllPosts'), { name: selectedMemberForAdmin.username }),
                             type: 'confirm',
                             onConfirm: () => {
                               setPosts(posts.filter((p) => p.author !== selectedMemberForAdmin.username));
@@ -5908,7 +6041,7 @@ export default function App() {
                         }}
                         className="text-red-600 font-bold hover:underline"
                       >
-                        Delete All Posts of This Member
+                        {t('deleteAllPosts')}
                       </button>
                     </div>
 
@@ -5923,8 +6056,8 @@ export default function App() {
 
                           if (selectedMemberForAdmin.username === currentUser?.username && lvl < ADMIN_LEVEL.ADMINISTRATOR) {
                             setModalDialog({
-                              title: "Self-Demotion Prevented",
-                              msg: "You cannot demote your own active administrator account to prevent accidental lockout.",
+                              title: t('selfDemotionPrevented'),
+                              msg: t('cannotDemoteSelf'),
                               type: "alert",
                             });
                             return;
@@ -5933,8 +6066,8 @@ export default function App() {
                           const adminCount = members.filter(isAdministrator).length;
                           if (isAdministrator(selectedMemberForAdmin) && lvl < ADMIN_LEVEL.ADMINISTRATOR && adminCount <= 1) {
                             setModalDialog({
-                              title: "Action Not Permitted",
-                              msg: "Cannot demote the only remaining administrator account in the system.",
+                              title: t('actionNotPermitted'),
+                              msg: t('cannotDemoteLastAdmin'),
                               type: "alert",
                             });
                             return;
@@ -5947,15 +6080,15 @@ export default function App() {
                               body: JSON.stringify({ adminLevel: lvl, role }),
                             });
                             if (!res.ok) {
-                              const errData = await res.json().catch(() => ({ error: 'Update failed' }));
-                              showToast(errData.error || 'Failed to update admin level', 'error');
+                              const errData = await res.json().catch(() => ({ error: t('failedUpdateLevel') }));
+                              showToast(errData.error || t('failedUpdateLevel'), 'error');
                               return;
                             }
                             setMembers(members.map((x) => x.username === selectedMemberForAdmin.username ? { ...x, adminLevel: lvl, role } : x));
                             setSelectedMemberForAdmin({ ...selectedMemberForAdmin, adminLevel: lvl, role });
                             showToast(t('success'));
                           } catch {
-                            showToast('Server communication error', 'error');
+                            showToast(t('serverCommError'), 'error');
                           }
                         }}
                         className="px-3 py-1.5 rounded-xl border bg-white font-semibold"
@@ -5991,7 +6124,7 @@ export default function App() {
               {selectedFeedback ? (
                 <div className="card p-6 border-t-4 border-t-purple-600 space-y-4">
                   <div className="bg-blue-600 text-white font-bold p-2 text-center rounded-lg text-xs flex items-center justify-between">
-                    <span>User's Feedback</span>
+                    <span>{t('usersFeedback')}</span>
                     <button
                       onClick={() => {
                         setFeedbacks(feedbacks.filter((f) => f.id !== selectedFeedback.id));
@@ -6001,21 +6134,21 @@ export default function App() {
                       }}
                       className="px-2 py-0.5 rounded bg-red-600 text-white text-[0.625rem] font-bold"
                     >
-                      DELETE MSG
+                      {t('deleteMsg')}
                     </button>
                   </div>
 
                   <div className="bg-amber-100 p-2 text-center text-xs font-bold text-amber-900 rounded">
-                    Subject: {selectedFeedback.subject}
-                    <div className="text-[0.625rem] font-normal text-amber-700">From: {selectedFeedback.name} at {selectedFeedback.date}</div>
+                    {t('subject')}: {selectedFeedback.subject}
+                    <div className="text-[0.625rem] font-normal text-amber-700">{t('fromSender')}: {selectedFeedback.name} {t('atTime')} {selectedFeedback.date}</div>
                   </div>
 
                   <div className="space-y-2 text-xs bg-emerald-50/60 p-4 rounded-xl border border-emerald-200">
-                    <div><b>Name:</b> {selectedFeedback.name}</div>
-                    <div><b>Email Address:</b> <span className="underline text-blue-700">{selectedFeedback.email}</span></div>
-                    <div><b>Subject:</b> {selectedFeedback.subject}</div>
+                    <div><b>{t('name')}:</b> {selectedFeedback.name}</div>
+                    <div><b>{t('emailAddress')}:</b> <span className="underline text-blue-700">{selectedFeedback.email}</span></div>
+                    <div><b>{t('subject')}:</b> {selectedFeedback.subject}</div>
                     <div className="pt-2">
-                      <b>Feedback Message:</b>
+                      <b>{t('feedbackMessageLabel')}</b>
                       <div className="mt-1 p-3 bg-white rounded-lg border text-xs leading-relaxed whitespace-pre-wrap">
                         {selectedFeedback.message}
                       </div>
@@ -6029,28 +6162,28 @@ export default function App() {
                         className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm"
                       >
                         <Mail className="w-3.5 h-3.5" />
-                        <span>Reply via Email ({selectedFeedback.email})</span>
+                        <span>{t('replyViaEmail')} ({selectedFeedback.email})</span>
                       </a>
                       <button
                         onClick={() => {
                           setPmForm({
                             to: selectedFeedback.name,
                             subject: `Re: [Feedback] ${selectedFeedback.subject}`,
-                            content: `Hi ${selectedFeedback.name},\n\nThank you for reaching out regarding "${selectedFeedback.subject}".\n\n`,
+                            content: fmt(t('feedbackReplyBody'), { name: selectedFeedback.name, subject: selectedFeedback.subject }),
                           });
                           setPmModalOpen(true);
                         }}
                         className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm"
                       >
                         <Inbox className="w-3.5 h-3.5" />
-                        <span>Reply via Internal PM</span>
+                        <span>{t('replyViaPM')}</span>
                       </button>
                     </div>
                     <button
                       onClick={() => setSelectedFeedback(null)}
                       className="text-xs text-blue-700 font-bold hover:underline"
                     >
-                      Back to Feedback Inbox
+                      {t('backToFeedbackInbox')}
                     </button>
                   </div>
                 </div>
@@ -6059,20 +6192,20 @@ export default function App() {
                 <div className="card overflow-hidden border border-[var(--border)]">
                   <div className="bg-amber-500 text-white font-bold p-2 text-center text-xs flex items-center justify-between px-4">
                     <div className="flex items-center gap-2">
-                      <span>User's Feedback ({feedbacks.length})</span>
+                      <span>{t('usersFeedback')} ({feedbacks.length})</span>
                       <button
                         onClick={refreshData}
                         className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-white text-[0.625rem] font-semibold transition"
-                        title="Reload messages from database"
+                        title={t('reloadMessages')}
                       >
-                        ↻ Refresh
+                        ↻ {t('refresh')}
                       </button>
                     </div>
                     <button
                       onClick={() => {
                         setModalDialog({
-                          title: "Clear All Feedback Messages",
-                          msg: "Are you sure you want to permanently delete all user feedback messages from the database?",
+                          title: t('clearAllFeedback'),
+                          msg: t('confirmClearAllFeedback'),
                           type: "confirm",
                           onConfirm: () => {
                             setFeedbacks([]);
@@ -6083,7 +6216,7 @@ export default function App() {
                       }}
                       className="px-2 py-0.5 rounded bg-blue-700 text-white text-[0.625rem] font-bold"
                     >
-                      DELETE ALL
+                      {t('deleteAll')}
                     </button>
                   </div>
 
@@ -6091,10 +6224,10 @@ export default function App() {
                     <table className="w-full text-xs">
                       <thead className="bg-blue-600 text-white font-bold text-left">
                         <tr>
-                          <th className="p-3">Subject</th>
-                          <th className="p-3">From</th>
-                          <th className="p-3">Time Received</th>
-                          <th className="p-3">Mailing Options</th>
+                          <th className="p-3">{t('subject')}</th>
+                          <th className="p-3">{t('fromSender')}</th>
+                          <th className="p-3">{t('timeReceived')}</th>
+                          <th className="p-3">{t('mailingOptions')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y border">
@@ -6119,7 +6252,7 @@ export default function App() {
                                 }}
                                 className="text-red-600 font-bold hover:underline"
                               >
-                                Delete
+                                {t('delete')}
                               </button>
                             </td>
                           </tr>
@@ -6127,7 +6260,7 @@ export default function App() {
                         {feedbacks.length === 0 && (
                           <tr>
                             <td colSpan={4} className="p-8 text-center text-xs text-[var(--muted)]">
-                              No feedback messages in inbox.
+                              {t('noFeedbackMessages')}
                             </td>
                           </tr>
                         )}

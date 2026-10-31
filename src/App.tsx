@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ADMIN_LEVEL, roleFromLevel, isAdministrator, isModeratorOrAbove, accessLevelKey } from './accessLevels';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Baby,
@@ -201,6 +202,11 @@ const T_DATA: Translations = {
     sendEmailToAll: "Send Email to All Members",
     viewProfile: "View Profile",
     adminLevel: "Admin Level",
+    levelWord: "Level",
+    chooseAdminLevel: "Choose Admin Level:",
+    accessLevelNone: "No Admin Rights",
+    accessLevelModerator: "Moderator",
+    accessLevelAdministrator: "Administrator - Back End Admin Rights",
     posts: "Posts",
     topics: "Topics",
     joinDate: "Join Date",
@@ -505,6 +511,11 @@ const T_DATA: Translations = {
     sendEmailToAll: "向所有会员发送通告邮件",
     viewProfile: "查看资料",
     adminLevel: "管理级别",
+    levelWord: "级别",
+    chooseAdminLevel: "选择管理级别:",
+    accessLevelNone: "无管理权限",
+    accessLevelModerator: "版主",
+    accessLevelAdministrator: "管理员 - 后台管理权限",
     posts: "发帖数",
     topics: "主题数",
     joinDate: "注册日期",
@@ -809,6 +820,11 @@ const T_DATA: Translations = {
     sendEmailToAll: "Hantar E-mel kepada Semua Ahli",
     viewProfile: "Lihat Profil",
     adminLevel: "Tahap Pentadbir",
+    levelWord: "Tahap",
+    chooseAdminLevel: "Pilih Tahap Pentadbir:",
+    accessLevelNone: "Tiada Hak Pentadbir",
+    accessLevelModerator: "Moderator",
+    accessLevelAdministrator: "Pentadbir - Hak Pentadbir Bahagian Belakang",
     posts: "Jumlah Pos",
     topics: "Jumlah Topik",
     joinDate: "Tarikh Sertai",
@@ -1868,6 +1884,10 @@ export default function App() {
     return T_DATA[lang]?.[key] || T_DATA.EN[key] || key;
   };
 
+  // Localized tier label + numeric level, e.g. "Administrator (Level 3)"
+  const accessLevelLabel = (u: { role?: string | null; adminLevel?: number | null } | null | undefined): string =>
+    `${t(accessLevelKey(u))} (${t('levelWord')} ${u?.adminLevel ?? ADMIN_LEVEL.NONE})`;
+
   const getLoc = (obj: Record<Lang, string> | undefined): string => {
     if (!obj) return '';
     return obj[lang] || obj.EN || '';
@@ -2720,7 +2740,7 @@ export default function App() {
                       <div className="px-4 py-2.5">
                         <p className="font-bold text-[var(--navy)] truncate">{currentUser.username}</p>
                         <p className="text-[10px] text-[var(--muted)] capitalize">
-                          {currentUser.role === 'admin' ? t('administratorRole') : currentUser.role === 'moderator' ? t('doctorRole') : t('standardMemberRole')}
+                          {accessLevelLabel(currentUser)}
                         </p>
                       </div>
                       <div className="py-1">
@@ -3411,11 +3431,7 @@ export default function App() {
                     </div>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-[var(--teal-soft)] text-[var(--teal-deep)] text-xs font-bold uppercase">
-                    {currentUser?.role === 'admin'
-                      ? t('administratorRole')
-                      : currentUser?.role === 'moderator'
-                      ? t('doctorRole')
-                      : `${t('adminLevel')} ${currentUser?.adminLevel ?? 0}`}
+                    {accessLevelLabel(currentUser)}
                   </span>
                 </div>
 
@@ -3510,9 +3526,7 @@ export default function App() {
                         <span>{t('adminInboxesQuickStatus')}</span>
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[10px] font-bold">
-                        {currentUser.role === 'admin'
-                          ? t('administratorRole')
-                          : `${t('adminLevel')} ${currentUser.adminLevel}`}
+                        {accessLevelLabel(currentUser)}
                       </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -4046,7 +4060,7 @@ export default function App() {
                         </span>
 
                         {/* Clinical Staff & Administrator Action Icons */}
-                        {(currentUser?.role === 'admin' || currentUser?.role === 'moderator' || (currentUser?.adminLevel ?? 0) >= 1) && (
+                        {isModeratorOrAbove(currentUser) && (
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => {
@@ -4124,14 +4138,14 @@ export default function App() {
                   )}
 
                   {/* Figure 44: Doctor / Moderator / Administrator "Create Medical Knowledge FAQ" hyperlink */}
-                  {(currentUser?.role === 'admin' || currentUser?.role === 'moderator' || (currentUser?.adminLevel ?? 0) >= 1) && (
+                  {isModeratorOrAbove(currentUser) && (
                     <div className="pt-4 text-center border-t">
                       <button
                         onClick={() => {
                           const qTitle = prompt("Enter new FAQ Question:");
                           const aContent = prompt("Enter new FAQ Answer / Explanation:");
                           if (qTitle && aContent && currentUser) {
-                            const docAttribution = (currentUser.role === 'moderator' || (currentUser.adminLevel ?? 0) >= 1)
+                            const docAttribution = isModeratorOrAbove(currentUser)
                               ? (currentUser.fullName || "Dr. " + currentUser.username)
                               : "Verified Medical Officer";
                             const newFaq: FAQItem = {
@@ -4583,7 +4597,7 @@ export default function App() {
                     >
                       TOPICS
                     </button>
-                    {(currentUser?.role === 'admin' || (currentUser?.adminLevel ?? 0) >= 1 || currentUser?.username === activeTopic.author) && (
+                    {(isModeratorOrAbove(currentUser) || currentUser?.username === activeTopic.author) && (
                       <button
                         onClick={() => {
                           setModalDialog({
@@ -4613,7 +4627,7 @@ export default function App() {
                     .filter((p) => p.topicId === activeTopic.id)
                     .map((post) => {
                       const isAuthor = currentUser?.username === post.author;
-                      const isAdmin = currentUser?.role === 'admin' || (currentUser?.adminLevel ?? 0) >= 1;
+                      const isAdmin = isModeratorOrAbove(currentUser);
                       const canEditDelete = isAuthor || isAdmin;
 
                       return (
@@ -4846,7 +4860,7 @@ export default function App() {
                           <tr>
                             <th className="p-2.5">View Profile</th>
                             <th className="p-2.5">User Name</th>
-                            <th className="p-2.5 text-center">Admin Level</th>
+                            <th className="p-2.5 text-center">{t('adminLevel')}</th>
                             <th className="p-2.5 text-center">Posts</th>
                             <th className="p-2.5 text-center">Topics</th>
                             <th className="p-2.5">Join Date</th>
@@ -4875,7 +4889,7 @@ export default function App() {
                                   </button>
                                 </td>
                                 <td className="p-2.5 font-bold text-[var(--navy)]">{m.username}</td>
-                                <td className="p-2.5 text-center font-semibold">{m.adminLevel}</td>
+                                <td className="p-2.5 text-center font-semibold">{accessLevelLabel(m)}</td>
                                 <td className="p-2.5 text-center">{m.posts}</td>
                                 <td className="p-2.5 text-center">{m.topics}</td>
                                 <td className="p-2.5 text-[var(--muted)]">{m.joinDate}</td>
@@ -5103,7 +5117,7 @@ export default function App() {
                       <span>{t('administrationBoard')}</span>
                     </h1>
                     <div className="text-xs text-[var(--muted)] mt-1">
-                      {t('sysAdminControlPanel')} • Access Level: {currentUser?.adminLevel || 3}
+                      {t('sysAdminControlPanel')} • {t('adminLevel')}: {accessLevelLabel(currentUser)}
                     </div>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-bold">
@@ -5728,8 +5742,8 @@ export default function App() {
                             });
                             return;
                           }
-                          const adminCount = members.filter((m) => m.role === 'admin' || (m.adminLevel ?? 0) >= 3).length;
-                          if ((selectedMemberForAdmin.role === 'admin' || (selectedMemberForAdmin.adminLevel ?? 0) >= 3) && adminCount <= 1) {
+                          const adminCount = members.filter(isAdministrator).length;
+                          if (isAdministrator(selectedMemberForAdmin) && adminCount <= 1) {
                             setModalDialog({
                               title: "Action Not Permitted",
                               msg: "Cannot cancel the only remaining administrator account in the system.",
@@ -5786,14 +5800,14 @@ export default function App() {
 
                     {/* Figure 49: Choose Admin Level */}
                     <div className="pt-2 border-t flex flex-wrap items-center gap-3">
-                      <span className="font-bold">Choose Admin Level:</span>
+                      <span className="font-bold">{t('chooseAdminLevel')}</span>
                       <select
                         value={selectedMemberForAdmin.adminLevel}
                         onChange={async (e) => {
                           const lvl = Number(e.target.value);
-                          const role = lvl === 3 ? 'admin' : lvl === 1 ? 'moderator' : 'user';
+                          const role = roleFromLevel(lvl);
 
-                          if (selectedMemberForAdmin.username === currentUser?.username && lvl < 3) {
+                          if (selectedMemberForAdmin.username === currentUser?.username && lvl < ADMIN_LEVEL.ADMINISTRATOR) {
                             setModalDialog({
                               title: "Self-Demotion Prevented",
                               msg: "You cannot demote your own active administrator account to prevent accidental lockout.",
@@ -5802,8 +5816,8 @@ export default function App() {
                             return;
                           }
 
-                          const adminCount = members.filter((m) => m.role === 'admin' || (m.adminLevel ?? 0) >= 3).length;
-                          if ((selectedMemberForAdmin.role === 'admin' || (selectedMemberForAdmin.adminLevel ?? 0) >= 3) && lvl < 3 && adminCount <= 1) {
+                          const adminCount = members.filter(isAdministrator).length;
+                          if (isAdministrator(selectedMemberForAdmin) && lvl < ADMIN_LEVEL.ADMINISTRATOR && adminCount <= 1) {
                             setModalDialog({
                               title: "Action Not Permitted",
                               msg: "Cannot demote the only remaining administrator account in the system.",
@@ -5832,9 +5846,9 @@ export default function App() {
                         }}
                         className="px-3 py-1.5 rounded-xl border bg-white font-semibold"
                       >
-                        <option value={0}>No Admin Rights</option>
-                        <option value={1}>Moderator</option>
-                        <option value={3}>Administrator - Back End Admin Rights</option>
+                        <option value={ADMIN_LEVEL.NONE}>{t('accessLevelNone')} ({t('levelWord')} {ADMIN_LEVEL.NONE})</option>
+                        <option value={ADMIN_LEVEL.MODERATOR}>{t('accessLevelModerator')} ({t('levelWord')} {ADMIN_LEVEL.MODERATOR})</option>
+                        <option value={ADMIN_LEVEL.ADMINISTRATOR}>{t('accessLevelAdministrator')} ({t('levelWord')} {ADMIN_LEVEL.ADMINISTRATOR})</option>
                       </select>
                       <button
                         onClick={() => setSelectedMemberForAdmin(null)}

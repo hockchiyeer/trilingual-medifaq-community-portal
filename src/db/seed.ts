@@ -158,7 +158,7 @@ async function seed() {
       uid: 'uid_admin',
       username: 'admin',
       password: 'admin',
-      email: 'erhc79@gmail.com',
+      email: 'cheshiruanjian@gmail.com',
       emailPrivate: false,
       fullName: 'System Administrator',
       firstName: 'Sys',

@@ -521,7 +521,7 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
     assert.equal(statusRes.status, 200);
     const statusData = await statusRes.json();
     assert.ok(Array.isArray(statusData.adminEmails));
-    assert.ok(statusData.adminEmails.includes('erhc79@gmail.com'));
+    assert.ok(statusData.adminEmails.includes('cheshiruanjian@gmail.com'));
     assert.ok(Array.isArray(statusData.logs));
     assert.ok(statusData.logs.some((l: any) => l.subject.includes(guardian.prefix)));
   });

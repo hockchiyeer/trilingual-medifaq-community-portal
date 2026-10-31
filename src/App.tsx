@@ -2579,13 +2579,7 @@ export default function App() {
     onSubmit(v);
   };
 
-  const setGenericEditor = (config: {
-    title: string;
-    label: string;
-    value: string;
-    onSave: (val: string) => void;
-    submitted?: boolean;
-  }) => openTextPrompt(config.title, config.label, config.value, config.onSave);
+
 
 
 
@@ -5408,27 +5402,18 @@ export default function App() {
                               <span>{getLoc(s.name)}</span>
                             </div>
                             <button
-                              onClick={() => setGenericEditor({
-                                title: "Change sub category's title",
-                                label: "Sub Category Title",
-                                value: getLoc(s.name),
-                                onSave: (newTitle) => {
-                                  const updatedName = { EN: newTitle, ZH: newTitle, BM: newTitle };
-                                  setCategories(categories.map((c) => c.id === cat.id ? {
-                                    ...c,
-                                    subs: c.subs.map((sub) => sub.id === s.id ? {
-                                      ...sub,
-                                      name: updatedName
-                                    } : sub)
-                                  } : c));
-                                  fetch(`/api/subcategories/${s.id}`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ name: updatedName }),
-                                  }).catch(console.error);
-                                  showToast(t('success'));
-                                },
-                                submitted: false
+                              onClick={() => openTextPrompt(t('dlgChangeSubcategoryTitle'), t('subcategoryNameLabel'), getLoc(s.name), (v) => {
+                                const updatedName = setLocalized(s.name, lang, v);
+                                setCategories(categories.map((c) => c.id === cat.id ? {
+                                  ...c,
+                                  subs: c.subs.map((sub) => sub.id === s.id ? { ...sub, name: updatedName } : sub)
+                                } : c));
+                                fetch(`/api/subcategories/${s.id}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ name: updatedName }),
+                                }).catch(console.error);
+                                showToast(t('success'));
                               })}
                               className="text-[0.6875rem] text-blue-600 hover:underline"
                             >
@@ -5439,26 +5424,20 @@ export default function App() {
 
                         <div className="pt-2">
                           <button
-                            onClick={() => {
-                              const sName = prompt("Enter New Sub Category name:");
-                              if (sName) {
-                                const newSub: SubCategory = {
-                                  id: "sub_" + Date.now(),
-                                  mainId: cat.id,
-                                  name: { EN: sName, ZH: sName, BM: sName }
-                                };
-                                setCategories(categories.map((c) => c.id === cat.id ? {
-                                  ...c,
-                                  subs: [...c.subs, newSub]
-                                } : c));
-                                fetch('/api/subcategories', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify(newSub),
-                                }).catch(console.error);
-                                showToast(t('createSuccess'));
-                              }
-                            }}
+                            onClick={() => openTextPrompt(t('dlgAddSubcategory'), t('subcategoryNameLabel'), '', (v) => {
+                              const newSub: SubCategory = {
+                                id: "sub_" + Date.now(),
+                                mainId: cat.id,
+                                name: setLocalized(undefined, lang, v)
+                              };
+                              setCategories(categories.map((c) => c.id === cat.id ? { ...c, subs: [...c.subs, newSub] } : c));
+                              fetch('/api/subcategories', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(newSub),
+                              }).catch(console.error);
+                              showToast(t('createSuccess'));
+                            })}
                             className="text-xs text-[var(--teal-deep)] font-bold hover:underline"
                           >
                             + Add a New Sub Category
@@ -5470,29 +5449,23 @@ export default function App() {
 
                   <div className="pt-2 text-center">
                     <button
-                      onClick={() => setGenericEditor({
-                        title: "Add New Main Category",
-                        label: "Main Category Name",
-                        value: "",
-                        onSave: (mName) => {
-                          const newCat: MainCategory = {
-                            id: "main_" + Date.now(),
-                            name: { EN: mName, ZH: mName, BM: mName },
-                            desc: { EN: `${mName} clinical topics`, ZH: `${mName}临床专题`, BM: `Topik klinikal ${mName}` },
-                            color: "blue",
-                            icon: BookOpen,
-                            listOrder: categories.length + 1,
-                            subs: []
-                          };
-                          setCategories([...categories, newCat]);
-                          fetch('/api/categories', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(newCat),
-                          }).catch(console.error);
-                          showToast(t('createSuccess'));
-                        },
-                        submitted: false
+                      onClick={() => openTextPrompt(t('dlgAddMainCategory'), t('categoryNameLabel'), '', (v) => {
+                        const newCat: MainCategory = {
+                          id: "main_" + Date.now(),
+                          name: setLocalized(undefined, lang, v),
+                          desc: { EN: `${v} clinical topics`, ZH: `${v}临床专题`, BM: `Topik klinikal ${v}` },
+                          color: "blue",
+                          icon: BookOpen,
+                          listOrder: categories.length + 1,
+                          subs: []
+                        };
+                        setCategories([...categories, newCat]);
+                        fetch('/api/categories', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(newCat),
+                        }).catch(console.error);
+                        showToast(t('createSuccess'));
                       })}
                       className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs"
                     >
@@ -5827,21 +5800,15 @@ export default function App() {
                   <div className="space-y-2 text-xs">
                     <div>
                       <button
-                        onClick={() => setGenericEditor({
-                          title: "Edit Member Full Name",
-                          label: "Full Name",
-                          value: selectedMemberForAdmin.fullName,
-                          onSave: (newName) => {
-                            setMembers(members.map((x) => x.username === selectedMemberForAdmin.username ? { ...x, fullName: newName } : x));
-                            setSelectedMemberForAdmin({ ...selectedMemberForAdmin, fullName: newName });
-                            fetch(`/api/members/${selectedMemberForAdmin.username}`, {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ fullName: newName }),
-                            }).catch(console.error);
-                            showToast(t('profileUpdated'));
-                          },
-                          submitted: false
+                        onClick={() => openTextPrompt(t('dlgEditMemberName'), t('memberFullNameLabel'), selectedMemberForAdmin.fullName || '', (v) => {
+                          setMembers(members.map((x) => x.username === selectedMemberForAdmin.username ? { ...x, fullName: v } : x));
+                          setSelectedMemberForAdmin({ ...selectedMemberForAdmin, fullName: v });
+                          fetch(`/api/members/${selectedMemberForAdmin.username}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ fullName: v }),
+                          }).catch(console.error);
+                          showToast(t('profileUpdated'));
                         })}
                         className="text-blue-700 font-bold hover:underline"
                       >

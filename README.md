@@ -331,7 +331,7 @@ When visitors submit feedback via the public form (`/feedback`), the portal proc
 2. **Internal Administrator Private Message**:
    * An automatic notification message is generated in `private_messages` addressed to administrator accounts (`admin`). When administrators log in, their **Private Message Center** badge lights up immediately with full feedback details.
 3. **Email Notification Dispatch**:
-   * The system inspects configured administrator email addresses (such as `erhc79@gmail.com` updated via User Management).
+   * The system inspects configured administrator email addresses (such as `cheshiruanjian@gmail.com` updated via User Management).
    * **Local Simulation Mode (Default)**: Outgoing emails are cleanly logged to the server console and the **Notification Outbox** (`Administration Board > Send Email to All Members`), eliminating hard external dependencies for local machines.
    * **Real SMTP Delivery (Optional)**: If you want real emails delivered directly to an external Gmail inbox, configure your SMTP parameters in `.env`:
      ```env

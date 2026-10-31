@@ -441,6 +441,13 @@ const T_DATA: Translations = {
     clearAllFeedback: "Clear All Feedback Messages",
     confirmClearAllFeedback: "Are you sure you want to permanently delete all user feedback messages from the database?",
     noFeedbackMessages: "No feedback messages in inbox.",
+    closeDialog: "Close dialog",
+    closeFaqDialog: "Close FAQ dialog",
+    closeComposeDialog: "Close message compose dialog",
+    ok: "OK",
+    pmRecipientPlaceholder: "e.g. member_tan, dr_lee, admin",
+    footerFontNote: "Inter + Fraunces",
+    footerLangNote: "Tri-lingual (EN / 中文 / BM)",
     systemNotice: "System Notice"
   },
   ZH: {
@@ -822,6 +829,13 @@ const T_DATA: Translations = {
     clearAllFeedback: "清除所有反馈信息",
     confirmClearAllFeedback: "确定要从数据库中永久删除所有用户反馈信息吗？",
     noFeedbackMessages: "收件箱中没有反馈信息。",
+    closeDialog: "关闭对话框",
+    closeFaqDialog: "关闭常问对话框",
+    closeComposeDialog: "关闭写信对话框",
+    ok: "确定",
+    pmRecipientPlaceholder: "例如：member_tan, dr_lee, admin",
+    footerFontNote: "Inter + Fraunces",
+    footerLangNote: "三语支持（EN / 中文 / BM）",
     systemNotice: "系统提示"
   },
   BM: {
@@ -1203,6 +1217,13 @@ const T_DATA: Translations = {
     clearAllFeedback: "Kosongkan Semua Mesej Maklum Balas",
     confirmClearAllFeedback: "Adakah anda pasti mahu memadam semua mesej maklum balas pengguna daripada pangkalan data secara kekal?",
     noFeedbackMessages: "Tiada mesej maklum balas dalam peti masuk.",
+    closeDialog: "Tutup dialog",
+    closeFaqDialog: "Tutup dialog FAQ",
+    closeComposeDialog: "Tutup dialog karang mesej",
+    ok: "OK",
+    pmRecipientPlaceholder: "cth. member_tan, dr_lee, admin",
+    footerFontNote: "Inter + Fraunces",
+    footerLangNote: "Tiga Bahasa (EN / 中文 / BM)",
     systemNotice: "Notis Sistem"
   }
 };
@@ -5135,15 +5156,15 @@ export default function App() {
                       <table className="w-full text-xs">
                         <thead className="bg-blue-600 text-white font-bold text-left">
                           <tr>
-                            <th className="p-2.5">View Profile</th>
-                            <th className="p-2.5">User Name</th>
+                            <th className="p-2.5">{t('viewProfile')}</th>
+                            <th className="p-2.5">{t('username')}</th>
                             <th className="p-2.5 text-center">{t('adminLevel')}</th>
-                            <th className="p-2.5 text-center">Posts</th>
-                            <th className="p-2.5 text-center">Topics</th>
-                            <th className="p-2.5">Join Date</th>
-                            <th className="p-2.5">Last Online</th>
-                            <th className="p-2.5">Last Post</th>
-                            <th className="p-2.5 text-center">Photo</th>
+                            <th className="p-2.5 text-center">{t('posts')}</th>
+                            <th className="p-2.5 text-center">{t('topics')}</th>
+                            <th className="p-2.5">{t('joinDate')}</th>
+                            <th className="p-2.5">{t('lastOnline')}</th>
+                            <th className="p-2.5">{t('lastPost')}</th>
+                            <th className="p-2.5 text-center">{t('photo')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y border">
@@ -5155,14 +5176,14 @@ export default function App() {
                                   <button
                                     onClick={() => {
                                       setModalDialog({
-                                        title: `${m.username}'s Profile`,
-                                        msg: `Full Name: ${m.fullName}\nEmail: ${m.emailPrivate ? '[Private]' : m.email}\nAddress: ${m.address || 'N/A'}\nBirthday: ${m.birthday || 'N/A'}\nSignature: ${m.signature || 'N/A'}`,
+                                        title: fmt(t('memberProfileTitle'), { name: m.username }),
+                                        msg: `${t('fullName')}: ${m.fullName}\n${t('email')}: ${m.emailPrivate ? t('privateTag') : m.email}\n${t('address')}: ${m.address || 'N/A'}\n${t('birthday')}: ${m.birthday || 'N/A'}\n${t('signature')}: ${m.signature || 'N/A'}`,
                                         type: 'alert'
                                       });
                                     }}
                                     className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[0.6875rem] font-bold hover:bg-blue-200"
                                   >
-                                    Profile
+                                    {t('profile')}
                                   </button>
                                 </td>
                                 <td className="p-2.5 font-bold text-[var(--navy)]">{m.username}</td>
@@ -6288,9 +6309,9 @@ export default function App() {
             <div className="flex items-center gap-3 font-medium">
               <span>{t('accessibility')}: WCAG AA</span>
               <span>•</span>
-              <span>Inter + Fraunces</span>
+              <span>{t('footerFontNote')}</span>
               <span>•</span>
-              <span>Tri-lingual (EN / 中文 / BM)</span>
+              <span>{t('footerLangNote')}</span>
             </div>
           </div>
         </footer>
@@ -6315,7 +6336,7 @@ export default function App() {
               <button
                 onClick={() => setActiveFaqDetail(null)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg bg-black/20 hover:bg-black/30"
-                aria-label="Close FAQ dialog"
+                aria-label={t('closeFaqDialog')}
               >
                 <X className="w-4 h-4 text-white" />
               </button>
@@ -6399,7 +6420,7 @@ export default function App() {
               <button
                 onClick={() => setPmModalOpen(false)}
                 className="p-1 rounded-lg hover:bg-gray-100"
-                aria-label="Close message compose dialog"
+                aria-label={t('closeComposeDialog')}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -6411,7 +6432,7 @@ export default function App() {
                 <input
                   value={pmForm.to}
                   onChange={(e) => setPmForm({ ...pmForm, to: e.target.value })}
-                  placeholder="e.g. member_tan, dr_lee, admin"
+                  placeholder={t('pmRecipientPlaceholder')}
                   className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                 />
               </div>
@@ -6604,7 +6625,7 @@ export default function App() {
               <button
                 onClick={() => setModalDialog(null)}
                 className="w-5 h-5 grid place-items-center rounded bg-gray-200 hover:bg-gray-300 text-xs font-bold"
-                aria-label="Close dialog"
+                aria-label={t('closeDialog')}
               >
                 ✕
               </button>
@@ -6635,7 +6656,7 @@ export default function App() {
                 }}
                 className="px-5 py-1.5 rounded-md bg-white border-2 border-blue-600 text-xs font-bold hover:bg-blue-50 shadow-sm"
               >
-                OK
+                {t('ok')}
               </button>
             </div>
           </div>

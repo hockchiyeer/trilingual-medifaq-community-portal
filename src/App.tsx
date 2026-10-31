@@ -1690,6 +1690,10 @@ const INITIAL_PMS: PrivateMessage[] = [
   }
 ];
 
+// Discrete text-size steps (multipliers of the browser's base size).
+const FONT_SIZE_STEPS = [0.85, 1, 1.15, 1.3] as const;
+const DEFAULT_FONT_STEP = 1;
+
 export default function App() {
   const [lang, setLangState] = useState<Lang>(() => {
     try {
@@ -1719,8 +1723,16 @@ export default function App() {
   }, [lang]);
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [fontSizeMultiplier, setFontSizeMultiplier] = useState(1);
+  const [fontSizeStep, setFontSizeStep] = useState(DEFAULT_FONT_STEP);
   const [highContrast, setHighContrast] = useState(false);
+
+  // Scale the root font size so all rem-based text follows.
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${FONT_SIZE_STEPS[fontSizeStep] * 100}%`;
+    return () => {
+      document.documentElement.style.fontSize = '';
+    };
+  }, [fontSizeStep]);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const [modalDialog, setModalDialog] = useState<{
     title: string;
@@ -2429,12 +2441,60 @@ export default function App() {
     </nav>
   );
 
+  // Accessibility: font size & high contrast (rendered in the header on >=sm and in the mobile drawer below sm)
+  const accessibilityControls = (
+    <div className="flex items-center gap-1 rounded-full border border-[var(--border)] p-1 bg-[var(--surface-2)] w-fit">
+      <button
+        type="button"
+        onClick={() => setFontSizeStep((prev) => Math.max(0, prev - 1))}
+        disabled={fontSizeStep <= 0}
+        className="w-7 h-7 grid place-items-center rounded-full hover:bg-white text-xs font-semibold focus-ring disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        title={t('decreaseFontSize')}
+        aria-label={t('decreaseFontSize')}
+      >
+        A-
+      </button>
+      <button
+        type="button"
+        onClick={() => setFontSizeStep(DEFAULT_FONT_STEP)}
+        disabled={fontSizeStep === DEFAULT_FONT_STEP}
+        className="w-7 h-7 grid place-items-center rounded-full hover:bg-white text-xs font-semibold focus-ring disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        title={t('resetFontSize')}
+        aria-label={t('resetFontSize')}
+      >
+        A
+      </button>
+      <button
+        type="button"
+        onClick={() => setFontSizeStep((prev) => Math.min(FONT_SIZE_STEPS.length - 1, prev + 1))}
+        disabled={fontSizeStep >= FONT_SIZE_STEPS.length - 1}
+        className="w-7 h-7 grid place-items-center rounded-full hover:bg-white text-xs font-semibold focus-ring disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        title={t('increaseFontSize')}
+        aria-label={t('increaseFontSize')}
+      >
+        A+
+      </button>
+      <div className="w-px h-4 bg-[var(--border)] mx-1" />
+      <button
+        type="button"
+        onClick={() => setHighContrast((prev) => !prev)}
+        className={`w-7 h-7 grid place-items-center rounded-full focus-ring transition ${
+          highContrast ? 'bg-[var(--navy)] text-white' : 'hover:bg-white text-[var(--muted)]'
+        }`}
+        title={t('toggleHighContrast')}
+        aria-label={t('toggleHighContrast')}
+        aria-pressed={highContrast}
+      >
+        <Eye className="w-4 h-4" />
+      </button>
+    </div>
+  );
+
   return (
     <div
       className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col lg:flex-row bg-[var(--bg)] text-[var(--text)] transition-colors duration-200 ${
         highContrast ? 'contrast-125 saturate-150 font-medium' : ''
       }`}
-      style={{ fontSize: `${fontSizeMultiplier}rem` }}
     >
       {/* Skip Link for Accessibility */}
       <a
@@ -2679,39 +2739,7 @@ export default function App() {
             </div>
 
             {/* Accessibility: Font size & High contrast */}
-            <div className="hidden sm:flex items-center gap-1 rounded-full border border-[var(--border)] p-1 bg-[var(--surface-2)]">
-              <button
-                onClick={() => setFontSizeMultiplier((prev) => Math.max(0.85, prev - 0.1))}
-                className="w-7 h-7 grid place-items-center rounded-full hover:bg-white text-xs font-semibold focus-ring"
-                title="Decrease font size"
-              >
-                A-
-              </button>
-              <button
-                onClick={() => setFontSizeMultiplier(1)}
-                className="w-7 h-7 grid place-items-center rounded-full hover:bg-white text-xs font-semibold focus-ring"
-                title="Reset font size"
-              >
-                A
-              </button>
-              <button
-                onClick={() => setFontSizeMultiplier((prev) => Math.min(1.3, prev + 0.1))}
-                className="w-7 h-7 grid place-items-center rounded-full hover:bg-white text-xs font-semibold focus-ring"
-                title="Increase font size"
-              >
-                A+
-              </button>
-              <div className="w-px h-4 bg-[var(--border)] mx-1" />
-              <button
-                onClick={() => setHighContrast((prev) => !prev)}
-                className={`w-7 h-7 grid place-items-center rounded-full focus-ring transition ${
-                  highContrast ? 'bg-[var(--navy)] text-white' : 'hover:bg-white text-[var(--muted)]'
-                }`}
-                title={t('highContrast')}
-              >
-                <Eye className="w-4 h-4" />
-              </button>
-            </div>
+            {accessibilityControls}
 
             {/* User status badge with dropdown and quick sign in */}
             {currentUser ? (
@@ -2788,9 +2816,11 @@ export default function App() {
               <button
                 onClick={() => navigate('login')}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--navy)] text-white text-xs font-bold hover:bg-[var(--teal-deep)] transition focus-ring"
+                title={t('userSignIn')}
+                aria-label={t('userSignIn')}
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>{t('userSignIn')}</span>
+                <span className="hidden sm:inline">{t('userSignIn')}</span>
               </button>
             )}
           </div>

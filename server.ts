@@ -6,6 +6,7 @@ import { createServer as createViteServer } from 'vite';
 import { eq, desc, like } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { db } from './src/db/index.ts';
+import { ADMIN_LEVEL, isAdministrator } from './src/accessLevels.ts';
 import {
   users,
   categories,
@@ -599,11 +600,11 @@ app.put('/api/members/:username', async (req, res) => {
     // Safety guard: prevent demoting the only remaining administrator
     if (body.role !== undefined || body.adminLevel !== undefined) {
       const targetUser = (await db.select().from(users).where(eq(users.username, username)))[0];
-      if (targetUser && (targetUser.role === 'admin' || (targetUser.adminLevel ?? 0) >= 3)) {
-        const isDemoting = (body.role && body.role !== 'admin') || (body.adminLevel !== undefined && body.adminLevel < 3);
+      if (isAdministrator(targetUser)) {
+        const isDemoting = (body.role && body.role !== 'admin') || (body.adminLevel !== undefined && body.adminLevel < ADMIN_LEVEL.ADMINISTRATOR);
         if (isDemoting) {
           const allUsers = await db.select().from(users);
-          const allAdmins = allUsers.filter((u) => u.role === 'admin' || (u.adminLevel ?? 0) >= 3);
+          const allAdmins = allUsers.filter((u) => isAdministrator(u));
           if (allAdmins.length <= 1) {
             return res.status(400).json({ error: 'Cannot demote the only remaining administrator' });
           }
@@ -642,9 +643,9 @@ app.delete('/api/members/:username', async (req, res) => {
     const { username } = req.params;
     // Safety guard: prevent deleting the only remaining administrator
     const targetUser = (await db.select().from(users).where(eq(users.username, username)))[0];
-    if (targetUser && (targetUser.role === 'admin' || (targetUser.adminLevel ?? 0) >= 3)) {
+    if (isAdministrator(targetUser)) {
       const allUsers = await db.select().from(users);
-      const allAdmins = allUsers.filter((u) => u.role === 'admin' || (u.adminLevel ?? 0) >= 3);
+      const allAdmins = allUsers.filter((u) => isAdministrator(u));
       if (allAdmins.length <= 1) {
         return res.status(400).json({ error: 'Cannot delete the only remaining administrator' });
       }

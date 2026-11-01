@@ -220,6 +220,7 @@ const T_DATA: Translations = {
     lastOnline: "Last Online",
     lastPost: "Last Post",
     photo: "Photo",
+    noPhoto: "No",
     inbox: "Private Message Center",
     sendNewMessage: "Send New Message",
     changePassword: "Change Password",
@@ -608,6 +609,7 @@ const T_DATA: Translations = {
     lastOnline: "最后在线",
     lastPost: "最后发帖",
     photo: "头像照片",
+    noPhoto: "无",
     inbox: "私人信息中心",
     sendNewMessage: "发送新信息",
     changePassword: "修改登录密码",
@@ -996,6 +998,7 @@ const T_DATA: Translations = {
     lastOnline: "Kali Terakhir Dalam Talian",
     lastPost: "Pos Terakhir",
     photo: "Foto",
+    noPhoto: "Tiada",
     inbox: "Pusat Mesej Peribadi",
     sendNewMessage: "Hantar Mesej Baru",
     changePassword: "Tukar Kata Laluan Log Masuk",
@@ -5207,7 +5210,7 @@ export default function App() {
                                     <span className="text-[var(--muted)]">{t('neverPosted')}</span>
                                   )}
                                 </td>
-                                <td className="p-2.5 text-center text-[var(--muted)]">No</td>
+                                <td className="p-2.5 text-center text-[var(--muted)]">{t('noPhoto')}</td>
                               </tr>
                             );
                           })}

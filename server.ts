@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { eq, desc, like } from 'drizzle-orm';
+import { eq, asc, desc, like } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { db } from './src/db/index.ts';
 import { ADMIN_LEVEL, isAdministrator } from './src/accessLevels.ts';
@@ -268,7 +268,7 @@ app.post('/api/faqs/:id/view', async (req, res) => {
 // 3. Discussion Board (Topics & Posts)
 app.get('/api/topics', async (_req, res) => {
   try {
-    const rows = await db.select().from(forumTopics).orderBy(desc(forumTopics.createdAt));
+    const rows = await db.select().from(forumTopics).orderBy(asc(forumTopics.createdAt));
     const formatted = rows.map((t) => ({
       id: t.id,
       forumId: t.forumId,
@@ -354,12 +354,14 @@ app.delete('/api/topics/:id', async (req, res) => {
 app.get('/api/posts', async (_req, res) => {
   try {
     const rows = await db.select().from(forumPosts);
+    const allUsers = await db.select().from(users);
+    const userMap = new Map(allUsers.map((u) => [u.username, u.postsCount || 0]));
     const formatted = rows.map((p) => ({
       id: p.id,
       topicId: p.topicId,
       author: p.author,
       avatar: p.avatar || 'US',
-      postCount: p.postCount || 1,
+      postCount: userMap.get(p.author) ?? (p.postCount || 1),
       time: p.time,
       content: { EN: p.contentEn, ZH: p.contentZh, BM: p.contentBm },
     }));

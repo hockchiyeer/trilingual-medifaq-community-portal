@@ -2018,6 +2018,40 @@ const INITIAL_PMS: PrivateMessage[] = [
 const fmt = (text: string, vars: Record<string, string | number>): string =>
   text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
+// Parses forum timestamps for reliable ascending chronological sorting
+const parseTimestamp = (str?: string): number => {
+  if (!str) return 0;
+  const cleaned = str.replace(/\bthe\s+/i, '').trim();
+  const parts = cleaned.split(/\s+on\s+/i);
+  if (parts.length === 2) {
+    const timePart = parts[0].trim();
+    const datePart = parts[1].trim();
+    const dateTokens = datePart.split(/[\/\-]/);
+    if (dateTokens.length === 3) {
+      let day: number, month: number, year: number;
+      if (dateTokens[0].length === 4) {
+        [year, month, day] = dateTokens.map(Number);
+      } else {
+        [day, month, year] = dateTokens.map(Number);
+      }
+      let hours = 0, minutes = 0, seconds = 0;
+      const isPM = /pm/i.test(timePart);
+      const isAM = /am/i.test(timePart);
+      const timeCleaned = timePart.replace(/[apm\s]/gi, '');
+      const timeTokens = timeCleaned.split(':').map(Number);
+      hours = timeTokens[0] || 0;
+      if (isPM && hours < 12) hours += 12;
+      if (isAM && hours === 12) hours = 0;
+      minutes = timeTokens[1] || 0;
+      seconds = timeTokens[2] || 0;
+      const d = new Date(year, month - 1, day, hours, minutes, seconds);
+      if (!isNaN(d.getTime())) return d.getTime();
+    }
+  }
+  const parsed = Date.parse(str);
+  return isNaN(parsed) ? 0 : parsed;
+};
+
 // Stores `text` for the active language and copies it into any empty locale, so a name or FAQ
 // text entered in one language never leaves the other locales blank.
 const setLocalized = (prev: Record<Lang, string> | undefined, lang: Lang, text: string): Record<Lang, string> => {
@@ -2342,7 +2376,7 @@ export default function App() {
     });
   }, [faqs, faqSearchQuery, faqSearchCat, faqSearchScope, lang]);
 
-  // Discussion forum topics filtered
+  // Discussion forum topics filtered (arranged in ascending order by post creation timestamp)
   const filteredForumTopics = useMemo(() => {
     let list = topics;
     if (activeMainId) {
@@ -2351,7 +2385,7 @@ export default function App() {
     if (activeSubId) {
       list = list.filter((t) => t.subId === activeSubId);
     }
-    return list;
+    return [...list].sort((a, b) => parseTimestamp(a.created) - parseTimestamp(b.created));
   }, [topics, activeMainId, activeSubId]);
 
   // Discussion search results
@@ -2607,7 +2641,7 @@ export default function App() {
       }
     };
 
-    setTopics([newTopic, ...topics]);
+    setTopics([...topics, newTopic]);
     setPosts([...posts, firstPost]);
     setMembers(members.map((m) => m.username === currentUser.username ? { ...m, posts: m.posts + 1, topics: m.topics + 1 } : m));
     setCurrentUser({ ...currentUser, posts: currentUser.posts + 1, topics: currentUser.topics + 1 });
@@ -2657,6 +2691,12 @@ export default function App() {
       lastAuthor: currentUser.username,
       lastTime: timestamp
     } : top));
+    setActiveTopic({
+      ...activeTopic,
+      replies: activeTopic.replies + 1,
+      lastAuthor: currentUser.username,
+      lastTime: timestamp
+    });
 
     setMembers(members.map((m) => m.username === currentUser.username ? { ...m, posts: m.posts + 1 } : m));
     setCurrentUser({ ...currentUser, posts: currentUser.posts + 1 });
@@ -2695,7 +2735,24 @@ export default function App() {
       msg: t('confirmDelete'),
       type: 'confirm',
       onConfirm: () => {
+        const postToDelete = posts.find((p) => p.id === postId);
         setPosts(posts.filter((p) => p.id !== postId));
+        if (postToDelete) {
+          setMembers(members.map((m) => m.username === postToDelete.author ? { ...m, posts: Math.max(0, m.posts - 1) } : m));
+          if (currentUser && currentUser.username === postToDelete.author) {
+            setCurrentUser({ ...currentUser, posts: Math.max(0, currentUser.posts - 1) });
+          }
+          setTopics(topics.map((top) => top.id === postToDelete.topicId ? {
+            ...top,
+            replies: Math.max(0, top.replies - 1)
+          } : top));
+          if (activeTopic && activeTopic.id === postToDelete.topicId) {
+            setActiveTopic({
+              ...activeTopic,
+              replies: Math.max(0, activeTopic.replies - 1)
+            });
+          }
+        }
         fetch(`/api/posts/${postId}`, { method: 'DELETE' }).catch(console.error);
         showToast(t('deleteSuccess'));
       }
@@ -4642,6 +4699,7 @@ export default function App() {
                               <button
                                 onClick={() => {
                                   setFaqs(faqs.map((f) => f.id === faq.id ? { ...f, views: f.views + 1 } : f));
+                                  fetch(`/api/faqs/${faq.id}/view`, { method: 'POST' }).catch(console.error);
                                   setActiveFaqDetail({ ...faq, views: faq.views + 1 });
                                 }}
                                 className="text-left font-bold text-blue-700 hover:text-[var(--teal)] hover:underline"
@@ -4990,8 +5048,31 @@ export default function App() {
                             msg: t('confirmDeleteTopic'),
                             type: 'confirm',
                             onConfirm: () => {
+                              const postsInTopic = posts.filter((p) => p.topicId === activeTopic.id);
+                              const authorPostCounts: Record<string, number> = {};
+                              postsInTopic.forEach((p) => {
+                                authorPostCounts[p.author] = (authorPostCounts[p.author] || 0) + 1;
+                              });
                               setTopics(topics.filter((t) => t.id !== activeTopic.id));
                               setPosts(posts.filter((p) => p.topicId !== activeTopic.id));
+                              setMembers(members.map((m) => {
+                                const decPosts = authorPostCounts[m.username] || 0;
+                                const decTopic = m.username === activeTopic.author ? 1 : 0;
+                                return (decPosts > 0 || decTopic > 0)
+                                  ? { ...m, posts: Math.max(0, m.posts - decPosts), topics: Math.max(0, m.topics - decTopic) }
+                                  : m;
+                              }));
+                              if (currentUser) {
+                                const myDecPosts = authorPostCounts[currentUser.username] || 0;
+                                const myDecTopic = currentUser.username === activeTopic.author ? 1 : 0;
+                                if (myDecPosts > 0 || myDecTopic > 0) {
+                                  setCurrentUser({
+                                    ...currentUser,
+                                    posts: Math.max(0, currentUser.posts - myDecPosts),
+                                    topics: Math.max(0, currentUser.topics - myDecTopic)
+                                  });
+                                }
+                              }
                               fetch(`/api/topics/${activeTopic.id}`, { method: 'DELETE' }).catch(console.error);
                               showToast(t('deleteSuccess'));
                               navigate('discussionSub');
@@ -5010,10 +5091,15 @@ export default function App() {
                 <div className="divide-y">
                   {posts
                     .filter((p) => p.topicId === activeTopic.id)
+                    .sort((a, b) => parseTimestamp(a.time) - parseTimestamp(b.time))
                     .map((post) => {
                       const isAuthor = currentUser?.username === post.author;
                       const isAdmin = isModeratorOrAbove(currentUser);
                       const canEditDelete = isAuthor || isAdmin;
+                      const authorMember = members.find((m) => m.username === post.author);
+                      const authorPostsCount = authorMember
+                        ? authorMember.posts
+                        : (currentUser?.username === post.author ? currentUser.posts : (post.postCount || 0));
 
                       return (
                         <div key={post.id} className="p-4 flex flex-col md:flex-row gap-4 bg-white">
@@ -5025,7 +5111,7 @@ export default function App() {
                             <div>
                               <div className="font-bold text-xs text-blue-900">{post.author}</div>
                               <div className="text-[0.625rem] text-[var(--muted)]">
-                                {fmt(t('postsCountLabel'), { count: post.postCount })}
+                                {fmt(t('postsCountLabel'), { count: authorPostsCount })}
                               </div>
                               <div className="text-[0.625rem] text-[var(--muted)] mt-1">
                                 {t('postedAt')} {post.time}

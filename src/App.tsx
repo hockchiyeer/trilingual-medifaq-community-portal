@@ -449,6 +449,34 @@ const T_DATA: Translations = {
     pmRecipientPlaceholder: "e.g. member_tan, dr_lee, admin",
     footerFontNote: "Inter + Fraunces",
     footerLangNote: "Tri-lingual (EN / 中文 / BM)",
+    explore: "Explore",
+    viewAllForums: "View All Forums",
+    lastActivity: "Last activity",
+    readPost: "Read Post",
+    redirectingHome: "Automatically redirecting to Homepage in {seconds}s...",
+    returnToHome: "Return to Homepage",
+    unread: "Unread",
+    allSuffix: "All",
+    inThe: "in the:",
+    foundResults: "Found {count} Results!",
+    refineSearch: "Please refine your search keyword.",
+    pmInbox: "PM INBOX",
+    addReply: "ADD REPLY",
+    topicsBtn: "TOPICS",
+    deleteTopic: "DELETE TOPIC",
+    confirmDeleteTopic: "Delete this entire topic and all its responses?",
+    postsCountLabel: "{count} Posts",
+    postedAt: "Posted at",
+    typeResponseHere: "Type your response here...",
+    noMemberResults: "No results found for member query.",
+    noDiscussionResults: "No results found for discussion search.",
+    timeLabel: "Time",
+    viewPost: "View Post",
+    postInTopic: "Post in topic: {id}",
+    quoteFrom: "[Quote from {name}]:",
+    feedbackMissingFields: "You didn't fill in the following field(s) properly:\n- {fields}\n\nPlease fill in the mentioned field(s) if you want to send your feedback.",
+    faqLinkCopied: "FAQ link copied to clipboard!",
+    answerFrom: "Answer from",
     systemNotice: "System Notice"
   },
   ZH: {
@@ -837,7 +865,35 @@ const T_DATA: Translations = {
     ok: "确定",
     pmRecipientPlaceholder: "例如：member_tan, dr_lee, admin",
     footerFontNote: "Inter + Fraunces",
-    footerLangNote: "三语支持（EN / 中文 / BM）",
+    footerLangNote: "三语支持 (EN / 中文 / BM)",
+    explore: "浏览",
+    viewAllForums: "查看全部论坛",
+    lastActivity: "最近活动",
+    readPost: "阅读帖子",
+    redirectingHome: "{seconds} 秒后将自动返回首页……",
+    returnToHome: "返回首页",
+    unread: "未读",
+    allSuffix: "全部",
+    inThe: "范围：",
+    foundResults: "找到 {count} 条结果！",
+    refineSearch: "请优化您的搜索关键词。",
+    pmInbox: "私信收件箱",
+    addReply: "添加回复",
+    topicsBtn: "主题列表",
+    deleteTopic: "删除主题",
+    confirmDeleteTopic: "删除整个主题及其所有回复？",
+    postsCountLabel: "{count} 篇帖子",
+    postedAt: "发表于",
+    typeResponseHere: "在此输入您的回复……",
+    noMemberResults: "未找到符合会员查询的结果。",
+    noDiscussionResults: "未找到符合讨论搜索的结果。",
+    timeLabel: "时间",
+    viewPost: "查看帖子",
+    postInTopic: "主题中的帖子：{id}",
+    quoteFrom: "[引用自 {name}]：",
+    feedbackMissingFields: "以下字段未正确填写：\n- {fields}\n\n如需提交反馈，请补充所列字段。",
+    faqLinkCopied: "常问链接已复制到剪贴板！",
+    answerFrom: "解答来自",
     systemNotice: "系统提示"
   },
   BM: {
@@ -1227,6 +1283,34 @@ const T_DATA: Translations = {
     pmRecipientPlaceholder: "cth. member_tan, dr_lee, admin",
     footerFontNote: "Inter + Fraunces",
     footerLangNote: "Tiga Bahasa (EN / 中文 / BM)",
+    explore: "Teroka",
+    viewAllForums: "Lihat Semua Forum",
+    lastActivity: "Aktiviti terakhir",
+    readPost: "Baca Pos",
+    redirectingHome: "Dialihkan secara automatik ke Laman Utama dalam {seconds} saat...",
+    returnToHome: "Kembali ke Laman Utama",
+    unread: "Belum dibaca",
+    allSuffix: "Semua",
+    inThe: "dalam bahagian:",
+    foundResults: "Dijumpai {count} Keputusan!",
+    refineSearch: "Sila perhalusi kata kunci carian anda.",
+    pmInbox: "PETI MASUK PM",
+    addReply: "TAMBAH BALASAN",
+    topicsBtn: "TOPIK",
+    deleteTopic: "PADAM TOPIK",
+    confirmDeleteTopic: "Padam keseluruhan topik ini dan semua balasannya?",
+    postsCountLabel: "{count} Pos",
+    postedAt: "Dipos pada",
+    typeResponseHere: "Taip maklum balas anda di sini...",
+    noMemberResults: "Tiada keputusan dijumpai untuk carian ahli.",
+    noDiscussionResults: "Tiada keputusan dijumpai untuk carian perbincangan.",
+    timeLabel: "Masa",
+    viewPost: "Lihat Pos",
+    postInTopic: "Pos dalam topik: {id}",
+    quoteFrom: "[Petikan daripada {name}]:",
+    feedbackMissingFields: "Anda tidak mengisi medan berikut dengan betul:\n- {fields}\n\nSila isi medan yang dinyatakan jika anda mahu menghantar maklum balas.",
+    faqLinkCopied: "Pautan FAQ disalin ke papan keratan!",
+    answerFrom: "Jawapan daripada",
     systemNotice: "Notis Sistem"
   }
 };
@@ -2628,8 +2712,8 @@ export default function App() {
 
     if (missing.length > 0) {
       setModalDialog({
-        title: "Microsoft Internet Explorer",
-        msg: `You didn't fill in the following field(s) properly:\n- ${missing.join('\n- ')}\n\nPlease fill in the mentioned field(s) if you want to send your feedback.`,
+        title: t('systemNotice'),
+        msg: fmt(t('feedbackMissingFields'), { fields: missing.join('\n- ') }),
         type: 'alert'
       });
       return;
@@ -3032,7 +3116,7 @@ export default function App() {
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="lg:hidden p-2 rounded-xl bg-[var(--surface-2)] text-[var(--navy)] hover:bg-[var(--border)] focus-ring"
-              aria-label="Toggle navigation menu"
+              aria-label={t('toggleNavigationMenu')}
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -3427,7 +3511,7 @@ export default function App() {
                             }}
                             className="w-full py-1.5 rounded-lg bg-[var(--surface-2)] text-[0.6875rem] font-bold text-[var(--teal-deep)] hover:bg-[var(--teal-soft)] transition text-center"
                           >
-                            Explore {getLoc(cat.name)}
+                            {t('explore')} {getLoc(cat.name)}
                           </button>
                         </div>
                       </div>
@@ -3447,7 +3531,7 @@ export default function App() {
                     onClick={() => navigate('discussionMain')}
                     className="text-xs font-bold text-[var(--teal)] hover:underline"
                   >
-                    View All Forums
+                    {t('viewAllForums')}
                   </button>
                 </div>
                 <div className="divide-y">
@@ -3464,7 +3548,7 @@ export default function App() {
                           {getLoc(top.title)}
                         </button>
                         <div className="text-[0.625rem] text-[var(--muted)]">
-                          {t('author')}: <span className="font-semibold">{top.author}</span> • {top.replies} {t('repliesViews')} • Last activity: {top.lastTime}
+                          {t('author')}: <span className="font-semibold">{top.author}</span> • {top.replies} {t('repliesViews')} • {t('lastActivity')}: {top.lastTime}
                         </div>
                       </div>
                       <button
@@ -3474,7 +3558,7 @@ export default function App() {
                         }}
                         className="px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[0.6875rem] font-semibold hover:bg-[var(--teal-soft)] shrink-0"
                       >
-                        Read Post
+                        {t('readPost')}
                       </button>
                     </div>
                   ))}
@@ -3760,7 +3844,7 @@ export default function App() {
                   />
                 </div>
                 <p className="text-[0.6875rem] text-blue-600 font-medium">
-                  Automatically redirecting to Homepage in {logoutCountdown}s...
+                  {fmt(t('redirectingHome'), { seconds: logoutCountdown })}
                 </p>
                 <div className="pt-2">
                   <button
@@ -3770,7 +3854,7 @@ export default function App() {
                     }}
                     className="px-5 py-2 rounded-xl bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 transition shadow-sm"
                   >
-                    Return to Homepage
+                    {t('returnToHome')}
                   </button>
                 </div>
               </div>
@@ -4221,7 +4305,7 @@ export default function App() {
                             <td className="p-3 font-semibold text-[var(--navy)]">
                               <div className="flex items-center gap-1.5">
                                 {!pm.read && (
-                                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" title="Unread" />
+                                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" title={t('unread')} />
                                 )}
                                 <span>{pm.subject}</span>
                               </div>
@@ -4497,7 +4581,7 @@ export default function App() {
                       <input
                         value={faqSearchQuery}
                         onChange={(e) => setFaqSearchQuery(e.target.value)}
-                        placeholder="e.g. cancer, vitamin, smoking, fever"
+                        placeholder={t('searchExample')}
                         className="w-full px-3 py-2 rounded-xl border bg-white focus:ring-2 focus:ring-[var(--teal)] outline-none"
                       />
                     </div>
@@ -4512,7 +4596,7 @@ export default function App() {
                         <option value="all">{t('allCategories')}</option>
                         {categories.map((cat) => (
                           <optgroup key={cat.id} label={getLoc(cat.name)}>
-                            <option value={cat.id}>{getLoc(cat.name)} (All)</option>
+                            <option value={cat.id}>{getLoc(cat.name)} ({t('allSuffix')})</option>
                             {cat.subs.map((s) => (
                               <option key={s.id} value={s.id}>
                                 &nbsp;&nbsp;{getLoc(s.name)}
@@ -4523,7 +4607,7 @@ export default function App() {
                       </select>
                     </div>
 
-                    <div className="sm:col-span-2 font-bold text-center">in the:</div>
+                    <div className="sm:col-span-2 font-bold text-center">{t('inThe')}</div>
                     <div className="sm:col-span-3">
                       <select
                         value={faqSearchScope}
@@ -4540,7 +4624,7 @@ export default function App() {
                 {/* Results Section (Figure 20) */}
                 <div className="mt-5 space-y-3">
                   <div className="bg-amber-100 border border-amber-300 text-amber-900 p-2 text-center rounded-lg text-xs font-bold">
-                    Found {faqSearchResults.length} {t('results')}!
+                    {fmt(t('foundResults'), { count: faqSearchResults.length })}
                   </div>
 
                   <div className="overflow-x-auto">
@@ -4573,7 +4657,7 @@ export default function App() {
                         {faqSearchResults.length === 0 && (
                           <tr>
                             <td colSpan={2} className="p-8 text-center text-xs text-[var(--muted)]">
-                              {t('noResults')} - Please refine your search keyword.
+                              {t('noResults')} - {t('refineSearch')}
                             </td>
                           </tr>
                         )}
@@ -4643,7 +4727,7 @@ export default function App() {
                               </div>
                             </div>
                             <div className="text-[0.6875rem] text-[var(--muted)] text-right shrink-0">
-                              <b>{topics.filter((top) => top.subId === s.id).length}</b> Topics
+                              <b>{topics.filter((top) => top.subId === s.id).length}</b> {t('topicsCount')}
                             </div>
                           </div>
                         ))}
@@ -4680,13 +4764,13 @@ export default function App() {
                           onClick={() => navigate('pmCenter')}
                           className="px-2.5 py-1 rounded bg-amber-500 text-white text-[0.6875rem] font-bold"
                         >
-                          PM INBOX
+                          {t('pmInbox')}
                         </button>
                         <button
                           onClick={() => navigate('memberPanel')}
                           className="px-2.5 py-1 rounded bg-blue-600 text-white text-[0.6875rem] font-bold"
                         >
-                          CONTROL PANEL
+                          {t('controlPanel').toUpperCase()}
                         </button>
                       </>
                     )}
@@ -4694,7 +4778,7 @@ export default function App() {
                       onClick={() => navigate('discussionSearch')}
                       className="px-2.5 py-1 rounded bg-blue-700 text-white text-[0.6875rem] font-bold"
                     >
-                      SEARCH
+                      {t('searchBtnLabel')}
                     </button>
                     <button
                       onClick={() => {
@@ -4849,7 +4933,7 @@ export default function App() {
               <Breadcrumbs
                 items={[
                   { label: t('discussionBoard'), onClick: () => navigate('discussionMain') },
-                  { label: "Sub Forum", onClick: () => navigate('discussionSub') },
+                  { label: t('subForumBreadcrumb'), onClick: () => navigate('discussionSub') },
                   { label: getLoc(activeTopic.title) }
                 ]}
               />
@@ -4858,7 +4942,7 @@ export default function App() {
                 {/* Header navigation bar (Figure 26) */}
                 <div className="bg-[var(--surface-2)] p-3 border-b flex flex-wrap items-center justify-between gap-2">
                   <div className="text-xs font-bold text-[var(--navy)]">
-                    Topic title: <span className="text-blue-800 underline">{getLoc(activeTopic.title)}</span>
+                    {t('topicTitlePrefix')} <span className="text-blue-800 underline">{getLoc(activeTopic.title)}</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {currentUser && (
@@ -4867,13 +4951,13 @@ export default function App() {
                           onClick={() => navigate('memberPanel')}
                           className="px-2.5 py-1 rounded bg-blue-600 text-white text-[0.6875rem] font-bold"
                         >
-                          CONTROL PANEL
+                          {t('controlPanel').toUpperCase()}
                         </button>
                         <button
                           onClick={() => navigate('pmCenter')}
                           className="px-2.5 py-1 rounded bg-amber-500 text-white text-[0.6875rem] font-bold"
                         >
-                          PM INBOX
+                          {t('pmInbox')}
                         </button>
                       </>
                     )}
@@ -4884,26 +4968,26 @@ export default function App() {
                       }}
                       className="px-2.5 py-1 rounded bg-emerald-600 text-white text-[0.6875rem] font-bold"
                     >
-                      ADD REPLY
+                      {t('addReply')}
                     </button>
                     <button
                       onClick={() => navigate('createTopicForm')}
                       className="px-2.5 py-1 rounded bg-[var(--teal)] text-white text-[0.6875rem] font-bold"
                     >
-                      NEW TOPIC
+                      {t('createNewTopic')}
                     </button>
                     <button
                       onClick={() => navigate('discussionSub')}
                       className="px-2.5 py-1 rounded bg-blue-700 text-white text-[0.6875rem] font-bold"
                     >
-                      TOPICS
+                      {t('topicsBtn')}
                     </button>
                     {(isModeratorOrAbove(currentUser) || currentUser?.username === activeTopic.author) && (
                       <button
                         onClick={() => {
                           setModalDialog({
                             title: t('confirmDelete'),
-                            msg: "Delete this entire topic and all its responses?",
+                            msg: t('confirmDeleteTopic'),
                             type: 'confirm',
                             onConfirm: () => {
                               setTopics(topics.filter((t) => t.id !== activeTopic.id));
@@ -4916,7 +5000,7 @@ export default function App() {
                         }}
                         className="px-2.5 py-1 rounded bg-red-700 hover:bg-red-800 text-white text-[0.6875rem] font-bold"
                       >
-                        DELETE TOPIC
+                        {t('deleteTopic')}
                       </button>
                     )}
                   </div>
@@ -4941,10 +5025,10 @@ export default function App() {
                             <div>
                               <div className="font-bold text-xs text-blue-900">{post.author}</div>
                               <div className="text-[0.625rem] text-[var(--muted)]">
-                                {post.postCount} Posts
+                                {fmt(t('postsCountLabel'), { count: post.postCount })}
                               </div>
                               <div className="text-[0.625rem] text-[var(--muted)] mt-1">
-                                Posted at {post.time}
+                                {t('postedAt')} {post.time}
                               </div>
                             </div>
                           </div>
@@ -4961,32 +5045,32 @@ export default function App() {
                                   }}
                                   className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[0.625rem] font-bold hover:bg-blue-200"
                                 >
-                                  PM
+                                  {t('pm')}
                                 </button>
                                 <button
                                   onClick={() => {
                                     const m = members.find((x) => x.username === post.author);
                                     if (m) {
                                       setModalDialog({
-                                        title: `${m.username}'s Profile`,
-                                        msg: `Full Name: ${m.fullName}\nEmail: ${m.emailPrivate ? '[Private]' : m.email}\nJoined: ${m.joinDate}\nTotal Posts: ${m.posts}`,
+                                        title: fmt(t('memberProfileTitle'), { name: m.username }),
+                                        msg: `${t('fullName')}: ${m.fullName}\n${t('email')}: ${m.emailPrivate ? t('privateTag') : m.email}\n${t('joinDate')}: ${m.joinDate}\n${t('totalPosts')}: ${m.posts}`,
                                         type: 'alert'
                                       });
                                     }
                                   }}
                                   className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[0.625rem] font-bold hover:bg-gray-200"
                                 >
-                                  Profile
+                                  {t('profile')}
                                 </button>
                                 <button
                                   onClick={() => {
-                                    setReplyContent((prev) => `${prev ? prev + '\n\n' : ''}[Quote from ${post.author}]:\n"${getLoc(post.content)}"\n--- `);
+                                    setReplyContent((prev) => `${prev ? prev + '\n\n' : ''}${fmt(t('quoteFrom'), { name: post.author })}\n"${getLoc(post.content)}"\n--- `);
                                     const replyBox = document.getElementById('post-reply-box');
                                     if (replyBox) replyBox.scrollIntoView({ behavior: 'smooth' });
                                   }}
                                   className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[0.625rem] font-bold hover:bg-amber-200"
                                 >
-                                  Quote
+                                  {t('quote')}
                                 </button>
                               </div>
 
@@ -5001,14 +5085,14 @@ export default function App() {
                                     className="px-2 py-0.5 rounded bg-teal-100 text-[var(--teal-deep)] text-[0.625rem] font-bold hover:bg-teal-200 flex items-center gap-1"
                                   >
                                     <PenLine className="w-3 h-3" />
-                                    <span>Edit</span>
+                                    <span>{t('edit')}</span>
                                   </button>
                                   <button
                                     onClick={() => handleDeletePost(post.id)}
                                     className="px-2 py-0.5 rounded bg-red-100 text-red-700 text-[0.625rem] font-bold hover:bg-red-200 flex items-center gap-1"
                                   >
                                     <Trash2 className="w-3 h-3" />
-                                    <span>Delete</span>
+                                    <span>{t('delete')}</span>
                                   </button>
                                 </div>
                               )}
@@ -5017,7 +5101,7 @@ export default function App() {
                             {/* Post content or Edit form (Figure 29 & 30) */}
                             {editingPostId === post.id ? (
                               <div className="space-y-3 p-3 bg-amber-50 rounded-xl border border-amber-200">
-                                <div className="font-bold text-xs text-amber-900">Edit Post</div>
+                                <div className="font-bold text-xs text-amber-900">{t('editPost')}</div>
                                 <textarea
                                   rows={4}
                                   value={editingPostContent}
@@ -5072,7 +5156,7 @@ export default function App() {
                         rows={4}
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
-                        placeholder="Type your response here..."
+                        placeholder={t('typeResponseHere')}
                         className="w-full px-3 py-2 rounded-xl border bg-white text-xs focus:ring-2 focus:ring-[var(--teal)] outline-none"
                       />
                       <button
@@ -5095,7 +5179,7 @@ export default function App() {
 
               <div className="card p-6 border-t-4 border-t-[var(--amber)]">
                 <div className="bg-amber-500 text-white font-bold p-2 text-center rounded-lg text-xs mb-5">
-                  Search Medical Knowledge FAQ Discussion Board
+                  {t('searchMedicalKnowledgeDiscussion')}
                 </div>
 
                 <div className="space-y-3 text-xs bg-[var(--surface-2)]/60 p-4 rounded-xl border">
@@ -5117,8 +5201,8 @@ export default function App() {
                         onChange={(e) => setForumSearchCat(e.target.value)}
                         className="w-full px-3 py-2 rounded-xl border bg-white"
                       >
-                        <option value="all">All open forums</option>
-                        <option value="members">Members</option>
+                        <option value="all">{t('allOpenForums')}</option>
+                        <option value="members">{t('members')}</option>
                         {categories.map((cat) => (
                           <optgroup key={cat.id} label={getLoc(cat.name)}>
                             <option value={cat.id}>{getLoc(cat.name)}</option>
@@ -5132,7 +5216,7 @@ export default function App() {
                       </select>
                     </div>
 
-                    <div className="sm:col-span-2 font-bold text-center">in the:</div>
+                    <div className="sm:col-span-2 font-bold text-center">{t('inThe')}</div>
                     <div className="sm:col-span-3">
                       <select
                         value={forumSearchScope}
@@ -5150,7 +5234,7 @@ export default function App() {
                 {/* Results Section (Figure 36 & 37) */}
                 <div className="mt-5 space-y-3">
                   <div className="bg-amber-100 border border-amber-300 text-amber-900 p-2 text-center rounded-lg text-xs font-bold">
-                    Found {forumSearchResults.length} Results!
+                    {fmt(t('foundResults'), { count: forumSearchResults.length })}
                   </div>
 
                   {/* If searching Members (Figure 36) */}
@@ -5217,7 +5301,7 @@ export default function App() {
                           {forumSearchResults.length === 0 && (
                             <tr>
                               <td colSpan={9} className="p-8 text-center text-xs text-[var(--muted)]">
-                                {t('noResults')} for member query.
+                                {t('noMemberResults')}
                               </td>
                             </tr>
                           )}
@@ -5231,10 +5315,10 @@ export default function App() {
                         <div key={item.id} className="p-3.5 hover:bg-[var(--surface-2)]/50 flex items-center justify-between gap-4">
                           <div>
                             <div className="font-bold text-blue-700">
-                              {item.title ? getLoc(item.title) : `Post in topic: ${item.topicId}`}
+                              {item.title ? getLoc(item.title) : fmt(t('postInTopic'), { id: item.topicId })}
                             </div>
                             <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
-                              Author: <span className="font-semibold">{item.author}</span> • Time: {item.lastTime || item.time}
+                              {t('author')}: <span className="font-semibold">{item.author}</span> • {t('timeLabel')}: {item.lastTime || item.time}
                             </div>
                             {item.content && (
                               <div className="text-[0.6875rem] text-[var(--text)] mt-1 italic">
@@ -5252,13 +5336,13 @@ export default function App() {
                             }}
                             className="px-3 py-1 rounded bg-[var(--surface-2)] font-bold hover:bg-[var(--teal-soft)] shrink-0"
                           >
-                            View Post
+                            {t('viewPost')}
                           </button>
                         </div>
                       ))}
                       {forumSearchResults.length === 0 && (
                         <div className="p-8 text-center text-xs text-[var(--muted)]">
-                          {t('noResults')} for discussion search.
+                          {t('noDiscussionResults')}
                         </div>
                       )}
                     </div>
@@ -6353,8 +6437,8 @@ export default function App() {
             {/* Answer Content with Doctor Attribution (Figure 15) */}
             <div className="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed bg-white">
               <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-bold flex items-center justify-between">
-                <span>Answer from {activeFaqDetail.doctorName || t('answerFromDoctor')}</span>
-                <span className="text-[0.625rem] font-normal text-amber-700">Created at {activeFaqDetail.createdAt}</span>
+                <span>{activeFaqDetail.doctorName ? `${t('answerFrom')} ${activeFaqDetail.doctorName}` : t('answerFromDoctor')}</span>
+                <span className="text-[0.625rem] font-normal text-amber-700">{t('createdAt')} {activeFaqDetail.createdAt}</span>
               </div>
 
               <div className="whitespace-pre-wrap text-[var(--text)] text-sm leading-relaxed">
@@ -6382,7 +6466,7 @@ export default function App() {
                           url: window.location.href
                         }).catch(() => {});
                       } else {
-                        showToast("FAQ link copied to clipboard!");
+                        showToast(t('faqLinkCopied'));
                       }
                     }}
                     className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] text-xs font-semibold flex items-center gap-1.5 hover:bg-gray-200"

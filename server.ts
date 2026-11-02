@@ -26,7 +26,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const portArgIdx = process.argv.indexOf('--port');
 const portFromArg = portArgIdx !== -1 && process.argv[portArgIdx + 1] ? Number(process.argv[portArgIdx + 1]) : null;
-const PORT = portFromArg || Number(process.env.APP_PORT || process.env.DEFAULT_APP_PORT) || (process.env.PORT && process.env.PORT !== '8080' ? Number(process.env.PORT) : 3000);
+const PORT = portFromArg || Number(process.env.PORT || process.env.APP_PORT || process.env.DEFAULT_APP_PORT) || 3000;
 
 app.use(express.json());
 
@@ -345,22 +345,23 @@ app.delete('/api/topics/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Keep the stored counters in step with the deletion (the client adjusts its own copy the same way):
-    // every removed post lowers its author's postsCount, and the topic starter's topicsCount drops by one.
-    const topicRows = await db.select().from(forumTopics).where(eq(forumTopics.id, id));
-    const postRows = await db.select({ author: forumPosts.author }).from(forumPosts).where(eq(forumPosts.topicId, id));
-    const postsByAuthor = new Map<string, number>();
-    for (const row of postRows) postsByAuthor.set(row.author, (postsByAuthor.get(row.author) || 0) + 1);
+    await db.transaction(async (tx) => {
+      const topicRows = await tx.select().from(forumTopics).where(eq(forumTopics.id, id));
+      const postRows = await tx.select({ author: forumPosts.author }).from(forumPosts).where(eq(forumPosts.topicId, id));
+      const postsByAuthor = new Map<string, number>();
+      for (const row of postRows) postsByAuthor.set(row.author, (postsByAuthor.get(row.author) || 0) + 1);
 
-    await db.delete(forumPosts).where(eq(forumPosts.topicId, id));
-    await db.delete(forumTopics).where(eq(forumTopics.id, id));
+      await tx.delete(forumPosts).where(eq(forumPosts.topicId, id));
+      await tx.delete(forumTopics).where(eq(forumTopics.id, id));
 
-    for (const [author, removed] of postsByAuthor) {
-      await db.update(users).set({ postsCount: sql`GREATEST(COALESCE(${users.postsCount}, 0) - ${removed}, 0)` }).where(eq(users.username, author));
-    }
-    if (topicRows.length > 0) {
-      await db.update(users).set({ topicsCount: sql`GREATEST(COALESCE(${users.topicsCount}, 0) - 1, 0)` }).where(eq(users.username, topicRows[0].author));
-    }
+      for (const [author, removed] of postsByAuthor) {
+        await tx.update(users).set({ postsCount: sql`GREATEST(COALESCE(${users.postsCount}, 0) - ${removed}, 0)` }).where(eq(users.username, author));
+      }
+      if (topicRows.length > 0) {
+        await tx.update(users).set({ topicsCount: sql`GREATEST(COALESCE(${users.topicsCount}, 0) - 1, 0)` }).where(eq(users.username, topicRows[0].author));
+      }
+    });
+
     res.json({ success: true });
   } catch (err: any) {
     console.error('Error deleting topic:', err);

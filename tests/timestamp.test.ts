@@ -43,4 +43,11 @@ assert.deepEqual(items.map((i) => i.id), ['c', 'a', 'x', 'b', 'y']);
 // A numeric day/month sort would put 13/5/2026 before 6/2/2003 lexicographically; make sure it does not.
 assert.ok(parseTimestamp('08:00:00 on 13/5/2026') > parseTimestamp('14:05:12 on 7/2/2003'));
 
+// formatDisplayTimestamp localization tests
+import { formatDisplayTimestamp } from '../src/timestamp.ts';
+assert.equal(formatDisplayTimestamp('14:05:12 on 7/2/2003', 'EN'), '14:05:12 on 7/2/2003');
+assert.equal(formatDisplayTimestamp('14:05:12 on the 7/2/2003', 'ZH'), '14:05:12 于 7/2/2003');
+assert.equal(formatDisplayTimestamp('14:05:12 on 7/2/2003', 'BM'), '14:05:12 pada 7/2/2003');
+
 console.log('Timestamp tests passed');
+

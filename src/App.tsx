@@ -4,7 +4,7 @@
  */
 
 import { ADMIN_LEVEL, roleFromLevel, isAdministrator, isModeratorOrAbove, accessLevelKey } from './accessLevels';
-import { formatTimestamp, sortByTimestamp } from './timestamp';
+import { formatTimestamp, sortByTimestamp, formatDisplayTimestamp } from './timestamp';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Baby,
@@ -3589,7 +3589,7 @@ export default function App() {
                           {getLoc(top.title)}
                         </button>
                         <div className="text-[0.625rem] text-[var(--muted)]">
-                          {t('author')}: <span className="font-semibold">{top.author}</span> • {top.replies} {t('repliesViews')} • {t('lastActivity')}: {top.lastTime}
+                          {t('author')}: <span className="font-semibold">{top.author}</span> • {top.replies} {t('repliesViews')} • {t('lastActivity')}: {formatDisplayTimestamp(top.lastTime, lang)}
                         </div>
                       </div>
                       <button
@@ -4543,7 +4543,7 @@ export default function App() {
 
                       <div className="flex items-center justify-between text-[0.6875rem] text-[var(--muted)] mt-2 pt-2 border-t">
                         <span>
-                          ({t('clickingViews')} : <b className="text-red-600">{faq.views}</b>) {t('addBy')} <span className="font-semibold">{faq.createdBy}</span> {t('atTime')} {faq.createdAt}
+                          ({t('clickingViews')} : <b className="text-red-600">{faq.views}</b>) {t('addBy')} <span className="font-semibold">{faq.createdBy}</span> {t('atTime')} {formatDisplayTimestamp(faq.createdAt, lang)}
                         </span>
 
                         {/* Clinical Staff & Administrator Action Icons */}
@@ -4692,7 +4692,7 @@ export default function App() {
                               </button>
                             </td>
                             <td className="p-3 text-[0.6875rem] text-[var(--muted)]">
-                              {faq.createdBy} at {faq.createdAt}
+                              {faq.createdBy} at {formatDisplayTimestamp(faq.createdAt, lang)}
                             </td>
                           </tr>
                         ))}
@@ -4881,7 +4881,7 @@ export default function App() {
                             {top.replies} / {top.views}
                           </td>
                           <td className="p-3 text-[0.6875rem] text-[var(--muted)]">
-                            {t('byUserAtTime')} <span className="font-semibold text-blue-700">{top.lastAuthor}</span> {t('atTime')} {top.lastTime}
+                            {t('byUserAtTime')} <span className="font-semibold text-blue-700">{top.lastAuthor}</span> {t('atTime')} {formatDisplayTimestamp(top.lastTime, lang)}
                           </td>
                         </tr>
                       ))}
@@ -5096,7 +5096,7 @@ export default function App() {
                                 {fmt(t(authorPostsCount === 1 ? 'postsCountLabelOne' : 'postsCountLabel'), { count: authorPostsCount })}
                               </div>
                               <div className="text-[0.625rem] text-[var(--muted)] mt-1">
-                                {t('postedAt')} {post.time}
+                                {t('postedAt')} {formatDisplayTimestamp(post.time, lang)}
                               </div>
                             </div>
                           </div>
@@ -6506,7 +6506,7 @@ export default function App() {
             <div className="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed bg-white">
               <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-bold flex items-center justify-between">
                 <span>{activeFaqDetail.doctorName ? `${t('answerFrom')} ${activeFaqDetail.doctorName}` : t('answerFromDoctor')}</span>
-                <span className="text-[0.625rem] font-normal text-amber-700">{t('createdAt')} {activeFaqDetail.createdAt}</span>
+                <span className="text-[0.625rem] font-normal text-amber-700">{t('createdAt')} {formatDisplayTimestamp(activeFaqDetail.createdAt, lang)}</span>
               </div>
 
               <div className="whitespace-pre-wrap text-[var(--text)] text-sm leading-relaxed">

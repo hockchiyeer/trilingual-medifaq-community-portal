@@ -57,7 +57,7 @@ Whether you are looking for trusted answers regarding common symptoms, seeking p
 
 ### 5. 📬 Private Messaging & User Accounts
 * **Seamless Post-Login Browsing Return**:
-  * When an administrator, doctor/moderator, or regular user logs in from any subforum, FAQ category, or discussion topic thread, they are automatically returned to the exact page they were browsing before signing in, preserving their reading flow and pre-opening the reply editor.
+  * When an administrator, doctor/moderator, or regular user logs in from any subforum, FAQ category, or discussion topic thread, they are automatically returned to the exact page they were browsing before signing in, preserving their reading context and workflow.
 * **Header User Profile Menu & Quick Logout**:
   * Top-right header avatar dropdown displaying active username, role badge, quick links to **Member Control Panel** and **Administration Board**, and a one-click **Log Out** option across all locales (EN, ZH, BM).
   * Fast keyboard login submission: Pressing `[Enter]` on username or password fields immediately submits the login form.
@@ -457,7 +457,7 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 ├── tests/
 │   ├── run-all-tests.ts # Comprehensive test runner & Data Guardian (npm test)
 │   ├── api.test.ts      # Full-suite API integration tests with baseline invariant checks
-│   └── timestamp.test.ts# Dedicated unit tests for canonical timestamp parsing and sorting
+│   └── timestamp.test.ts # Dedicated unit tests for canonical timestamp parsing and sorting
 └── src/
     ├── App.tsx          # Full-featured Single Page Application (UI, Routing, State, i18n)
     ├── accessLevels.ts  # Shared membership access levels, roles, and permission gates

@@ -78,3 +78,15 @@ export function sortByTimestamp<T>(items: readonly T[], getTimestamp: (item: T) 
     .sort((x, y) => sign * (x.key - y.key) || x.index - y.index)
     .map((entry) => entry.item);
 }
+
+/** Translates English connector words ("on" / "on the") in stored timestamps to active language (EN, ZH, BM). */
+export function formatDisplayTimestamp(str?: string | null, lang: 'EN' | 'ZH' | 'BM' = 'EN'): string {
+  if (!str) return '';
+  const val = String(str);
+  const onWord = lang === 'ZH' ? '于' : lang === 'BM' ? 'pada' : 'on';
+  return val
+    .replace(/\bon\s+the\b/gi, onWord)
+    .replace(/\bon\b/gi, onWord)
+    .replace(/\b于\b/g, onWord);
+}
+

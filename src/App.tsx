@@ -4,6 +4,7 @@
  */
 
 import { ADMIN_LEVEL, roleFromLevel, isAdministrator, isModeratorOrAbove, accessLevelKey } from './accessLevels';
+import { formatTimestamp, sortByTimestamp } from './timestamp';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Baby,
@@ -466,6 +467,7 @@ const T_DATA: Translations = {
     deleteTopic: "DELETE TOPIC",
     confirmDeleteTopic: "Delete this entire topic and all its responses?",
     postsCountLabel: "{count} Posts",
+    postsCountLabelOne: "{count} Post",
     postedAt: "Posted at",
     typeResponseHere: "Type your response here...",
     noMemberResults: "No results found for member query.",
@@ -883,6 +885,7 @@ const T_DATA: Translations = {
     deleteTopic: "删除主题",
     confirmDeleteTopic: "删除整个主题及其所有回复？",
     postsCountLabel: "{count} 篇帖子",
+    postsCountLabelOne: "{count} 篇帖子",
     postedAt: "发表于",
     typeResponseHere: "在此输入您的回复……",
     noMemberResults: "未找到符合会员查询的结果。",
@@ -1300,6 +1303,7 @@ const T_DATA: Translations = {
     deleteTopic: "PADAM TOPIK",
     confirmDeleteTopic: "Padam keseluruhan topik ini dan semua balasannya?",
     postsCountLabel: "{count} Pos",
+    postsCountLabelOne: "{count} Pos",
     postedAt: "Dipos pada",
     typeResponseHere: "Taip maklum balas anda di sini...",
     noMemberResults: "Tiada keputusan dijumpai untuk carian ahli.",
@@ -2018,40 +2022,6 @@ const INITIAL_PMS: PrivateMessage[] = [
 const fmt = (text: string, vars: Record<string, string | number>): string =>
   text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
-// Parses forum timestamps for reliable ascending chronological sorting
-const parseTimestamp = (str?: string): number => {
-  if (!str) return 0;
-  const cleaned = str.replace(/\bthe\s+/i, '').trim();
-  const parts = cleaned.split(/\s+on\s+/i);
-  if (parts.length === 2) {
-    const timePart = parts[0].trim();
-    const datePart = parts[1].trim();
-    const dateTokens = datePart.split(/[\/\-]/);
-    if (dateTokens.length === 3) {
-      let day: number, month: number, year: number;
-      if (dateTokens[0].length === 4) {
-        [year, month, day] = dateTokens.map(Number);
-      } else {
-        [day, month, year] = dateTokens.map(Number);
-      }
-      let hours = 0, minutes = 0, seconds = 0;
-      const isPM = /pm/i.test(timePart);
-      const isAM = /am/i.test(timePart);
-      const timeCleaned = timePart.replace(/[apm\s]/gi, '');
-      const timeTokens = timeCleaned.split(':').map(Number);
-      hours = timeTokens[0] || 0;
-      if (isPM && hours < 12) hours += 12;
-      if (isAM && hours === 12) hours = 0;
-      minutes = timeTokens[1] || 0;
-      seconds = timeTokens[2] || 0;
-      const d = new Date(year, month - 1, day, hours, minutes, seconds);
-      if (!isNaN(d.getTime())) return d.getTime();
-    }
-  }
-  const parsed = Date.parse(str);
-  return isNaN(parsed) ? 0 : parsed;
-};
-
 // Stores `text` for the active language and copies it into any empty locale, so a name or FAQ
 // text entered in one language never leaves the other locales blank.
 const setLocalized = (prev: Record<Lang, string> | undefined, lang: Lang, text: string): Record<Lang, string> => {
@@ -2385,7 +2355,7 @@ export default function App() {
     if (activeSubId) {
       list = list.filter((t) => t.subId === activeSubId);
     }
-    return [...list].sort((a, b) => parseTimestamp(a.created) - parseTimestamp(b.created));
+    return sortByTimestamp(list, (t) => t.created);
   }, [topics, activeMainId, activeSubId]);
 
   // Discussion search results
@@ -2608,7 +2578,7 @@ export default function App() {
       return;
     }
 
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' on ' + new Date().toLocaleDateString();
+    const timestamp = formatTimestamp();
     const newTopic: ForumTopic = {
       id: "top_" + Date.now(),
       forumId: activeMainId || 'healthy',
@@ -2669,7 +2639,7 @@ export default function App() {
       return;
     }
 
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' on ' + new Date().toLocaleDateString();
+    const timestamp = formatTimestamp();
     const newPost: ForumPost = {
       id: "post_" + Date.now(),
       topicId: activeTopic.id,
@@ -2776,7 +2746,7 @@ export default function App() {
       return;
     }
 
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' on ' + new Date().toLocaleDateString();
+    const timestamp = formatTimestamp();
     const newFeedback: FeedbackItem = {
       id: "fb_" + Date.now(),
       name: feedbackForm.name,
@@ -2803,7 +2773,7 @@ export default function App() {
   // Send PM
   const handleSendPM = () => {
     if (!currentUser || !pmForm.to.trim() || !pmForm.subject.trim() || !pmForm.content.trim()) return;
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' on the ' + new Date().toLocaleDateString();
+    const timestamp = formatTimestamp(new Date(), true);
     const newPm: PrivateMessage = {
       id: "pm_" + Date.now(),
       from: currentUser.username,
@@ -2881,7 +2851,7 @@ export default function App() {
         a: newA,
         doctorName: currentUser.fullName || 'Dr. ' + currentUser.username,
         createdBy: currentUser.username,
-        createdAt: new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString(),
+        createdAt: formatTimestamp(),
         views: 0,
       };
       setFaqs([newFaq, ...faqs]);
@@ -3592,7 +3562,7 @@ export default function App() {
                   </button>
                 </div>
                 <div className="divide-y">
-                  {topics.slice(0, 3).map((top) => (
+                  {sortByTimestamp(topics, (t) => t.created, 'desc').slice(0, 3).map((top) => (
                     <div key={top.id} className="py-2.5 flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <button
@@ -5089,9 +5059,7 @@ export default function App() {
 
                 {/* Posts in this topic */}
                 <div className="divide-y">
-                  {posts
-                    .filter((p) => p.topicId === activeTopic.id)
-                    .sort((a, b) => parseTimestamp(a.time) - parseTimestamp(b.time))
+                  {sortByTimestamp(posts.filter((p) => p.topicId === activeTopic.id), (p) => p.time)
                     .map((post) => {
                       const isAuthor = currentUser?.username === post.author;
                       const isAdmin = isModeratorOrAbove(currentUser);
@@ -5111,7 +5079,7 @@ export default function App() {
                             <div>
                               <div className="font-bold text-xs text-blue-900">{post.author}</div>
                               <div className="text-[0.625rem] text-[var(--muted)]">
-                                {fmt(t('postsCountLabel'), { count: authorPostsCount })}
+                                {fmt(t(authorPostsCount === 1 ? 'postsCountLabelOne' : 'postsCountLabel'), { count: authorPostsCount })}
                               </div>
                               <div className="text-[0.625rem] text-[var(--muted)] mt-1">
                                 {t('postedAt')} {post.time}

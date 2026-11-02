@@ -454,6 +454,10 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
     const cascadePost1Id = `${guardian.prefix}casc_p1`;
     const cascadePost2Id = `${guardian.prefix}casc_p2`;
 
+    const findMember = async () =>
+      (await (await fetch(`${baseUrl}/api/members`)).json()).find((m: any) => m.username === mockUsername);
+    const memberBefore = await findMember();
+
     // Create topic with first post
     await fetch(`${baseUrl}/api/topics`, {
       method: 'POST',
@@ -500,6 +504,13 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
     const postsAfter = await (await fetch(`${baseUrl}/api/posts`)).json();
     assert.ok(!postsAfter.some((p: any) => p.id === cascadePost1Id), 'Initial post must be cascaded');
     assert.ok(!postsAfter.some((p: any) => p.id === cascadePost2Id), 'Reply post must be cascaded');
+
+    // The author's stored counters must return to their pre-topic values (no drift after a reload)
+    if (memberBefore) {
+      const memberAfter = await findMember();
+      assert.equal(memberAfter.posts, memberBefore.posts, 'postsCount must be restored after topic deletion');
+      assert.equal(memberAfter.topics, memberBefore.topics, 'topicsCount must be restored after topic deletion');
+    }
   });
 
   // 10. Admin Email Broadcast & Outbox Status

@@ -46,15 +46,18 @@ Whether you are looking for trusted answers regarding common symptoms, seeking p
 ### 4. 💬 Community Health Discussion Board
 * **Safe, Moderated Discussions**: Public visitors can read discussions, while registered members can exchange experiences, seek advice, and reply to threads.
 * **Guest Shield**: Non-logged-in visitors receive clear prompts indicating they must sign in or register before replying, protecting the community from spam.
+* **Ascending Chronological Thread Flow**: Forum topics and post replies are arranged in chronological ascending order by creation timestamp (earliest first, followed sequentially by replies) for an authentic, continuous discussion experience.
 * **Thread Management**:
-  * Author attribution card showing user rank, total posts, and timestamp.
+  * Author attribution card showing live author post counts synchronized across all posts with singular/plural support (`1 Post` vs `{count} Posts` / `篇帖子` / `Pos`).
   * Topic priority flags: *Normal Priority*, *High Priority*, and *Low Priority*.
   * Built-in tools: **Quote** post into reply, view user **Profile**, and send **PM** (Private Message).
-* **Author-Only Editing**: Members can edit or delete their own posts at any time, while moderators and administrators have global moderation privileges.
+* **Author-Only Editing & Cascading Deletion**: Members can edit or delete their own posts, while moderators and administrators have global moderation privileges. Post and topic deletions immediately decrement author post and topic counters in both frontend state and PostgreSQL.
 
 ---
 
 ### 5. 📬 Private Messaging & User Accounts
+* **Seamless Post-Login Browsing Return**:
+  * When an administrator, doctor/moderator, or regular user logs in from any subforum, FAQ category, or discussion topic thread, they are automatically returned to the exact page they were browsing before signing in, preserving their reading flow and pre-opening the reply editor.
 * **Header User Profile Menu & Quick Logout**:
   * Top-right header avatar dropdown displaying active username, role badge, quick links to **Member Control Panel** and **Administration Board**, and a one-click **Log Out** option across all locales (EN, ZH, BM).
   * Fast keyboard login submission: Pressing `[Enter]` on username or password fields immediately submits the login form.
@@ -391,9 +394,10 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 
 ### Test Coverage Highlights
 
+* **Timestamp Parsing & Chronological Sorting**: Comprehensive verification of canonical `HH:MM:SS on D/M/YYYY` format, legacy locale dates (12-hour AM/PM, CJK markers, two-digit years, ISO 8601), invalid date rejection without NaN rollover, and stable chronological sorting (`tests/timestamp.test.ts`).
 * **Categories & Subcategories**: Category creation, multilingual structure verification, subtopic associations.
 * **FAQ Knowledge Base**: Creation, content retrieval, view click count incrementation (`/api/faqs/:id/view`), inline editing, and deletion.
-* **Discussion Board**: Thread creation with priority flags, reply posting, author counter updates, thread reply counter tracking, post editing, and author authorization.
+* **Discussion Board & Cascading Deletion**: Thread creation with priority flags, reply posting, author counter updates, thread reply counter tracking, post editing, and author authorization. Verifies that cascading topic deletion restores author post and topic counters to their exact baseline values.
 * **Membership Management**: Registration validation, duplicate username rejection (HTTP 400), profile updating, and administrative privilege assignment.
 * **Feedback Message Center**: Submission, categorization, and administrative inbox deletion.
 * **Private Messaging**: Message sending, unread status toggling, and inbox deletion.
@@ -451,9 +455,13 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 ├── tsconfig.json        # TypeScript configuration
 ├── vite.config.ts       # Vite build configuration with Tailwind CSS plugin
 ├── tests/
-│   └── run-all-tests.ts # Comprehensive test suite & Data Guardian (npm test)
+│   ├── run-all-tests.ts # Comprehensive test runner & Data Guardian (npm test)
+│   ├── api.test.ts      # Full-suite API integration tests with baseline invariant checks
+│   └── timestamp.test.ts# Dedicated unit tests for canonical timestamp parsing and sorting
 └── src/
     ├── App.tsx          # Full-featured Single Page Application (UI, Routing, State, i18n)
+    ├── accessLevels.ts  # Shared membership access levels, roles, and permission gates
+    ├── timestamp.ts     # Canonical forum timestamp formatting, parsing, and stable sorting
     ├── index.css        # Global CSS variables, custom typography (CJK), and Tailwind tokens
     ├── main.tsx         # React application bootstrap entry
     └── db/

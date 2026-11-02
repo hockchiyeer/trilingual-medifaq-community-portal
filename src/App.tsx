@@ -2064,6 +2064,7 @@ export default function App() {
     document.documentElement.lang = langMap[lang] || 'en';
   }, [lang]);
   const [currentPage, setCurrentPage] = useState<string>('home');
+  const [loginReturnPage, setLoginReturnPage] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fontSizeStep, setFontSizeStep] = useState(DEFAULT_FONT_STEP);
   const [highContrast, setHighContrast] = useState(false);
@@ -2309,7 +2310,14 @@ export default function App() {
     return () => clearInterval(timer);
   }, [currentPage]);
 
-  const navigate = (page: string) => {
+  const navigate = (page: string, returnTo?: string) => {
+    if (page === 'login' || page === 'register') {
+      if (returnTo) {
+        setLoginReturnPage(returnTo);
+      } else if (currentPage !== 'login' && currentPage !== 'register' && currentPage !== 'loggingOutPage') {
+        setLoginReturnPage(currentPage);
+      }
+    }
     setCurrentPage(page);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2520,7 +2528,9 @@ export default function App() {
           setLoginForm({ username: '', password: '' });
           showToast(`${t('welcome')}, ${data.user.username}!`);
           refreshData();
-          navigate('memberPanel');
+          const targetPage = loginReturnPage || 'home';
+          setLoginReturnPage(null);
+          navigate(targetPage);
           return;
         }
         const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
@@ -2537,7 +2547,9 @@ export default function App() {
         setLoginForm({ username: '', password: '' });
         showToast(`${t('welcome')}, ${found.username}!`);
         refreshData();
-        navigate('memberPanel');
+        const targetPage = loginReturnPage || 'home';
+        setLoginReturnPage(null);
+        navigate(targetPage);
       })
       .catch(() => {
         const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
@@ -2554,7 +2566,9 @@ export default function App() {
         setLoginForm({ username: '', password: '' });
         showToast(`${t('welcome')}, ${found.username}!`);
         refreshData();
-        navigate('memberPanel');
+        const targetPage = loginReturnPage || 'home';
+        setLoginReturnPage(null);
+        navigate(targetPage);
       });
   };
 
@@ -3461,7 +3475,7 @@ export default function App() {
                   ].map((tile) => (
                     <button
                       key={tile.title}
-                      onClick={() => navigate(tile.page)}
+                      onClick={() => navigate(tile.page, tile.page === 'login' ? 'memberPanel' : undefined)}
                       className="card p-3.5 text-left hover:shadow-md hover:border-[var(--teal)] transition group focus-ring flex flex-col justify-between"
                     >
                       <div className={`w-9 h-9 rounded-xl grid place-items-center mb-2.5 border ${tile.color}`}>

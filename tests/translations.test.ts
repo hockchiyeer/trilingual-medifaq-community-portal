@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { accessLevelKey, ADMIN_LEVEL } from '../src/accessLevels.ts';
 
 // 1. Read and parse T_DATA directly from src/App.tsx
 const appPath = path.resolve('src/App.tsx');
@@ -32,7 +33,27 @@ assert.deepEqual(extraInBm, [], `Keys present in BM but missing in EN: ${extraIn
 assert.equal(enKeys.length, zhKeys.length, 'EN and ZH key counts must match');
 assert.equal(enKeys.length, bmKeys.length, 'EN and BM key counts must match');
 
-// 3. Scan src/App.tsx for all static and ternary t('...') invocations
+// 3. Verify no translation contains empty or whitespace-only text
+for (const key of enKeys) {
+  assert.ok(T_DATA.EN[key]?.trim().length > 0, `Empty translation in EN for key: ${key}`);
+  assert.ok(T_DATA.ZH[key]?.trim().length > 0, `Empty translation in ZH for key: ${key}`);
+  assert.ok(T_DATA.BM[key]?.trim().length > 0, `Empty translation in BM for key: ${key}`);
+}
+
+// 4. Verify placeholder parity ({name}, {count}, {fields}, etc.) across languages
+const getPlaceholders = (str: string): string[] =>
+  [...str.matchAll(/\{([a-zA-Z0-9_]+)\}/g)].map((m) => m[1]).sort();
+
+for (const key of enKeys) {
+  const enPh = getPlaceholders(T_DATA.EN[key]);
+  const zhPh = getPlaceholders(T_DATA.ZH[key]);
+  const bmPh = getPlaceholders(T_DATA.BM[key]);
+
+  assert.deepEqual(zhPh, enPh, `Placeholder mismatch in ZH for key "${key}": expected ${JSON.stringify(enPh)}, got ${JSON.stringify(zhPh)}`);
+  assert.deepEqual(bmPh, enPh, `Placeholder mismatch in BM for key "${key}": expected ${JSON.stringify(enPh)}, got ${JSON.stringify(bmPh)}`);
+}
+
+// 5. Scan src/App.tsx for all static, ternary, and dynamic menu t('...') invocations
 const enSet = new Set(enKeys);
 const usedKeys = new Set<string>();
 
@@ -50,7 +71,24 @@ while ((m = ternaryRegex.exec(content)) !== null) {
   usedKeys.add(m[2]);
 }
 
+// Dynamic menu items: { k: 'home', ... } passed to t(item.k)
+const navItemRegex = /\bk:\s*['"]([a-zA-Z0-9_-]+)['"]/g;
+while ((m = navItemRegex.exec(content)) !== null) {
+  usedKeys.add(m[1]);
+}
+
+// Access level keys resolved via t(accessLevelKey(u))
+const tierLevels = [
+  { role: 'admin', adminLevel: ADMIN_LEVEL.ADMINISTRATOR },
+  { role: 'moderator', adminLevel: ADMIN_LEVEL.MODERATOR },
+  { role: 'user', adminLevel: ADMIN_LEVEL.NONE },
+  null
+];
+for (const u of tierLevels) {
+  usedKeys.add(accessLevelKey(u));
+}
+
 const missingUsedKeys = [...usedKeys].filter((k) => !enSet.has(k));
 assert.deepEqual(missingUsedKeys, [], `Found t('...') calls referencing non-existent translation keys: ${missingUsedKeys.join(', ')}`);
 
-console.log(`✓ Translation safeguard passed: ${enKeys.length} keys match perfectly across EN, ZH, and BM; ${usedKeys.size} distinct t() calls verified.`);
+console.log(`✓ Translation safeguard passed: ${enKeys.length} keys match perfectly across EN, ZH, and BM (non-empty & placeholder parity verified); ${usedKeys.size} static and dynamic keys validated.`);

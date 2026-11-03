@@ -1445,6 +1445,18 @@ const INITIAL_CATEGORIES: MainCategory[] = [
   }
 ];
 
+// Where to send a visitor after login/register: the page plus the category /
+// subforum / topic / FAQ context needed to rebuild that exact view.
+interface ReturnTarget {
+  page: string;
+  mainId?: string;
+  subId?: string;
+  topicId?: string;
+  faqId?: string;
+}
+const RETURN_TARGET_KEY = 'medifaq_login_return';
+const AUTH_PAGE_KEY = 'medifaq_auth_page';
+
 interface FAQItem {
   id: string;
   mainId: string;
@@ -2063,8 +2075,36 @@ export default function App() {
     };
     document.documentElement.lang = langMap[lang] || 'en';
   }, [lang]);
-  const [currentPage, setCurrentPage] = useState<string>('home');
-  const [loginReturnPage, setLoginReturnPage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<string>(() => {
+    // After a refresh on the login/register page, stay there (guests only) so the saved return target is still usable.
+    try {
+      const p = sessionStorage.getItem(AUTH_PAGE_KEY);
+      return (p === 'login' || p === 'register') && !localStorage.getItem('medifaq_current_user') ? p : 'home';
+    } catch {
+      return 'home';
+    }
+  });
+  const [loginReturnPage, setLoginReturnPage] = useState<ReturnTarget | null>(() => {
+    try {
+      const saved = sessionStorage.getItem(RETURN_TARGET_KEY);
+      const parsed = saved ? JSON.parse(saved) : null;
+      return parsed && typeof parsed.page === 'string' ? parsed : null;
+    } catch {
+      return null;
+    }
+  });
+  useEffect(() => {
+    try {
+      if (loginReturnPage) sessionStorage.setItem(RETURN_TARGET_KEY, JSON.stringify(loginReturnPage));
+      else sessionStorage.removeItem(RETURN_TARGET_KEY);
+    } catch {}
+  }, [loginReturnPage]);
+  useEffect(() => {
+    try {
+      if (currentPage === 'login' || currentPage === 'register') sessionStorage.setItem(AUTH_PAGE_KEY, currentPage);
+      else sessionStorage.removeItem(AUTH_PAGE_KEY);
+    } catch {}
+  }, [currentPage]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fontSizeStep, setFontSizeStep] = useState(DEFAULT_FONT_STEP);
   const [highContrast, setHighContrast] = useState(false);
@@ -2310,13 +2350,25 @@ export default function App() {
     return () => clearInterval(timer);
   }, [currentPage]);
 
+  // Snapshot of the view the visitor is on, so login can restore it exactly.
+  const captureReturnTarget = (page: string): ReturnTarget => ({
+    page,
+    mainId: activeMainId,
+    subId: activeSubId,
+    topicId: activeTopic?.id,
+    faqId: activeFaqDetail?.id,
+  });
+
   const navigate = (page: string, returnTo?: string) => {
     if (page === 'login' || page === 'register') {
       if (returnTo) {
-        setLoginReturnPage(returnTo);
+        setLoginReturnPage({ page: returnTo });
       } else if (currentPage !== 'login' && currentPage !== 'register' && currentPage !== 'loggingOutPage') {
-        setLoginReturnPage(currentPage);
+        setLoginReturnPage(captureReturnTarget(currentPage));
       }
+    } else {
+      // Leaving the auth flow for anywhere else abandons the pending return target.
+      setLoginReturnPage(null);
     }
     setCurrentPage(page);
     setMobileMenuOpen(false);
@@ -2473,6 +2525,35 @@ export default function App() {
     navigate('login');
   };
 
+  // Single success path for all login branches: sign in and restore the saved view.
+  const finishLogin = (user: Member) => {
+    setCurrentUser(user);
+    setLoginErrorState('none');
+    setLoginForm({ username: '', password: '' });
+    showToast(`${t('welcome')}, ${user.username}!`);
+    refreshData();
+
+    const target = loginReturnPage;
+    setLoginReturnPage(null);
+    let page = target?.page || 'home';
+    if (target) {
+      if (target.mainId) setActiveMainId(target.mainId);
+      if (target.subId) setActiveSubId(target.subId);
+      // Admin pages: do not bounce a non-admin back into an access-denied page.
+      if (page.startsWith('admin') && !isAdministrator(user)) page = 'memberPanel';
+      if (target.topicId && (page === 'discussionTopic' || page === 'createTopicForm')) {
+        const topic = topics.find((x) => x.id === target.topicId);
+        if (topic) setActiveTopic(topic);
+        else if (page === 'discussionTopic') page = 'discussionSub';
+      }
+      if (target.faqId && page.startsWith('faq')) {
+        const faq = faqs.find((x) => x.id === target.faqId);
+        if (faq) setActiveFaqDetail(faq);
+      }
+    }
+    navigate(page);
+  };
+
   // Handle User Login
   const handleLogin = () => {
     const isZh = lang === 'ZH';
@@ -2523,14 +2604,7 @@ export default function App() {
         }
         if (res.ok) {
           const data = await res.json();
-          setCurrentUser(data.user);
-          setLoginErrorState('none');
-          setLoginForm({ username: '', password: '' });
-          showToast(`${t('welcome')}, ${data.user.username}!`);
-          refreshData();
-          const targetPage = loginReturnPage || 'home';
-          setLoginReturnPage(null);
-          navigate(targetPage);
+          finishLogin(data.user);
           return;
         }
         const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
@@ -2542,14 +2616,7 @@ export default function App() {
           setLoginErrorState('wrong_pw');
           return;
         }
-        setCurrentUser(found);
-        setLoginErrorState('none');
-        setLoginForm({ username: '', password: '' });
-        showToast(`${t('welcome')}, ${found.username}!`);
-        refreshData();
-        const targetPage = loginReturnPage || 'home';
-        setLoginReturnPage(null);
-        navigate(targetPage);
+        finishLogin(found);
       })
       .catch(() => {
         const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
@@ -2561,14 +2628,7 @@ export default function App() {
           setLoginErrorState('wrong_pw');
           return;
         }
-        setCurrentUser(found);
-        setLoginErrorState('none');
-        setLoginForm({ username: '', password: '' });
-        showToast(`${t('welcome')}, ${found.username}!`);
-        refreshData();
-        const targetPage = loginReturnPage || 'home';
-        setLoginReturnPage(null);
-        navigate(targetPage);
+        finishLogin(found);
       });
   };
 
@@ -2578,7 +2638,8 @@ export default function App() {
       setModalDialog({
         title: t('error'),
         msg: t('mustLoginToPost'),
-        type: 'alert'
+        type: 'alert',
+        onConfirm: () => navigate('login')
       });
       return;
     }
@@ -4828,7 +4889,8 @@ export default function App() {
                           setModalDialog({
                             title: t('error'),
                             msg: t('mustLoginToPost'),
-                            type: 'alert'
+                            type: 'alert',
+                            onConfirm: () => navigate('login')
                           });
                           return;
                         }
@@ -5554,8 +5616,8 @@ export default function App() {
                 <Shield className="w-12 h-12 text-red-500 mx-auto" />
                 <h2 className="text-base font-bold text-red-950">{t('accessDeniedTitle')}</h2>
                 <p className="text-xs text-[var(--muted)]">{t('accessDeniedDesc')}</p>
-                <button onClick={() => navigate('login')} className="px-4 py-2 rounded-xl bg-[var(--navy)] text-white text-xs font-bold">
-                  {t('userSignIn')}
+                <button onClick={() => navigate(currentUser ? 'home' : 'login')} className="px-4 py-2 rounded-xl bg-[var(--navy)] text-white text-xs font-bold">
+                  {currentUser ? t('returnToHome') : t('userSignIn')}
                 </button>
               </div>
             ) : (

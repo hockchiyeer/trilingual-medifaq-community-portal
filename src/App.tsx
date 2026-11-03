@@ -5,7 +5,8 @@
 
 import { ADMIN_LEVEL, roleFromLevel, isAdministrator, isModeratorOrAbove, accessLevelKey } from './accessLevels';
 import { formatTimestamp, sortByTimestamp, formatDisplayTimestamp } from './timestamp';
-import React, { useState, useMemo, useEffect } from 'react';
+import { ReturnTarget, buildNavHash, parseNavHash, guardRoute } from './navHash';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Baby,
   BookOpen,
@@ -1445,17 +1446,19 @@ const INITIAL_CATEGORIES: MainCategory[] = [
   }
 ];
 
-// Where to send a visitor after login/register: the page plus the category /
-// subforum / topic / FAQ context needed to rebuild that exact view.
-interface ReturnTarget {
-  page: string;
-  mainId?: string;
-  subId?: string;
-  topicId?: string;
-  faqId?: string;
-}
 const RETURN_TARGET_KEY = 'medifaq_login_return';
-const AUTH_PAGE_KEY = 'medifaq_auth_page';
+
+// View named by the URL hash when the page was loaded (refresh / shared link), after access checks.
+const BOOT_NAV = typeof window !== 'undefined' ? parseNavHash(window.location.hash) : null;
+const BOOT_ROUTE: { page: string; returnTarget: ReturnTarget | null } = (() => {
+  if (!BOOT_NAV) return { page: 'home', returnTarget: null };
+  let user: Member | null = null;
+  try {
+    const raw = localStorage.getItem('medifaq_current_user');
+    user = raw ? JSON.parse(raw) : null;
+  } catch {}
+  return guardRoute(BOOT_NAV, user);
+})();
 
 interface FAQItem {
   id: string;
@@ -2075,16 +2078,9 @@ export default function App() {
     };
     document.documentElement.lang = langMap[lang] || 'en';
   }, [lang]);
-  const [currentPage, setCurrentPage] = useState<string>(() => {
-    // After a refresh on the login/register page, stay there (guests only) so the saved return target is still usable.
-    try {
-      const p = sessionStorage.getItem(AUTH_PAGE_KEY);
-      return (p === 'login' || p === 'register') && !localStorage.getItem('medifaq_current_user') ? p : 'home';
-    } catch {
-      return 'home';
-    }
-  });
+  const [currentPage, setCurrentPage] = useState<string>(BOOT_ROUTE.page);
   const [loginReturnPage, setLoginReturnPage] = useState<ReturnTarget | null>(() => {
+    if (BOOT_ROUTE.returnTarget) return BOOT_ROUTE.returnTarget; // deep link to a protected page -> login -> back
     try {
       const saved = sessionStorage.getItem(RETURN_TARGET_KEY);
       const parsed = saved ? JSON.parse(saved) : null;
@@ -2099,12 +2095,7 @@ export default function App() {
       else sessionStorage.removeItem(RETURN_TARGET_KEY);
     } catch {}
   }, [loginReturnPage]);
-  useEffect(() => {
-    try {
-      if (currentPage === 'login' || currentPage === 'register') sessionStorage.setItem(AUTH_PAGE_KEY, currentPage);
-      else sessionStorage.removeItem(AUTH_PAGE_KEY);
-    } catch {}
-  }, [currentPage]);
+  const [apiSynced, setApiSynced] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fontSizeStep, setFontSizeStep] = useState(DEFAULT_FONT_STEP);
   const [highContrast, setHighContrast] = useState(false);
@@ -2200,14 +2191,16 @@ export default function App() {
         if (pmsRes && Array.isArray(pmsRes) && pmsRes.length > 0) setPms(pmsRes);
       } catch (err) {
         console.warn('API sync fallback active:', err);
+      } finally {
+        setApiSynced(true);
       }
     };
     loadApiData();
   }, []);
 
   // Active Category / Subtopic Navigation
-  const [activeMainId, setActiveMainId] = useState<string>('pharmacy');
-  const [activeSubId, setActiveSubId] = useState<string>('vitamin');
+  const [activeMainId, setActiveMainId] = useState<string>(BOOT_NAV?.mainId ?? 'pharmacy');
+  const [activeSubId, setActiveSubId] = useState<string>(BOOT_NAV?.subId ?? 'vitamin');
   const [activeFaqDetail, setActiveFaqDetail] = useState<FAQItem | null>(null);
   const [activeTopic, setActiveTopic] = useState<ForumTopic | null>(null);
 
@@ -2401,6 +2394,90 @@ export default function App() {
       refreshData();
     }
   };
+
+  // ---- Hash routing: the URL (#/page?m=..&s=..&t=..&f=..) mirrors the visible view ----
+  // A topic / FAQ named by the URL on load is resolved once the lists are available.
+  const pendingNavRef = useRef<ReturnTarget | null>(
+    BOOT_NAV && BOOT_ROUTE.page === BOOT_NAV.page && (BOOT_NAV.topicId || BOOT_NAV.faqId) ? BOOT_NAV : null
+  );
+  const hashSyncedOnce = useRef(false);
+
+  useEffect(() => {
+    const pend = pendingNavRef.current;
+    if (!pend) return;
+    if (pend.topicId && !activeTopic) {
+      const tp = topics.find((x) => x.id === pend.topicId);
+      if (tp) setActiveTopic(tp);
+    }
+    if (pend.faqId && !activeFaqDetail) {
+      const fq = faqs.find((x) => x.id === pend.faqId);
+      if (fq) setActiveFaqDetail(fq);
+    }
+    if (apiSynced) {
+      // Lists are final: whatever is still missing no longer exists.
+      if (pend.topicId && !topics.some((x) => x.id === pend.topicId)) {
+        pendingNavRef.current = null;
+        setCurrentPage('discussionSub');
+      } else if (pend.faqId && !faqs.some((x) => x.id === pend.faqId)) {
+        pendingNavRef.current = null;
+      }
+    }
+  }, [topics, faqs, apiSynced]);
+
+  // State -> URL
+  useEffect(() => {
+    const pend = pendingNavRef.current;
+    if (pend) {
+      const topicOk = !pend.topicId || activeTopic?.id === pend.topicId;
+      const faqOk = !pend.faqId || activeFaqDetail?.id === pend.faqId;
+      if (!(topicOk && faqOk)) return; // still resolving: keep the deep link in the address bar
+      pendingNavRef.current = null;
+    }
+    const next = buildNavHash(currentPage, {
+      mainId: activeMainId,
+      subId: activeSubId,
+      topicId: activeTopic?.id,
+      faqId: activeFaqDetail?.id,
+    });
+    if (window.location.hash === next) {
+      hashSyncedOnce.current = true;
+      return;
+    }
+    // Replace (no new history entry) for the first sync and when the current hash is just a
+    // non-canonical spelling of this same view; otherwise a real navigation gets its own entry.
+    const cur = parseNavHash(window.location.hash);
+    const sameView = !!cur && buildNavHash(cur.page, cur) === next;
+    try {
+      if (!hashSyncedOnce.current || sameView) window.history.replaceState(null, '', next);
+      else window.history.pushState(null, '', next);
+    } catch {}
+    hashSyncedOnce.current = true;
+  }, [currentPage, activeMainId, activeSubId, activeTopic?.id, activeFaqDetail?.id]);
+
+  // URL -> state (back / forward, edited address bar)
+  const applyHashRef = useRef<() => void>(() => {});
+  applyHashRef.current = () => {
+    const nav = parseNavHash(window.location.hash) ?? { page: 'home' };
+    const route = guardRoute(nav, currentUser);
+    let page = route.page;
+    if (nav.mainId) setActiveMainId(nav.mainId);
+    if (nav.subId) setActiveSubId(nav.subId);
+    if (page === 'discussionTopic') {
+      const topic = topics.find((x) => x.id === nav.topicId);
+      if (topic) setActiveTopic(topic);
+      else page = 'discussionSub';
+    }
+    const faq = page.startsWith('faq') && nav.faqId ? faqs.find((x) => x.id === nav.faqId) : undefined;
+    setActiveFaqDetail(faq ?? null);
+    if (route.returnTarget) setLoginReturnPage(route.returnTarget);
+    setCurrentPage(page);
+    setMobileMenuOpen(false);
+  };
+  useEffect(() => {
+    const onPop = () => applyHashRef.current();
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   // Filtered FAQ results
   const filteredFaqs = useMemo(() => {
@@ -5634,8 +5711,19 @@ export default function App() {
           )}
 
           {/* 19. SECTION 6 - ADMINISTRATOR & MODERATOR'S MODULE (Figure 41 - 51) */}
+          {currentPage.startsWith('admin') && currentPage !== 'adminBoard' && !isAdministrator(currentUser) && (
+            <div className="card p-8 text-center space-y-4 max-w-lg mx-auto border-t-4 border-t-red-600">
+              <Shield className="w-12 h-12 text-red-500 mx-auto" />
+              <h2 className="text-base font-bold text-red-950">{t('accessDeniedTitle')}</h2>
+              <p className="text-xs text-[var(--muted)]">{t('accessDeniedDesc')}</p>
+              <button onClick={() => navigate(currentUser ? 'home' : 'login')} className="px-4 py-2 rounded-xl bg-[var(--navy)] text-white text-xs font-bold">
+                {currentUser ? t('returnToHome') : t('userSignIn')}
+              </button>
+            </div>
+          )}
+
           {currentPage === 'adminBoard' && (
-            currentUser?.role !== 'admin' ? (
+            !isAdministrator(currentUser) ? (
               <div className="card p-8 text-center space-y-4 max-w-lg mx-auto border-t-4 border-t-red-600">
                 <Shield className="w-12 h-12 text-red-500 mx-auto" />
                 <h2 className="text-base font-bold text-red-950">{t('accessDeniedTitle')}</h2>
@@ -5756,7 +5844,7 @@ export default function App() {
           )}
 
           {/* Admin Unit 1: Medical Knowledge FAQ Admin Center (Figure 43) */}
-          {currentPage === 'adminFaq' && (
+          {currentPage === 'adminFaq' && isAdministrator(currentUser) && (
             <div className="max-w-3xl mx-auto space-y-4">
               <Breadcrumbs
                 items={[
@@ -5909,7 +5997,7 @@ export default function App() {
           )}
 
           {/* Admin Unit 2: Discussion Board Admin Center (Figure 45) */}
-          {currentPage === 'adminForum' && (
+          {currentPage === 'adminForum' && isAdministrator(currentUser) && (
             <div className="max-w-3xl mx-auto space-y-4">
               <Breadcrumbs
                 items={[
@@ -6012,7 +6100,7 @@ export default function App() {
           )}
 
           {/* Admin Unit 3: Sending Email Module (Figure 46) */}
-          {currentPage === 'adminEmail' && (
+          {currentPage === 'adminEmail' && isAdministrator(currentUser) && (
             <div className="max-w-2xl mx-auto space-y-4">
               <Breadcrumbs
                 items={[
@@ -6131,7 +6219,7 @@ export default function App() {
           )}
 
           {/* Admin Unit 4: Membership Management (Figure 47 & 48 & 49) */}
-          {currentPage === 'adminMembers' && (
+          {currentPage === 'adminMembers' && isAdministrator(currentUser) && (
             <div className="max-w-4xl mx-auto space-y-4">
               <Breadcrumbs
                 items={[
@@ -6373,7 +6461,7 @@ export default function App() {
           )}
 
           {/* Admin Unit 5: Feedback Message Center (Figure 50 & 51) */}
-          {currentPage === 'adminFeedback' && (
+          {currentPage === 'adminFeedback' && isAdministrator(currentUser) && (
             <div className="max-w-3xl mx-auto space-y-4">
               <Breadcrumbs
                 items={[

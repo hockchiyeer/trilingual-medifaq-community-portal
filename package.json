@@ -12,7 +12,7 @@
     "lint": "tsc --noEmit",
     "db:push": "drizzle-kit push --config=src/db/drizzle.config.ts",
     "db:seed": "tsx src/db/seed.ts",
-    "test": "tsx tests/timestamp.test.ts && tsx tests/translations.test.ts && NODE_ENV=test tsx tests/run-all-tests.ts"
+    "test": "tsx tests/timestamp.test.ts && tsx tests/navhash.test.ts && tsx tests/translations.test.ts && NODE_ENV=test tsx tests/run-all-tests.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -395,6 +395,7 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 ### Test Coverage Highlights
 
 * **Timestamp Parsing & Chronological Sorting**: Comprehensive verification of canonical `HH:MM:SS on D/M/YYYY` format, legacy locale dates (12-hour AM/PM, CJK markers, two-digit years, ISO 8601), invalid date rejection without NaN rollover, and stable chronological sorting (`tests/timestamp.test.ts`).
+* **Hash Routing & Route Guards**: URL fragment round-trip serialization (`#/page?m=..&s=..&t=..&f=..`), parameter sanitization, route guards for guest and member tiers, and deep-link target restoration (`tests/navhash.test.ts`).
 * **Translation Parity & Safeguard Verification**: Automated audit asserting 100% key parity across EN, 华语 (ZH), and Bahasa Melayu (BM), non-empty values, token placeholder parity (`{name}`, `{count}`, `{fields}`), and static regex scan confirming all static and dynamic `t('...')` invocations reference valid keys (`tests/translations.test.ts`).
 * **Categories & Subcategories**: Category creation, multilingual structure verification, subtopic associations.
 * **FAQ Knowledge Base**: Creation, content retrieval, view click count incrementation (`/api/faqs/:id/view`), inline editing, and deletion.
@@ -459,10 +460,12 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 │   ├── run-all-tests.ts    # Comprehensive test runner & Data Guardian (npm test)
 │   ├── api.test.ts         # Full-suite API integration tests with baseline invariant checks
 │   ├── timestamp.test.ts   # Dedicated unit tests for canonical timestamp parsing and sorting
+│   ├── navhash.test.ts     # Unit tests for URL hash routing, sanitization, and route guards
 │   └── translations.test.ts # Safeguard unit tests asserting 100% trilingual key parity & usage
 └── src/
     ├── App.tsx          # Full-featured Single Page Application (UI, Routing, State, i18n)
     ├── accessLevels.ts  # Shared membership access levels, roles, and permission gates
+    ├── navHash.ts       # Hash routing serialization, route guards, and return target helpers
     ├── timestamp.ts     # Canonical forum timestamp formatting, parsing, and stable sorting
     ├── index.css        # Global CSS variables, custom typography (CJK), and Tailwind tokens
     ├── main.tsx         # React application bootstrap entry

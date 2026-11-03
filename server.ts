@@ -7,7 +7,7 @@ import { eq, asc, desc, like, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { db } from './src/db/index.ts';
 import { ADMIN_LEVEL, isAdministrator } from './src/accessLevels.ts';
-import { formatTimestamp } from './src/timestamp.ts';
+import { formatTimestamp, parseTimestamp } from './src/timestamp.ts';
 import {
   users,
   categories,
@@ -788,9 +788,7 @@ app.get('/api/feedbacks', async (_req, res) => {
           const num = parseInt(item.id.split('_')[1], 10);
           if (!isNaN(num)) return num;
         }
-        const parsed = Date.parse(item.date);
-        if (!isNaN(parsed)) return parsed;
-        return 0;
+        return parseTimestamp(item.date);
       };
       return getScore(b) - getScore(a);
     });
@@ -956,9 +954,7 @@ app.get('/api/pms', async (_req, res) => {
             if (!isNaN(num)) return num;
           }
         }
-        const parsed = Date.parse(item.date);
-        if (!isNaN(parsed)) return parsed;
-        return 0;
+        return parseTimestamp(item.date);
       };
       return getScore(b) - getScore(a);
     });

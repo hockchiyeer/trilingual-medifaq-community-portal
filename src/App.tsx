@@ -2328,6 +2328,18 @@ export default function App() {
         setEmailStatus(data);
       })
       .catch(() => {});
+    fetch('/api/topics')
+      .then((r) => r.ok && r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setTopics(data);
+      })
+      .catch(() => {});
+    fetch('/api/faqs')
+      .then((r) => r.ok && r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setFaqs(data);
+      })
+      .catch(() => {});
   };
 
   // Auto-redirect effect when on loggingOutPage
@@ -6604,6 +6616,15 @@ export default function App() {
                     <Share2 className="w-3.5 h-3.5" />
                     <span>{t('share')}</span>
                   </button>
+                  {!currentUser && (
+                    <button
+                      onClick={() => navigate('login')}
+                      className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] text-xs font-semibold flex items-center gap-1.5 hover:bg-gray-200 text-[var(--navy)]"
+                    >
+                      <LogIn className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{t('userSignIn')}</span>
+                    </button>
+                  )}
                 </div>
                 <button
                   onClick={() => setActiveFaqDetail(null)}

@@ -395,6 +395,7 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 ### Test Coverage Highlights
 
 * **Timestamp Parsing & Chronological Sorting**: Comprehensive verification of canonical `HH:MM:SS on D/M/YYYY` format, legacy locale dates (12-hour AM/PM, CJK markers, two-digit years, ISO 8601), invalid date rejection without NaN rollover, and stable chronological sorting (`tests/timestamp.test.ts`).
+* **Translation Parity & Safeguard Verification**: Automated audit asserting 100% key parity across EN, 华语 (ZH), and Bahasa Melayu (BM), plus static AST scan confirming all `t('...')` invocations reference valid keys (`tests/translations.test.ts`).
 * **Categories & Subcategories**: Category creation, multilingual structure verification, subtopic associations.
 * **FAQ Knowledge Base**: Creation, content retrieval, view click count incrementation (`/api/faqs/:id/view`), inline editing, and deletion.
 * **Discussion Board & Cascading Deletion**: Thread creation with priority flags, reply posting, author counter updates, thread reply counter tracking, post editing, and author authorization. Verifies that cascading topic deletion restores author post and topic counters to their exact baseline values.
@@ -455,9 +456,10 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 ├── tsconfig.json        # TypeScript configuration
 ├── vite.config.ts       # Vite build configuration with Tailwind CSS plugin
 ├── tests/
-│   ├── run-all-tests.ts # Comprehensive test runner & Data Guardian (npm test)
-│   ├── api.test.ts      # Full-suite API integration tests with baseline invariant checks
-│   └── timestamp.test.ts # Dedicated unit tests for canonical timestamp parsing and sorting
+│   ├── run-all-tests.ts    # Comprehensive test runner & Data Guardian (npm test)
+│   ├── api.test.ts         # Full-suite API integration tests with baseline invariant checks
+│   ├── timestamp.test.ts   # Dedicated unit tests for canonical timestamp parsing and sorting
+│   └── translations.test.ts# Safeguard unit tests asserting 100% trilingual key parity & usage
 └── src/
     ├── App.tsx          # Full-featured Single Page Application (UI, Routing, State, i18n)
     ├── accessLevels.ts  # Shared membership access levels, roles, and permission gates

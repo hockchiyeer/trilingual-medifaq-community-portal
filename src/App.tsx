@@ -2331,13 +2331,25 @@ export default function App() {
     fetch('/api/topics')
       .then((r) => r.ok && r.json())
       .then((data) => {
-        if (Array.isArray(data)) setTopics(data);
+        if (Array.isArray(data)) {
+          setTopics(data);
+          setActiveTopic((prev) => (prev ? data.find((x: ForumTopic) => x.id === prev.id) ?? prev : prev));
+        }
       })
       .catch(() => {});
     fetch('/api/faqs')
       .then((r) => r.ok && r.json())
       .then((data) => {
-        if (Array.isArray(data)) setFaqs(data);
+        if (Array.isArray(data)) {
+          setFaqs(data);
+          setActiveFaqDetail((prev) => (prev ? data.find((x: FAQItem) => x.id === prev.id) ?? prev : prev));
+        }
+      })
+      .catch(() => {});
+    fetch('/api/posts')
+      .then((r) => r.ok && r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPosts(data);
       })
       .catch(() => {});
   };
@@ -6618,7 +6630,10 @@ export default function App() {
                   </button>
                   {!currentUser && (
                     <button
-                      onClick={() => navigate('login')}
+                      onClick={() => {
+                        navigate('login');
+                        setActiveFaqDetail(null);
+                      }}
                       className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] text-xs font-semibold flex items-center gap-1.5 hover:bg-gray-200 text-[var(--navy)]"
                     >
                       <LogIn className="w-3.5 h-3.5 text-amber-600" />

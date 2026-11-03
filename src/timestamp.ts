@@ -79,14 +79,14 @@ export function sortByTimestamp<T>(items: readonly T[], getTimestamp: (item: T) 
     .map((entry) => entry.item);
 }
 
-/** Translates English connector words ("on" / "on the") in stored timestamps to active language (EN, ZH, BM). */
+/**
+ * Localizes the English connector in stored timestamps ("14:05:12 on 7/2/2003" or "... on the 7/2/2003").
+ * EN keeps "on". ZH and BM use a comma instead of a word, because the labels around a timestamp already end
+ * in a preposition ("发表于", "Dipos pada", "于", "pada"), which would otherwise be doubled.
+ */
 export function formatDisplayTimestamp(str?: string | null, lang: 'EN' | 'ZH' | 'BM' = 'EN'): string {
   if (!str) return '';
-  const val = String(str);
-  const onWord = lang === 'ZH' ? '于' : lang === 'BM' ? 'pada' : 'on';
-  return val
-    .replace(/\bon\s+the\b/gi, onWord)
-    .replace(/\bon\b/gi, onWord)
-    .replace(/\b于\b/g, onWord);
+  const connector = lang === 'ZH' ? '，' : lang === 'BM' ? ', ' : ' on ';
+  return String(str).replace(/\s+on(?:\s+the)?\s+/gi, connector);
 }
 

@@ -7,6 +7,7 @@ import { eq, asc, desc, like, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { db } from './src/db/index.ts';
 import { ADMIN_LEVEL, isAdministrator } from './src/accessLevels.ts';
+import { formatTimestamp } from './src/timestamp.ts';
 import {
   users,
   categories,
@@ -26,7 +27,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const portArgIdx = process.argv.indexOf('--port');
 const portFromArg = portArgIdx !== -1 && process.argv[portArgIdx + 1] ? Number(process.argv[portArgIdx + 1]) : null;
-const PORT = portFromArg || Number(process.env.PORT || process.env.APP_PORT || process.env.DEFAULT_APP_PORT) || 3000;
+const PORT = portFromArg || Number(process.env.APP_PORT || process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
 
 app.use(express.json());
 
@@ -205,7 +206,7 @@ app.post('/api/faqs', async (req, res) => {
       aBm: a.BM,
       doctorName: doctorName || 'Verified Medical Officer',
       createdBy: createdBy || 'admin',
-      createdAt: createdAt || new Date().toLocaleString(),
+      createdAt: createdAt || formatTimestamp(),
       views: views || 0,
     });
     res.json({ success: true });
@@ -304,9 +305,9 @@ app.post('/api/topics', async (req, res) => {
       titleBm: title.BM,
       author,
       priority: priority || 'Normal',
-      createdAt: created || new Date().toLocaleString(),
+      createdAt: created || formatTimestamp(),
       lastAuthor: author,
-      lastTime: created || new Date().toLocaleString(),
+      lastTime: created || formatTimestamp(),
       replies: 0,
       views: 1,
     });
@@ -318,7 +319,7 @@ app.post('/api/topics', async (req, res) => {
         author: initialPost.author || author,
         avatar: initialPost.avatar || (author.substring(0, 2).toUpperCase()),
         postCount: initialPost.postCount || 1,
-        time: initialPost.time || created || new Date().toLocaleString(),
+        time: initialPost.time || created || formatTimestamp(),
         contentEn: initialPost.content.EN,
         contentZh: initialPost.content.ZH,
         contentBm: initialPost.content.BM,
@@ -400,7 +401,7 @@ app.post('/api/posts', async (req, res) => {
       author,
       avatar: avatar || (author.substring(0, 2).toUpperCase()),
       postCount: postCount || 1,
-      time: time || new Date().toLocaleString(),
+      time: time || formatTimestamp(),
       contentEn: content.EN,
       contentZh: content.ZH,
       contentBm: content.BM,
@@ -412,7 +413,7 @@ app.post('/api/posts', async (req, res) => {
       await db.update(forumTopics).set({
         replies: (currentTopic[0].replies || 0) + 1,
         lastAuthor: author,
-        lastTime: time || new Date().toLocaleString(),
+        lastTime: time || formatTimestamp(),
       }).where(eq(forumTopics.id, topicId));
     }
 
@@ -715,7 +716,7 @@ async function dispatchEmailNotification({
   text: string;
   type?: 'feedback_notification' | 'broadcast_announcement' | 'direct_message';
 }): Promise<{ sent: boolean; status: 'sent' | 'simulated'; error?: string }> {
-  const timestamp = new Date().toLocaleString();
+  const timestamp = formatTimestamp();
   const logId = `eml_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const preview = text.substring(0, 140);
 
@@ -833,7 +834,7 @@ app.post('/api/feedbacks', async (req, res) => {
       return res.status(400).json({ error: 'Name, email, subject, and message are required' });
     }
     const feedbackId = id || `fb_${Date.now()}`;
-    const timestamp = date || new Date().toLocaleString();
+    const timestamp = date || formatTimestamp();
 
     await db.insert(feedbacks).values({
       id: feedbackId,
@@ -996,7 +997,7 @@ app.post('/api/pms', async (req, res) => {
       toUser: cleanTo,
       subject: String(subject).trim(),
       content: String(content).trim(),
-      date: date || new Date().toLocaleString(),
+      date: date || formatTimestamp(),
       read: read ?? false,
     });
     res.json({ success: true });

@@ -4355,7 +4355,7 @@ export default function App() {
                               </div>
                             </td>
                             <td className="p-3 font-bold text-[var(--teal-deep)]">{pm.from}</td>
-                            <td className="p-3 text-[var(--muted)]">{pm.date}</td>
+                            <td className="p-3 text-[var(--muted)]">{formatDisplayTimestamp(pm.date, lang)}</td>
                             <td className="p-3">
                               <div className="flex gap-2 text-[0.6875rem]">
                                 <button
@@ -4692,7 +4692,7 @@ export default function App() {
                               </button>
                             </td>
                             <td className="p-3 text-[0.6875rem] text-[var(--muted)]">
-                              {faq.createdBy} at {formatDisplayTimestamp(faq.createdAt, lang)}
+                              {faq.createdBy} {t('atTime')} {formatDisplayTimestamp(faq.createdAt, lang)}
                             </td>
                           </tr>
                         ))}
@@ -5356,7 +5356,7 @@ export default function App() {
                                       }}
                                       className="text-left font-bold text-blue-700 hover:text-[var(--teal)] hover:underline truncate max-w-[150px] block"
                                     >
-                                      {getLoc(userLastTopic.title)} - {userLastTopic.lastTime}
+                                      {getLoc(userLastTopic.title)} - {formatDisplayTimestamp(userLastTopic.lastTime, lang)}
                                     </button>
                                   ) : (
                                     <span className="text-[var(--muted)]">{t('neverPosted')}</span>
@@ -5386,7 +5386,7 @@ export default function App() {
                               {item.title ? getLoc(item.title) : fmt(t('postInTopic'), { id: item.topicId })}
                             </div>
                             <div className="text-[0.6875rem] text-[var(--muted)] mt-1">
-                              {t('author')}: <span className="font-semibold">{item.author}</span> • {t('timeLabel')}: {item.lastTime || item.time}
+                              {t('author')}: <span className="font-semibold">{item.author}</span> • {t('timeLabel')}: {formatDisplayTimestamp(item.lastTime || item.time, lang)}
                             </div>
                             {item.content && (
                               <div className="text-[0.6875rem] text-[var(--text)] mt-1 italic">
@@ -6101,7 +6101,7 @@ export default function App() {
                                   }}
                                   className="text-left font-bold text-blue-700 hover:underline truncate max-w-[150px] block"
                                 >
-                                  {getLoc(mTopic.title)} - {mTopic.lastTime}
+                                  {getLoc(mTopic.title)} - {formatDisplayTimestamp(mTopic.lastTime, lang)}
                                 </button>
                               ) : (
                                 <span className="text-[var(--muted)]">{t('neverPosted')}</span>
@@ -6316,7 +6316,7 @@ export default function App() {
 
                   <div className="bg-amber-100 p-2 text-center text-xs font-bold text-amber-900 rounded">
                     {t('subject')}: {selectedFeedback.subject}
-                    <div className="text-[0.625rem] font-normal text-amber-700">{t('fromSender')}: {selectedFeedback.name} {t('atTime')} {selectedFeedback.date}</div>
+                    <div className="text-[0.625rem] font-normal text-amber-700">{t('fromSender')}: {selectedFeedback.name} {t('atTime')} {formatDisplayTimestamp(selectedFeedback.date, lang)}</div>
                   </div>
 
                   <div className="space-y-2 text-xs bg-emerald-50/60 p-4 rounded-xl border border-emerald-200">
@@ -6418,7 +6418,7 @@ export default function App() {
                               </button>
                             </td>
                             <td className="p-3 font-semibold">{fb.name}</td>
-                            <td className="p-3 text-[var(--muted)]">{fb.date}</td>
+                            <td className="p-3 text-[var(--muted)]">{formatDisplayTimestamp(fb.date, lang)}</td>
                             <td className="p-3">
                               <button
                                 onClick={() => {

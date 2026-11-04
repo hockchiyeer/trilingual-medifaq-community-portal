@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 // Minimal browser stand-ins (this module only needs window.fetch, localStorage and events)
 const store = new Map<string, string>();
 const events: string[] = [];
-const calls: Array<{ url: string; auth: string | null }> = [];
+const calls: Array<{ url: string; auth: string | null; customHeader?: string | null }> = [];
 let nextStatus = 200;
 
 (globalThis as any).localStorage = {
@@ -16,7 +16,12 @@ const windowProto = {};
 Object.defineProperty(windowProto, 'fetch', {
   get() {
     return async (input: any, init?: RequestInit) => {
-      calls.push({ url: String(input), auth: new Headers(init?.headers).get('Authorization') });
+      const headers = new Headers(init?.headers);
+      calls.push({
+        url: typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url ?? String(input),
+        auth: headers.get('Authorization'),
+        customHeader: headers.get('X-Custom'),
+      });
       return new Response('{}', { status: nextStatus });
     };
   },
@@ -49,6 +54,14 @@ await f('/assets/app.js');
 assert.equal(calls.at(-1)!.auth, null);
 await f('/api/faqs', { headers: { Authorization: 'Bearer explicit' } });
 assert.equal(calls.at(-1)!.auth, 'Bearer explicit', 'an explicit header is not overridden');
+
+// Request object preserves original headers alongside Bearer token
+const req = new Request('http://localhost:3000/api/faqs', {
+  headers: { 'X-Custom': 'preserved-value' },
+});
+await f(req);
+assert.equal(calls.at(-1)!.auth, 'Bearer tok123');
+assert.equal(calls.at(-1)!.customHeader, 'preserved-value', 'original headers from Request object must be preserved');
 
 // A wrong password on login is not an expired session
 nextStatus = 401;

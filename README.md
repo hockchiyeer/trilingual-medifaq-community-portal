@@ -478,7 +478,7 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 │   ├── authcrypto.test.ts  # Unit tests for scrypt password hashing & session tokens
 │   ├── authfetch.test.ts   # Unit tests for browser auth fetch & Bearer token injection
 │   ├── auth-helpers.ts     # Test authentication utilities & bearer token generation
-│   ├── resilience.test.ts  # Stress & concurrency resilience tests
+│   ├── resilience.test.ts  # Teardown & interruption resilience tests
 │   └── translations.test.ts # Safeguard unit tests asserting 100% trilingual key parity & usage
 └── src/
     ├── App.tsx          # Full-featured Single Page Application (UI, Routing, State, i18n)

@@ -44,7 +44,9 @@ export function installAuthFetch() {
     const token = url && isOwnApiUrl(url) ? getAuthToken() : null;
     if (!token) return originalFetch(input, init);
 
-    const headers = new Headers(init?.headers);
+    const headers = new Headers(
+      init?.headers ?? (typeof Request !== 'undefined' && input instanceof Request ? input.headers : undefined)
+    );
     if (!headers.has('Authorization')) headers.set('Authorization', `Bearer ${token}`);
     const response = await originalFetch(input, { ...init, headers });
 

@@ -1,4 +1,6 @@
+import crypto from 'node:crypto';
 import { db } from './index.ts';
+import { hashPassword } from '../authCrypto.ts';
 import {
   categories,
   subcategories,
@@ -9,6 +11,23 @@ import {
   feedbacks,
   privateMessages,
 } from './schema.ts';
+
+// Seed credentials come from the environment:
+//   ADMIN_SEED_PASSWORD -> the 'admin' account
+//   DEMO_SEED_PASSWORD  -> every other demo account (member_tan, dr_lee, user_azman, demo)
+// When unset: development keeps the old easy demo passwords (with a warning); production
+// generates a random password per account and prints it once, so nothing guessable is ever seeded.
+const isProduction = process.env.NODE_ENV === 'production';
+const seedPassword = (envValue: string | undefined, devDefault: string, label: string): string => {
+  if (envValue) return envValue;
+  if (isProduction) {
+    const generated = crypto.randomBytes(12).toString('base64url');
+    console.log(`  ! ${label}: generated one-time password (save it now): ${generated}`);
+    return generated;
+  }
+  console.warn(`  ! ${label}: using the insecure development default. Set ADMIN_SEED_PASSWORD / DEMO_SEED_PASSWORD for anything shared.`);
+  return devDefault;
+};
 
 async function seed() {
   console.log('Seeding local PostgreSQL database...');
@@ -277,7 +296,10 @@ async function seed() {
   ];
 
   for (const u of seedUsers) {
-    await db.insert(users).values(u).onConflictDoNothing();
+    const password = u.username === 'admin'
+      ? seedPassword(process.env.ADMIN_SEED_PASSWORD, u.password, 'admin')
+      : seedPassword(process.env.DEMO_SEED_PASSWORD, u.password, u.username);
+    await db.insert(users).values({ ...u, password: await hashPassword(password) }).onConflictDoNothing();
   }
   console.log('✓ Users seeded');
 

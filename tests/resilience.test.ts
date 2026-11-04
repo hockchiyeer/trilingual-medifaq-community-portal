@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { TestGuardian } from './test-guardian.ts';
+import { getAdminToken, withToken } from './auth-helpers.ts';
 
 export async function runResilienceTests(baseUrl: string): Promise<{ passed: number; failed: number }> {
   let passed = 0;
@@ -22,13 +23,14 @@ export async function runResilienceTests(baseUrl: string): Promise<{ passed: num
   await testCase('Guardian Teardown cleans up multiple inserted mock entities on early exit/abort', async () => {
     const isolatedGuardian = new TestGuardian();
     await isolatedGuardian.setup();
+    const adminFetch = withToken(await getAdminToken(baseUrl));
 
     // Inject diverse mock entities under this isolated guardian's prefix
     const mockCatId = `${isolatedGuardian.prefix}abort_cat`;
     const mockUserId = `${isolatedGuardian.prefix}abort_user`;
     const mockFaqId = `${isolatedGuardian.prefix}abort_faq`;
 
-    await fetch(`${baseUrl}/api/categories`, {
+    await adminFetch(`${baseUrl}/api/categories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -47,7 +49,7 @@ export async function runResilienceTests(baseUrl: string): Promise<{ passed: num
       }),
     });
 
-    await fetch(`${baseUrl}/api/faqs`, {
+    await adminFetch(`${baseUrl}/api/faqs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

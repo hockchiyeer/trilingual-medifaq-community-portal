@@ -115,6 +115,18 @@ The application includes generic sample accounts representing different user rol
 
 *Visitors can also click **New Member Registration** from the sidebar to create their own accounts.*
 
+> The passwords in this table are **development defaults only**. `npm run db:seed` reads `ADMIN_SEED_PASSWORD` (for `admin`) and `DEMO_SEED_PASSWORD` (for the other demo accounts) from the environment, stores only salted hashes, and under `NODE_ENV=production` generates random one-time passwords if they are not set.
+
+---
+
+## 🔐 Security & Authentication
+
+* **Sessions** – `POST /api/members/login` returns a signed token; the browser sends it as `Authorization: Bearer <token>` (handled centrally in `src/authFetch.ts`). Tokens expire after 8 hours, and changing a password signs out every other session. Set **`SESSION_SECRET`** (16+ characters) in production; without it a temporary secret is generated and everyone is signed out on each restart.
+* **Passwords** – stored as salted `scrypt` hashes (`src/authCrypto.ts`). Older plaintext rows are upgraded automatically on their next login; run `npm run db:hash-passwords` once to upgrade dormant accounts.
+* **Authorization (server-side)** – administrators: categories, subcategories, member management, feedback inbox, broadcast e-mail. Doctors/moderators and above: FAQ create/edit/delete. Signed-in members: posting, private messages and their own profile; authors and moderators manage forum content. Authors, senders and FAQ creators always come from the session, never from the request body. Private messages are visible only to sender and recipient, and members who keep their e-mail private are hidden from other members.
+* **Registration** – always creates a plain member. Only the automated test runner (`NODE_ENV=test`, `tst_` usernames) can bootstrap elevated accounts.
+* **Tests** – `npm test` logs in as the seeded `admin` (set `TEST_ADMIN_PASSWORD` if you seeded a different password).
+
 ---
 
 ## 💻 Tech Stack
@@ -396,6 +408,8 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 
 * **Timestamp Parsing & Chronological Sorting**: Comprehensive verification of canonical `HH:MM:SS on D/M/YYYY` format, legacy locale dates (12-hour AM/PM, CJK markers, two-digit years, ISO 8601), invalid date rejection without NaN rollover, and stable chronological sorting (`tests/timestamp.test.ts`).
 * **Hash Routing & Route Guards**: URL fragment round-trip serialization (`#/page?m=..&s=..&t=..&f=..`), parameter sanitization, route guards for guest and member tiers, and deep-link target restoration (`tests/navhash.test.ts`).
+* **Password Hashing & Session Crypto**: Server-side salted `scrypt` key derivation, timing-safe verification, signed session tokens with 8-hour expiry, token signature validation, and password-change invalidation (`tests/authcrypto.test.ts`).
+* **Client-Side Auth & Bearer Injection**: Storage in `localStorage`, automatic `Authorization: Bearer <token>` header injection, unauthenticated passthrough, and 401 session expiration handling (`tests/authfetch.test.ts`).
 * **Translation Parity & Safeguard Verification**: Automated audit asserting 100% key parity across EN, 华语 (ZH), and Bahasa Melayu (BM), non-empty values, token placeholder parity (`{name}`, `{count}`, `{fields}`), and static regex scan confirming all static and dynamic `t('...')` invocations reference valid keys (`tests/translations.test.ts`).
 * **Categories & Subcategories**: Category creation, multilingual structure verification, subtopic associations.
 * **FAQ Knowledge Base**: Creation, content retrieval, view click count incrementation (`/api/faqs/:id/view`), inline editing, and deletion.
@@ -461,16 +475,23 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 │   ├── api.test.ts         # Full-suite API integration tests with baseline invariant checks
 │   ├── timestamp.test.ts   # Dedicated unit tests for canonical timestamp parsing and sorting
 │   ├── navhash.test.ts     # Unit tests for URL hash routing, sanitization, and route guards
+│   ├── authcrypto.test.ts  # Unit tests for scrypt password hashing & session tokens
+│   ├── authfetch.test.ts   # Unit tests for browser auth fetch & Bearer token injection
+│   ├── auth-helpers.ts     # Test authentication utilities & bearer token generation
+│   ├── resilience.test.ts  # Stress & concurrency resilience tests
 │   └── translations.test.ts # Safeguard unit tests asserting 100% trilingual key parity & usage
 └── src/
     ├── App.tsx          # Full-featured Single Page Application (UI, Routing, State, i18n)
     ├── accessLevels.ts  # Shared membership access levels, roles, and permission gates
+    ├── authCrypto.ts    # Server-side scrypt password hashing & signed session token helpers
+    ├── authFetch.ts     # Client-side Bearer token storage & automatic header injection
     ├── navHash.ts       # Hash routing serialization, route guards, and return target helpers
     ├── timestamp.ts     # Canonical forum timestamp formatting, parsing, and stable sorting
     ├── index.css        # Global CSS variables, custom typography (CJK), and Tailwind tokens
     ├── main.tsx         # React application bootstrap entry
     └── db/
         ├── drizzle.config.ts  # Drizzle Kit migration configuration
+        ├── hash-passwords.ts  # Migration script upgrading legacy plaintext passwords to scrypt
         ├── index.ts           # PostgreSQL pg.Pool connection pool & Drizzle ORM client
         ├── schema.ts          # Relational table schemas & relations
         └── seed.ts            # Self-contained database seed script

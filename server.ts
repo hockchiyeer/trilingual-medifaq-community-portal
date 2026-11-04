@@ -6,7 +6,16 @@ import { createServer as createViteServer } from 'vite';
 import { eq, asc, desc, like, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { db } from './src/db/index.ts';
-import { ADMIN_LEVEL, isAdministrator } from './src/accessLevels.ts';
+import crypto from 'node:crypto';
+import { ADMIN_LEVEL, isAdministrator, isModeratorOrAbove } from './src/accessLevels.ts';
+import {
+  hashPassword,
+  verifyPassword,
+  passwordFingerprint,
+  signSession,
+  verifySession,
+  MAX_PASSWORD_LENGTH,
+} from './src/authCrypto.ts';
 import { formatTimestamp, parseTimestamp } from './src/timestamp.ts';
 import {
   users,
@@ -30,6 +39,60 @@ const portFromArg = portArgIdx !== -1 && process.argv[portArgIdx + 1] ? Number(p
 const PORT = portFromArg || Number(process.env.APP_PORT || process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
 
 app.use(express.json());
+
+// ---------------------------------------------------------------------------
+// Authentication & authorization
+//   - POST /api/members/login returns a signed session token (Authorization: Bearer <token>).
+//   - `authenticate` resolves the token to a user row on every request, so role changes,
+//     password changes and account deletion take effect immediately.
+//   - requireAuth / requireModerator / requireAdmin guard the sensitive routes below.
+// ---------------------------------------------------------------------------
+type UserRow = typeof users.$inferSelect;
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      user?: UserRow;
+    }
+  }
+}
+
+let sessionSecret = process.env.SESSION_SECRET || '';
+if (sessionSecret.length < 16) {
+  sessionSecret = crypto.randomBytes(32).toString('hex');
+  console.warn(
+    '[Auth] SESSION_SECRET is missing or shorter than 16 characters: using a temporary random secret. ' +
+      'Everyone is signed out on every restart. Set SESSION_SECRET in your environment for production.'
+  );
+}
+
+const authenticate: express.RequestHandler = async (req, res, next) => {
+  // Login/register must work even when the browser still holds an expired token.
+  if (req.path === '/members/login' || req.path === '/members/register') return next();
+  const header = req.headers.authorization;
+  if (!header) return next();
+  const match = /^Bearer\s+(.+)$/i.exec(header);
+  const payload = match ? verifySession(sessionSecret, match[1]) : null;
+  if (!payload) return res.status(401).json({ error: 'invalid_session' });
+  try {
+    const [row] = await db.select().from(users).where(eq(users.username, payload.sub));
+    if (!row || passwordFingerprint(row.password) !== payload.ver) {
+      return res.status(401).json({ error: 'invalid_session' });
+    }
+    req.user = row;
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+app.use('/api', authenticate);
+
+const requireAuth: express.RequestHandler = (req, res, next) =>
+  req.user ? next() : res.status(401).json({ error: 'auth_required' });
+const requireModerator: express.RequestHandler = (req, res, next) =>
+  !req.user ? res.status(401).json({ error: 'auth_required' }) : isModeratorOrAbove(req.user) ? next() : res.status(403).json({ error: 'forbidden' });
+const requireAdmin: express.RequestHandler = (req, res, next) =>
+  !req.user ? res.status(401).json({ error: 'auth_required' }) : isAdministrator(req.user) ? next() : res.status(403).json({ error: 'forbidden' });
 
 // API Routes
 
@@ -62,7 +125,7 @@ app.get('/api/categories', async (_req, res) => {
   }
 });
 
-app.post('/api/categories', async (req, res) => {
+app.post('/api/categories', requireAdmin, async (req, res) => {
   try {
     const { id, name, desc, color, listOrder } = req.body;
     await db.insert(categories).values({
@@ -83,7 +146,7 @@ app.post('/api/categories', async (req, res) => {
   }
 });
 
-app.put('/api/categories/:id', async (req, res) => {
+app.put('/api/categories/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, desc, color, listOrder } = req.body;
@@ -105,7 +168,7 @@ app.put('/api/categories/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/categories/:id', async (req, res) => {
+app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await db.delete(subcategories).where(eq(subcategories.mainId, id));
@@ -117,7 +180,7 @@ app.delete('/api/categories/:id', async (req, res) => {
   }
 });
 
-app.post('/api/subcategories', async (req, res) => {
+app.post('/api/subcategories', requireAdmin, async (req, res) => {
   try {
     const { id, mainId, name, desc } = req.body;
     await db.insert(subcategories).values({
@@ -137,7 +200,7 @@ app.post('/api/subcategories', async (req, res) => {
   }
 });
 
-app.put('/api/subcategories/:id', async (req, res) => {
+app.put('/api/subcategories/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, desc, mainId } = req.body;
@@ -158,7 +221,7 @@ app.put('/api/subcategories/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/subcategories/:id', async (req, res) => {
+app.delete('/api/subcategories/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await db.delete(subcategories).where(eq(subcategories.id, id));
@@ -191,9 +254,9 @@ app.get('/api/faqs', async (_req, res) => {
   }
 });
 
-app.post('/api/faqs', async (req, res) => {
+app.post('/api/faqs', requireModerator, async (req, res) => {
   try {
-    const { id, mainId, subId, q, a, doctorName, createdBy, createdAt, views } = req.body;
+    const { id, mainId, subId, q, a, doctorName, createdAt, views } = req.body;
     await db.insert(faqs).values({
       id: id || `f_${Date.now()}`,
       mainId,
@@ -205,7 +268,7 @@ app.post('/api/faqs', async (req, res) => {
       aZh: a.ZH,
       aBm: a.BM,
       doctorName: doctorName || 'Verified Medical Officer',
-      createdBy: createdBy || 'admin',
+      createdBy: req.user!.username,
       createdAt: createdAt || formatTimestamp(),
       views: views || 0,
     });
@@ -216,7 +279,7 @@ app.post('/api/faqs', async (req, res) => {
   }
 });
 
-app.put('/api/faqs/:id', async (req, res) => {
+app.put('/api/faqs/:id', requireModerator, async (req, res) => {
   try {
     const { id } = req.params;
     const { q, a, doctorName, mainId, subId } = req.body;
@@ -240,7 +303,7 @@ app.put('/api/faqs/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/faqs/:id', async (req, res) => {
+app.delete('/api/faqs/:id', requireModerator, async (req, res) => {
   try {
     const { id } = req.params;
     await db.delete(faqs).where(eq(faqs.id, id));
@@ -292,9 +355,10 @@ app.get('/api/topics', async (_req, res) => {
   }
 });
 
-app.post('/api/topics', async (req, res) => {
+app.post('/api/topics', requireAuth, async (req, res) => {
   try {
-    const { id, forumId, subId, title, author, priority, created, initialPost } = req.body;
+    const { id, forumId, subId, title, priority, created, initialPost } = req.body;
+    const author = req.user!.username; // never trust a caller-supplied author
     const topicId = id || `t_${Date.now()}`;
     await db.insert(forumTopics).values({
       id: topicId,
@@ -316,7 +380,7 @@ app.post('/api/topics', async (req, res) => {
       await db.insert(forumPosts).values({
         id: initialPost.id || `p_${Date.now()}`,
         topicId,
-        author: initialPost.author || author,
+        author,
         avatar: initialPost.avatar || (author.substring(0, 2).toUpperCase()),
         postCount: initialPost.postCount || 1,
         time: initialPost.time || created || formatTimestamp(),
@@ -342,9 +406,15 @@ app.post('/api/topics', async (req, res) => {
   }
 });
 
-app.delete('/api/topics/:id', async (req, res) => {
+app.delete('/api/topics/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
+
+    const [topicToDelete] = await db.select().from(forumTopics).where(eq(forumTopics.id, id));
+    if (!isModeratorOrAbove(req.user)) {
+      if (!topicToDelete) return res.status(404).json({ error: 'Topic not found' });
+      if (topicToDelete.author !== req.user!.username) return res.status(403).json({ error: 'forbidden' });
+    }
 
     await db.transaction(async (tx) => {
       const topicRows = await tx.select().from(forumTopics).where(eq(forumTopics.id, id));
@@ -391,9 +461,10 @@ app.get('/api/posts', async (_req, res) => {
   }
 });
 
-app.post('/api/posts', async (req, res) => {
+app.post('/api/posts', requireAuth, async (req, res) => {
   try {
-    const { id, topicId, author, avatar, postCount, time, content } = req.body;
+    const { id, topicId, avatar, postCount, time, content } = req.body;
+    const author = req.user!.username; // never trust a caller-supplied author
     const postId = id || `p_${Date.now()}`;
     await db.insert(forumPosts).values({
       id: postId,
@@ -432,10 +503,15 @@ app.post('/api/posts', async (req, res) => {
   }
 });
 
-app.put('/api/posts/:id', async (req, res) => {
+app.put('/api/posts/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { content } = req.body;
+    const [existingPost] = await db.select().from(forumPosts).where(eq(forumPosts.id, id));
+    if (!existingPost) return res.status(404).json({ error: 'Post not found' });
+    if (!isModeratorOrAbove(req.user) && existingPost.author !== req.user!.username) {
+      return res.status(403).json({ error: 'forbidden' });
+    }
     await db.update(forumPosts).set({
       contentEn: content.EN,
       contentZh: content.ZH,
@@ -448,10 +524,14 @@ app.put('/api/posts/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/posts/:id', async (req, res) => {
+app.delete('/api/posts/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const postToDelete = await db.select().from(forumPosts).where(eq(forumPosts.id, id));
+    if (!isModeratorOrAbove(req.user)) {
+      if (postToDelete.length === 0) return res.status(404).json({ error: 'Post not found' });
+      if (postToDelete[0].author !== req.user!.username) return res.status(403).json({ error: 'forbidden' });
+    }
     if (postToDelete.length > 0) {
       const topicId = postToDelete[0].topicId;
       const author = postToDelete[0].author;
@@ -478,13 +558,17 @@ app.delete('/api/posts/:id', async (req, res) => {
 });
 
 // 4. Members Management & Authentication
-app.get('/api/members', async (_req, res) => {
+// A member who marked their e-mail private is only visible to themselves and administrators.
+const canSeePrivateEmail = (viewer: UserRow | undefined, owner: string) =>
+  !!viewer && (viewer.username === owner || isAdministrator(viewer));
+
+app.get('/api/members', async (req, res) => {
   try {
     const rows = await db.select().from(users);
     const formatted = rows.map((u) => ({
       username: u.username,
       password: '', // Never leak plaintext password to client
-      email: u.email,
+      email: u.emailPrivate && !canSeePrivateEmail(req.user, u.username) ? '' : u.email,
       emailPrivate: u.emailPrivate ?? false,
       fullName: u.fullName || u.username,
       firstName: u.firstName || '',
@@ -518,18 +602,28 @@ app.post('/api/members/login', async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password required' });
     }
+    if (String(password).length > MAX_PASSWORD_LENGTH) {
+      return res.status(401).json({ error: 'wrong_pw' });
+    }
     const cleanUser = String(username).trim();
     const allUsers = await db.select().from(users);
     const found = allUsers.find((u) => u.username.toLowerCase() === cleanUser.toLowerCase());
     if (!found) {
       return res.status(404).json({ error: 'no_user' });
     }
-    if (found.password !== password) {
+    const check = await verifyPassword(found.password, String(password));
+    if (!check.ok) {
       return res.status(401).json({ error: 'wrong_pw' });
     }
-    await db.update(users).set({ lastOnline: 'Just now' }).where(eq(users.username, found.username));
+    // Accounts created before hashing existed are upgraded transparently on their next login.
+    const storedPassword = check.legacy ? await hashPassword(String(password)) : found.password;
+    await db
+      .update(users)
+      .set(check.legacy ? { lastOnline: 'Just now', password: storedPassword } : { lastOnline: 'Just now' })
+      .where(eq(users.username, found.username));
     res.json({
       success: true,
+      token: signSession(sessionSecret, found.username, passwordFingerprint(storedPassword)),
       user: {
         username: found.username,
         email: found.email,
@@ -567,7 +661,7 @@ app.post('/api/members/register', async (req, res) => {
     if (!username || username.length < 3 || /[<>]/.test(username)) {
       return res.status(400).json({ error: 'Username must be at least 3 characters and not contain HTML tags' });
     }
-    if (!m.password || m.password.length < 4) {
+    if (typeof m.password !== 'string' || m.password.length < 4 || m.password.length > MAX_PASSWORD_LENGTH) {
       return res.status(400).json({ error: 'Password must be at least 4 characters' });
     }
 
@@ -576,14 +670,16 @@ app.post('/api/members/register', async (req, res) => {
       return res.status(400).json({ error: 'Username already taken' });
     }
 
-    // Role & adminLevel default to user for public registrations
-    const safeRole = m.username.startsWith('tst_') && m.role ? m.role : 'user';
-    const safeAdminLevel = m.username.startsWith('tst_') && m.adminLevel !== undefined ? m.adminLevel : 0;
+    // Public registrations are always plain members. Only the automated test runner
+    // (NODE_ENV=test, tst_-prefixed accounts) may bootstrap elevated accounts.
+    const allowTestPrivileges = process.env.NODE_ENV === 'test' && username.startsWith('tst_');
+    const safeRole = allowTestPrivileges && m.role ? m.role : 'user';
+    const safeAdminLevel = allowTestPrivileges && m.adminLevel !== undefined ? m.adminLevel : 0;
 
     await db.insert(users).values({
       uid: `uid_${username}_${Date.now()}`,
       username: username,
-      password: m.password,
+      password: await hashPassword(m.password),
       email: m.email,
       emailPrivate: m.emailPrivate ?? false,
       fullName: m.fullName || `${m.firstName || ''} ${m.lastName || ''}`.trim() || username,
@@ -612,15 +708,40 @@ app.post('/api/members/register', async (req, res) => {
   }
 });
 
-app.put('/api/members/:username', async (req, res) => {
+app.put('/api/members/:username', requireAuth, async (req, res) => {
   try {
     const { username } = req.params;
+    const actor = req.user!;
+    const actorIsAdmin = isAdministrator(actor);
+    const isSelf = actor.username === username;
+    if (!actorIsAdmin && !isSelf) {
+      return res.status(403).json({ error: 'forbidden' });
+    }
+
     const updateData: any = {};
-    const body = req.body;
+    const body = req.body || {};
+    let newToken: string | undefined;
+
+    const targetUser = (await db.select().from(users).where(eq(users.username, username)))[0];
+    if (!targetUser) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    // Role / access level: administrators only (a profile form echoing the current values is fine)
+    const changesRole = body.role !== undefined && body.role !== (targetUser.role || 'user');
+    const changesLevel = body.adminLevel !== undefined && body.adminLevel !== (targetUser.adminLevel ?? 0);
+    if ((changesRole || changesLevel) && !actorIsAdmin) {
+      return res.status(403).json({ error: 'Only administrators can change roles or access levels' });
+    }
+    if (body.role !== undefined && !['user', 'moderator', 'admin'].includes(body.role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+    if (body.adminLevel !== undefined && (!Number.isInteger(body.adminLevel) || body.adminLevel < 0 || body.adminLevel > ADMIN_LEVEL.ADMINISTRATOR)) {
+      return res.status(400).json({ error: 'Invalid access level' });
+    }
 
     // Safety guard: prevent demoting the only remaining administrator
     if (body.role !== undefined || body.adminLevel !== undefined) {
-      const targetUser = (await db.select().from(users).where(eq(users.username, username)))[0];
       if (isAdministrator(targetUser)) {
         const isDemoting = (body.role && body.role !== 'admin') || (body.adminLevel !== undefined && body.adminLevel < ADMIN_LEVEL.ADMINISTRATOR);
         if (isDemoting) {
@@ -632,7 +753,21 @@ app.put('/api/members/:username', async (req, res) => {
       }
     }
 
-    if (body.password !== undefined) updateData.password = body.password;
+    // Password: members must prove the current password; administrators may reset someone else's
+    if (body.password !== undefined && body.password !== '') {
+      if (typeof body.password !== 'string' || body.password.length < 4 || body.password.length > MAX_PASSWORD_LENGTH) {
+        return res.status(400).json({ error: 'Password must be at least 4 characters' });
+      }
+      if (isSelf || !actorIsAdmin) {
+        const check = await verifyPassword(targetUser.password, String(body.currentPassword ?? ''));
+        if (!check.ok) {
+          return res.status(403).json({ error: 'wrong_current_password' });
+        }
+      }
+      updateData.password = await hashPassword(body.password);
+      // Changing the password invalidates every existing session; hand this device a fresh one.
+      if (isSelf) newToken = signSession(sessionSecret, targetUser.username, passwordFingerprint(updateData.password));
+    }
     if (body.email !== undefined) updateData.email = body.email;
     if (body.emailPrivate !== undefined) updateData.emailPrivate = body.emailPrivate;
     if (body.fullName !== undefined) updateData.fullName = body.fullName;
@@ -650,15 +785,17 @@ app.put('/api/members/:username', async (req, res) => {
     if (body.adminLevel !== undefined) updateData.adminLevel = body.adminLevel;
     if (body.lastOnline !== undefined) updateData.lastOnline = body.lastOnline;
 
-    await db.update(users).set(updateData).where(eq(users.username, username));
-    res.json({ success: true });
+    if (Object.keys(updateData).length > 0) {
+      await db.update(users).set(updateData).where(eq(users.username, username));
+    }
+    res.json({ success: true, ...(newToken ? { token: newToken } : {}) });
   } catch (err: any) {
     console.error('Error updating member:', err);
     res.status(500).json({ error: 'Failed to update member' });
   }
 });
 
-app.delete('/api/members/:username', async (req, res) => {
+app.delete('/api/members/:username', requireAdmin, async (req, res) => {
   try {
     const { username } = req.params;
     // Safety guard: prevent deleting the only remaining administrator
@@ -678,7 +815,7 @@ app.delete('/api/members/:username', async (req, res) => {
   }
 });
 
-app.delete('/api/members/:username/posts', async (req, res) => {
+app.delete('/api/members/:username/posts', requireAdmin, async (req, res) => {
   try {
     const { username } = req.params;
     await db.delete(forumPosts).where(eq(forumPosts.author, username));
@@ -778,7 +915,7 @@ async function dispatchEmailNotification({
 }
 
 // 5. Feedbacks
-app.get('/api/feedbacks', async (_req, res) => {
+app.get('/api/feedbacks', requireAdmin, async (_req, res) => {
   try {
     const rows = await db.select().from(feedbacks);
     // Sort chronologically: newest timestamp/ID first
@@ -916,7 +1053,7 @@ app.post('/api/feedbacks', async (req, res) => {
   }
 });
 
-app.delete('/api/feedbacks', async (_req, res) => {
+app.delete('/api/feedbacks', requireAdmin, async (_req, res) => {
   try {
     await db.delete(feedbacks);
     await db.delete(privateMessages).where(like(privateMessages.id, 'fb_%'));
@@ -927,7 +1064,7 @@ app.delete('/api/feedbacks', async (_req, res) => {
   }
 });
 
-app.delete('/api/feedbacks/:id', async (req, res) => {
+app.delete('/api/feedbacks/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await db.delete(feedbacks).where(eq(feedbacks.id, id));
@@ -941,9 +1078,11 @@ app.delete('/api/feedbacks/:id', async (req, res) => {
 });
 
 // 6. Private Messages
-app.get('/api/pms', async (_req, res) => {
+app.get('/api/pms', requireAuth, async (req, res) => {
   try {
-    const rows = await db.select().from(privateMessages);
+    // Private messages are visible to their sender and recipient only (not even administrators).
+    const me = req.user!.username;
+    const rows = (await db.select().from(privateMessages)).filter((p) => p.fromUser === me || p.toUser === me);
     // Sort chronologically: newest timestamp/ID first
     const sorted = [...rows].sort((a, b) => {
       const getScore = (item: typeof a) => {
@@ -975,9 +1114,9 @@ app.get('/api/pms', async (_req, res) => {
   }
 });
 
-app.post('/api/pms', async (req, res) => {
+app.post('/api/pms', requireAuth, async (req, res) => {
   try {
-    const { id, from, to, subject, content, date, read } = req.body;
+    const { id, to, subject, content, date, read } = req.body;
     if (!to || !String(to).trim() || !subject || !String(subject).trim() || !content || !String(content).trim()) {
       return res.status(400).json({ error: 'Recipient, subject, and content are required' });
     }
@@ -989,7 +1128,7 @@ app.post('/api/pms', async (req, res) => {
 
     await db.insert(privateMessages).values({
       id: id || `pm_${Date.now()}`,
-      fromUser: from || 'Anonymous',
+      fromUser: req.user!.username, // sender is always the signed-in member
       toUser: cleanTo,
       subject: String(subject).trim(),
       content: String(content).trim(),
@@ -1003,9 +1142,12 @@ app.post('/api/pms', async (req, res) => {
   }
 });
 
-app.put('/api/pms/:id/read', async (req, res) => {
+app.put('/api/pms/:id/read', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const [pm] = await db.select().from(privateMessages).where(eq(privateMessages.id, id));
+    if (!pm) return res.status(404).json({ error: 'Message not found' });
+    if (pm.toUser !== req.user!.username) return res.status(403).json({ error: 'forbidden' });
     await db.update(privateMessages).set({ read: true }).where(eq(privateMessages.id, id));
     res.json({ success: true });
   } catch (err: any) {
@@ -1014,9 +1156,12 @@ app.put('/api/pms/:id/read', async (req, res) => {
   }
 });
 
-app.delete('/api/pms/:id', async (req, res) => {
+app.delete('/api/pms/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const [pm] = await db.select().from(privateMessages).where(eq(privateMessages.id, id));
+    if (!pm) return res.status(404).json({ error: 'Message not found' });
+    if (pm.toUser !== req.user!.username && pm.fromUser !== req.user!.username) return res.status(403).json({ error: 'forbidden' });
     await db.delete(privateMessages).where(eq(privateMessages.id, id));
     res.json({ success: true });
   } catch (err: any) {
@@ -1026,7 +1171,7 @@ app.delete('/api/pms/:id', async (req, res) => {
 });
 
 // 7. Admin Email Notification Status & Outbox Logs
-app.get('/api/admin/email-status', async (_req, res) => {
+app.get('/api/admin/email-status', requireAdmin, async (_req, res) => {
   try {
     const adminRows = await getAdministrators();
     const configuredAdminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || 'admin@medifaq.my';
@@ -1043,7 +1188,7 @@ app.get('/api/admin/email-status', async (_req, res) => {
   }
 });
 
-app.post('/api/admin/broadcast-email', async (req, res) => {
+app.post('/api/admin/broadcast-email', requireAdmin, async (req, res) => {
   try {
     const { subject, message } = req.body;
     if (!subject || !message) {

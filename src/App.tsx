@@ -6,6 +6,7 @@
 import { ADMIN_LEVEL, roleFromLevel, isAdministrator, isModeratorOrAbove, accessLevelKey } from './accessLevels';
 import { formatTimestamp, sortByTimestamp, formatDisplayTimestamp } from './timestamp';
 import { ReturnTarget, buildNavHash, parseNavHash, guardRoute } from './navHash';
+import { getAuthToken, setAuthToken, SESSION_EXPIRED_EVENT } from './authFetch';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Baby,
@@ -432,6 +433,7 @@ const T_DATA: Translations = {
     failedDeleteMember: "Failed to delete member",
     failedUpdateLevel: "Failed to update admin level",
     serverCommError: "Server communication error",
+    sessionExpired: "Your session has expired. Please log in again.",
     usersFeedback: "User's Feedback",
     deleteMsg: "DELETE MSG",
     feedbackMessageLabel: "Feedback Message:",
@@ -850,6 +852,7 @@ const T_DATA: Translations = {
     failedDeleteMember: "删除会员失败",
     failedUpdateLevel: "更新管理级别失败",
     serverCommError: "服务器通信错误",
+    sessionExpired: "您的登录已过期，请重新登录。",
     usersFeedback: "用户反馈",
     deleteMsg: "删除信息",
     feedbackMessageLabel: "反馈内容：",
@@ -1268,6 +1271,7 @@ const T_DATA: Translations = {
     failedDeleteMember: "Gagal memadam ahli",
     failedUpdateLevel: "Gagal mengemas kini tahap pentadbir",
     serverCommError: "Ralat komunikasi pelayan",
+    sessionExpired: "Sesi anda telah tamat. Sila log masuk semula.",
     usersFeedback: "Maklum Balas Pengguna",
     deleteMsg: "PADAM MESEJ",
     feedbackMessageLabel: "Mesej Maklum Balas:",
@@ -1455,7 +1459,7 @@ const BOOT_ROUTE: { page: string; returnTarget: ReturnTarget | null } = (() => {
   let user: Member | null = null;
   try {
     const raw = localStorage.getItem('medifaq_current_user');
-    user = raw ? JSON.parse(raw) : null;
+    user = raw && getAuthToken() ? JSON.parse(raw) : null;
   } catch {}
   return guardRoute(BOOT_NAV, user);
 })();
@@ -2129,7 +2133,8 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<Member | null>(() => {
     try {
       const saved = localStorage.getItem('medifaq_current_user');
-      return saved ? JSON.parse(saved) : null;
+      // A stored profile without a session token is stale (the API would reject every request).
+      return saved && getAuthToken() ? JSON.parse(saved) : null;
     } catch {
       return null;
     }
@@ -2144,6 +2149,17 @@ export default function App() {
       }
     } catch {}
   }, [currentUser]);
+
+  // The server rejected our session token (expired, password changed elsewhere, account removed).
+  useEffect(() => {
+    const onExpired = () => {
+      setCurrentUser(null);
+      setToast({ msg: t('sessionExpired'), type: 'error' });
+      setTimeout(() => setToast(null), 3500);
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+  }, [lang]);
 
   const [members, setMembers] = useState<Member[]>(INITIAL_MEMBERS);
   const [categories, setCategories] = useState<MainCategory[]>(INITIAL_CATEGORIES);
@@ -2401,6 +2417,7 @@ export default function App() {
     BOOT_NAV && BOOT_ROUTE.page === BOOT_NAV.page && (BOOT_NAV.topicId || BOOT_NAV.faqId) ? BOOT_NAV : null
   );
   const hashSyncedOnce = useRef(false);
+  const replaceHashRef = useRef(false); // set after a successful login so /login is not left in history
 
   useEffect(() => {
     const pend = pendingNavRef.current;
@@ -2426,6 +2443,8 @@ export default function App() {
 
   // State -> URL
   useEffect(() => {
+    const replaceForLogin = replaceHashRef.current;
+    replaceHashRef.current = false;
     const pend = pendingNavRef.current;
     if (pend) {
       const topicOk = !pend.topicId || activeTopic?.id === pend.topicId;
@@ -2448,7 +2467,7 @@ export default function App() {
     const cur = parseNavHash(window.location.hash);
     const sameView = !!cur && buildNavHash(cur.page, cur) === next;
     try {
-      if (!hashSyncedOnce.current || sameView) window.history.replaceState(null, '', next);
+      if (!hashSyncedOnce.current || sameView || replaceForLogin) window.history.replaceState(null, '', next);
       else window.history.pushState(null, '', next);
     } catch {}
     hashSyncedOnce.current = true;
@@ -2652,6 +2671,7 @@ export default function App() {
         if (faq) setActiveFaqDetail(faq);
       }
     }
+    replaceHashRef.current = true;
     navigate(page);
   };
 
@@ -2705,6 +2725,7 @@ export default function App() {
         }
         if (res.ok) {
           const data = await res.json();
+          setAuthToken(data.token);
           finishLogin(data.user);
           return;
         }
@@ -2717,6 +2738,7 @@ export default function App() {
           setLoginErrorState('wrong_pw');
           return;
         }
+        setAuthToken(null); // offline demo fallback: no server session
         finishLogin(found);
       })
       .catch(() => {
@@ -2729,6 +2751,7 @@ export default function App() {
           setLoginErrorState('wrong_pw');
           return;
         }
+        setAuthToken(null); // offline demo fallback: no server session
         finishLogin(found);
       });
   };
@@ -3247,6 +3270,7 @@ export default function App() {
                         type: 'confirm',
                         onConfirm: () => {
                           setCurrentUser(null);
+                          setAuthToken(null);
                           navigate('loggingOutPage');
                         }
                       })
@@ -3416,6 +3440,7 @@ export default function App() {
                           onClick={() => {
                             setUserMenuOpen(false);
                             setCurrentUser(null);
+                            setAuthToken(null);
                             navigate('loggingOutPage');
                           }}
                           className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 font-bold flex items-center gap-2"
@@ -3546,6 +3571,7 @@ export default function App() {
                     <button
                       onClick={() => {
                         setCurrentUser(null);
+                        setAuthToken(null);
                         navigate('loggingOutPage');
                       }}
                       className="w-full py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold text-center"
@@ -4271,7 +4297,7 @@ export default function App() {
                   </div>
 
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (!pwdForm.old || !pwdForm.new || !pwdForm.confirm) {
                         setModalDialog({ title: t('error'), msg: t('pleaseFillAllPwFields'), type: 'alert' });
                         return;
@@ -4280,18 +4306,27 @@ export default function App() {
                         setModalDialog({ title: t('error'), msg: t('passwordMismatch'), type: 'alert' });
                         return;
                       }
-                      if (currentUser && currentUser.password !== pwdForm.old) {
-                        setModalDialog({ title: t('error'), msg: t('oldPwMismatch'), type: 'alert' });
-                        return;
-                      }
-                      if (currentUser) {
-                        setMembers(members.map((m) => m.username === currentUser.username ? { ...m, password: pwdForm.new } : m));
-                        setCurrentUser({ ...currentUser, password: pwdForm.new });
-                        fetch(`/api/members/${currentUser.username}`, {
+                      if (!currentUser) return;
+                      // The server verifies the current password; the new one is never kept in browser state.
+                      try {
+                        const res = await fetch(`/api/members/${currentUser.username}`, {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ password: pwdForm.new }),
-                        }).catch(console.error);
+                          body: JSON.stringify({ currentPassword: pwdForm.old, password: pwdForm.new }),
+                        });
+                        if (res.status === 403) {
+                          setModalDialog({ title: t('error'), msg: t('oldPwMismatch'), type: 'alert' });
+                          return;
+                        }
+                        if (!res.ok) {
+                          showToast(t('serverCommError'), 'error');
+                          return;
+                        }
+                        const data = await res.json().catch(() => ({}));
+                        if (data.token) setAuthToken(data.token); // the old session ends when the password changes
+                      } catch {
+                        showToast(t('serverCommError'), 'error');
+                        return;
                       }
                       showToast(t('passwordChanged'));
                       setPwdForm({ old: '', new: '', confirm: '' });

@@ -211,7 +211,9 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: `${guardian.prefix}nobody`, password: 'x' }),
     });
-    assert.equal(nobody.status, 404);
+    assert.equal(nobody.status, 401, 'an unknown username must look exactly like a wrong password');
+    assert.equal((await nobody.json()).error, 'invalid_credentials');
+    assert.equal((await bad.json()).error, 'invalid_credentials');
 
     // The member was promoted to moderator by the earlier test; demote back so topic tests run as a plain member
     await adminFetch(`${baseUrl}/api/members/${mockUsername}`, {
@@ -810,7 +812,7 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
 
       // Unknown usernames are throttled exactly like real ones
       const ghost = `${guardian.prefix}ghost`;
-      for (let i = 0; i < 3; i++) assert.equal((await attempt(ghost, 'x')).status, 404);
+      for (let i = 0; i < 3; i++) assert.equal((await attempt(ghost, 'x')).status, 401);
       assert.equal((await attempt(ghost, 'x')).status, 429);
 
       // A successful login starts the count again

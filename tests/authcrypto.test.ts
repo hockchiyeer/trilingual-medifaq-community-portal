@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { hashPassword, verifyPassword, isPasswordHash, passwordFingerprint, signSession, verifySession } from '../src/authCrypto.ts';
+import { hashPassword, verifyPassword, isPasswordHash, passwordFingerprint, signSession, verifySession, createDummyHashProvider } from '../src/authCrypto.ts';
 
 const run = async () => {
   // Hashing: salted, never the plaintext, verifies only the right password
@@ -35,6 +35,23 @@ const run = async () => {
 
   // Fingerprint changes when the stored password changes (this is what signs old sessions out)
   assert.notEqual(passwordFingerprint(h1), passwordFingerprint(h2));
+
+  // Dummy hash provider: created once and shared, but a failure is not remembered
+  let calls = 0;
+  const flaky = createDummyHashProvider(async () => {
+    calls++;
+    if (calls === 1) throw new Error('transient hashing failure');
+    return `hash-${calls}`;
+  });
+  await assert.rejects(() => flaky(), /transient hashing failure/);
+  assert.equal(await flaky(), 'hash-2', 'the next call retries instead of replaying the failure');
+  assert.equal(await flaky(), 'hash-2', 'a success is cached');
+  assert.equal(calls, 2);
+  let slowCalls = 0;
+  const shared = createDummyHashProvider(async () => (++slowCalls, 'one'));
+  assert.deepEqual(await Promise.all([shared(), shared(), shared()]), ['one', 'one', 'one']);
+  assert.equal(slowCalls, 1, 'concurrent callers share a single computation');
+  assert.ok(isPasswordHash(await createDummyHashProvider()()), 'the default provider produces a real scrypt hash');
 
   console.log('authcrypto.test.ts: all assertions passed');
 };

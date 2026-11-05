@@ -15,6 +15,7 @@ import {
   signSession,
   verifySession,
   MAX_PASSWORD_LENGTH,
+  createDummyHashProvider,
 } from './src/authCrypto.ts';
 import { LoginLimiter, DEFAULT_LOGIN_LIMITS } from './src/loginLimiter.ts';
 import { escapeHtml, renderBroadcastHtml, singleLine, parseTrustProxy, securityHeaders } from './src/security.ts';
@@ -617,9 +618,9 @@ export const loginLimiter = new LoginLimiter(
         maxPerIp: envInt('LOGIN_MAX_PER_IP', DEFAULT_LOGIN_LIMITS.maxPerIp),
       }
 );
-// Unknown usernames still pay for one password hash, so response time does not reveal which usernames exist.
-let dummyHash: Promise<string> | null = null;
-const getDummyHash = () => (dummyHash ??= hashPassword('medifaq-timing-equaliser'));
+// Unknown usernames still pay for one password hash, and get the same 401 answer as a wrong password,
+// so neither the response nor its timing reveals which usernames exist.
+const getDummyHash = createDummyHashProvider();
 
 app.post('/api/members/login', async (req, res) => {
   try {
@@ -635,7 +636,7 @@ app.post('/api/members/login', async (req, res) => {
     }
     if (String(password).length > MAX_PASSWORD_LENGTH) {
       loginLimiter.recordFailure(clientIp, username);
-      return res.status(401).json({ error: 'wrong_pw' });
+      return res.status(401).json({ error: 'invalid_credentials' });
     }
     const cleanUser = String(username).trim();
     const allUsers = await db.select().from(users);
@@ -643,12 +644,12 @@ app.post('/api/members/login', async (req, res) => {
     if (!found) {
       await verifyPassword(await getDummyHash(), String(password)); // same work as a real attempt
       loginLimiter.recordFailure(clientIp, username);
-      return res.status(404).json({ error: 'no_user' });
+      return res.status(401).json({ error: 'invalid_credentials' }); // same answer as a wrong password
     }
     const check = await verifyPassword(found.password, String(password));
     if (!check.ok) {
       loginLimiter.recordFailure(clientIp, username);
-      return res.status(401).json({ error: 'wrong_pw' });
+      return res.status(401).json({ error: 'invalid_credentials' });
     }
     loginLimiter.recordSuccess(clientIp, username);
     // Accounts created before hashing existed are upgraded transparently on their next login.

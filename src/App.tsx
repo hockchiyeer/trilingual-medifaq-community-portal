@@ -300,12 +300,10 @@ const T_DATA: Translations = {
     administratorRole: "Administrator",
     doctorRole: "Doctor / Moderator",
     standardMemberRole: "Standard Member",
-    invalidPwMsg: "You have entered an invalid password,",
+    invalidCredentialsMsg: "Invalid username or password.",
     forgotPwPrompt: "If you have forgotten your password, please",
     sendPwEmailMsg: ". The system will send your password to your email account.",
     toTryAgain: "To try again, please",
-    noUserMsg: "Sorry, the username",
-    doesNotExist: "does not exist.",
     pleaseClickHereToTryAgain: "to try again.",
     secureLogoutMsg: "Your session has been securely ended so that your data will not be accessed by unauthorized users.",
     fillFieldsToRegister: "Fill in all fields to become a registered member of the Online Medical Knowledge FAQ Database.",
@@ -720,12 +718,10 @@ const T_DATA: Translations = {
     administratorRole: "管理员",
     doctorRole: "医生 / 版主",
     standardMemberRole: "普通会员",
-    invalidPwMsg: "您输入了无效的密码，",
+    invalidCredentialsMsg: "用户名或密码不正确。",
     forgotPwPrompt: "如果您忘记了密码，请",
     sendPwEmailMsg: "。系统将会把密码发送到您的电子邮箱。",
     toTryAgain: "要重试，请",
-    noUserMsg: "抱歉，用户名",
-    doesNotExist: "不存在。",
     pleaseClickHereToTryAgain: "以重试。",
     secureLogoutMsg: "您的会话已安全结束，因此未经授权的用户将无法访问您的数据。",
     fillFieldsToRegister: "填写所有字段以成为线上医疗常问知识库的注册会员。",
@@ -1140,12 +1136,10 @@ const T_DATA: Translations = {
     administratorRole: "Pentadbir",
     doctorRole: "Doktor / Moderator",
     standardMemberRole: "Ahli Biasa",
-    invalidPwMsg: "Anda telah memasukkan kata laluan yang tidak sah,",
+    invalidCredentialsMsg: "Nama pengguna atau kata laluan tidak sah.",
     forgotPwPrompt: "Jika anda terlupa kata laluan anda, sila",
     sendPwEmailMsg: ". Sistem akan menghantar kata laluan anda ke akaun e-mel anda.",
     toTryAgain: "Untuk cuba lagi, sila",
-    noUserMsg: "Maaf, nama pengguna",
-    doesNotExist: "tidak wujud.",
     pleaseClickHereToTryAgain: "untuk cuba lagi.",
     secureLogoutMsg: "Sesi anda telah ditamatkan secara selamat supaya data anda tidak dapat diakses oleh pengguna yang tidak dibenarkan.",
     fillFieldsToRegister: "Isi semua medan untuk menjadi ahli berdaftar Pangkalan Data FAQ Pengetahuan Perubatan Dalam Talian.",
@@ -2249,7 +2243,7 @@ export default function App() {
 
   // Login form
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-  const [loginErrorState, setLoginErrorState] = useState<'none' | 'wrong_pw' | 'no_user'>('none');
+  const [loginErrorState, setLoginErrorState] = useState<'none' | 'wrong_pw'>('none');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Change Password form
@@ -2723,11 +2717,8 @@ export default function App() {
           showToast(t('tooManyAttempts'), 'error');
           return;
         }
-        if (res.status === 404) {
-          setLoginErrorState('no_user');
-          return;
-        }
-        if (res.status === 401) {
+        if (res.status === 401 || res.status === 404) {
+          // One generic answer for unknown user and wrong password (no username probing)
           setLoginErrorState('wrong_pw');
           return;
         }
@@ -2739,7 +2730,7 @@ export default function App() {
         }
         const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
         if (!found) {
-          setLoginErrorState('no_user');
+          setLoginErrorState('wrong_pw');
           return;
         }
         if (found.password !== loginForm.password) {
@@ -2752,7 +2743,7 @@ export default function App() {
       .catch(() => {
         const found = members.find((m) => m.username.toLowerCase() === loginForm.username.toLowerCase());
         if (!found) {
-          setLoginErrorState('no_user');
+          setLoginErrorState('wrong_pw');
           return;
         }
         if (found.password !== loginForm.password) {
@@ -3962,7 +3953,7 @@ export default function App() {
                 {loginErrorState === 'wrong_pw' && (
                   <div className="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-300 text-xs space-y-2">
                     <div className="font-bold text-amber-900">
-                      {t('invalidPwMsg')} <span className="underline">{loginForm.username}</span>.
+                      {t('invalidCredentialsMsg')}
                     </div>
                     <ol className="list-decimal pl-4 space-y-1 text-amber-800">
                       <li>
@@ -3989,24 +3980,6 @@ export default function App() {
                         .
                       </li>
                     </ol>
-                  </div>
-                )}
-
-                {loginErrorState === 'no_user' && (
-                  <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-300 text-xs text-red-900 space-y-2">
-                    <div className="font-bold">
-                      {t('noUserMsg')} <span className="underline">{loginForm.username}</span> {t('doesNotExist')}
-                    </div>
-                    <div>
-                      {t('toTryAgain')}{' '}
-                      <button
-                        onClick={() => setLoginErrorState('none')}
-                        className="font-bold text-red-700 underline"
-                      >
-                        {t('clickHere')}
-                      </button>{' '}
-                      {t('pleaseClickHereToTryAgain')}
-                    </div>
                   </div>
                 )}
 

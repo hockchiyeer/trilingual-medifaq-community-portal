@@ -1,3 +1,5 @@
+import { isIPv6 } from 'node:net';
+
 /**
  * Brute-force brake for the login endpoint (in memory; per server process).
  *
@@ -37,6 +39,33 @@ export type LimitDecision = { allowed: true } | { allowed: false; retryAfterSec:
 
 const MAX_TRACKED = 5000;
 
+/**
+ * Key under which a client address is throttled. IPv4 addresses are used as they are. IPv6 clients usually
+ * control a whole /64, so every address inside one /64 shares a bucket (otherwise rotating the low 64 bits
+ * would give an attacker unlimited fresh buckets). IPv4-mapped addresses (::ffff:1.2.3.4) count as IPv4.
+ */
+export function ipBucketKey(ip: string): string {
+  let a = String(ip ?? '').trim().toLowerCase();
+  const zone = a.indexOf('%');
+  if (zone !== -1) a = a.slice(0, zone);
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(a);
+  if (mapped) return mapped[1];
+  if (!isIPv6(a)) return a;
+
+  // an embedded dotted quad (e.g. 64:ff9b::1.2.3.4) becomes two hextets
+  const quad = /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(a);
+  if (quad) {
+    const [b1, b2, b3, b4] = quad.slice(1).map(Number);
+    a = a.slice(0, quad.index) + `${((b1 << 8) | b2).toString(16)}:${((b3 << 8) | b4).toString(16)}`;
+  }
+  const [head, tail] = a.split('::');
+  const left = head ? head.split(':') : [];
+  const right = tail ? tail.split(':') : [];
+  const groups = a.includes('::') ? [...left, ...Array(8 - left.length - right.length).fill('0'), ...right] : left;
+  const prefix = groups.slice(0, 4).map((g) => parseInt(g, 16).toString(16));
+  return `${prefix.join(':')}::/64`;
+}
+
 export const normalizeLoginName = (username: unknown): string => String(username ?? '').trim().toLowerCase().slice(0, 100);
 
 export class LoginLimiter {
@@ -55,13 +84,13 @@ export class LoginLimiter {
   }
 
   private userKey(ip: string, username: unknown) {
-    return `${ip}|${normalizeLoginName(username)}`;
+    return `${ipBucketKey(ip)}|${normalizeLoginName(username)}`;
   }
 
   check(ip: string, username: unknown, now = Date.now()): LimitDecision {
     const blockedUntil = Math.max(
       this.perUser.get(this.userKey(ip, username))?.blockedUntil ?? 0,
-      this.perIp.get(ip)?.blockedUntil ?? 0
+      this.perIp.get(ipBucketKey(ip))?.blockedUntil ?? 0
     );
     if (blockedUntil > now) return { allowed: false, retryAfterSec: Math.max(1, Math.ceil((blockedUntil - now) / 1000)) };
     return { allowed: true };
@@ -69,7 +98,7 @@ export class LoginLimiter {
 
   recordFailure(ip: string, username: unknown, now = Date.now()) {
     this.bump(this.perUser, this.userKey(ip, username), this.limits.maxAttempts, now);
-    this.bump(this.perIp, ip, this.limits.maxPerIp, now);
+    this.bump(this.perIp, ipBucketKey(ip), this.limits.maxPerIp, now);
     if (this.perUser.size > MAX_TRACKED || this.perIp.size > MAX_TRACKED) this.prune(now);
   }
 

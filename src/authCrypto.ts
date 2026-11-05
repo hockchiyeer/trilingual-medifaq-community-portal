@@ -97,3 +97,23 @@ export function verifySession(secret: string, token: unknown, nowMs = Date.now()
     return null;
   }
 }
+
+/**
+ * Lazily creates (once) the throw-away hash that unknown-username logins verify against, so they cost the
+ * same time as real ones. If hashing ever fails the cached promise is dropped, so the next login retries
+ * instead of failing until the server restarts.
+ */
+export function createDummyHashProvider(
+  make: () => Promise<string> = () => hashPassword('medifaq-timing-equaliser')
+): () => Promise<string> {
+  let cached: Promise<string> | null = null;
+  return () => {
+    if (!cached) {
+      cached = make().catch((err) => {
+        cached = null;
+        throw err;
+      });
+    }
+    return cached;
+  };
+}

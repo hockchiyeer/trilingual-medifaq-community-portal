@@ -434,6 +434,7 @@ const T_DATA: Translations = {
     failedUpdateLevel: "Failed to update admin level",
     serverCommError: "Server communication error",
     sessionExpired: "Your session has expired. Please log in again.",
+    tooManyAttempts: "Too many failed login attempts. Please wait a few minutes and try again.",
     usersFeedback: "User's Feedback",
     deleteMsg: "DELETE MSG",
     feedbackMessageLabel: "Feedback Message:",
@@ -853,6 +854,7 @@ const T_DATA: Translations = {
     failedUpdateLevel: "更新管理级别失败",
     serverCommError: "服务器通信错误",
     sessionExpired: "您的登录已过期，请重新登录。",
+    tooManyAttempts: "登录失败次数过多，请稍等几分钟后再试。",
     usersFeedback: "用户反馈",
     deleteMsg: "删除信息",
     feedbackMessageLabel: "反馈内容：",
@@ -1272,6 +1274,7 @@ const T_DATA: Translations = {
     failedUpdateLevel: "Gagal mengemas kini tahap pentadbir",
     serverCommError: "Ralat komunikasi pelayan",
     sessionExpired: "Sesi anda telah tamat. Sila log masuk semula.",
+    tooManyAttempts: "Terlalu banyak percubaan log masuk yang gagal. Sila tunggu beberapa minit dan cuba lagi.",
     usersFeedback: "Maklum Balas Pengguna",
     deleteMsg: "PADAM MESEJ",
     feedbackMessageLabel: "Mesej Maklum Balas:",
@@ -2715,6 +2718,11 @@ export default function App() {
       body: JSON.stringify({ username: loginForm.username.trim(), password: loginForm.password }),
     })
       .then(async (res) => {
+        if (res.status === 429) {
+          setLoginErrorState('none');
+          showToast(t('tooManyAttempts'), 'error');
+          return;
+        }
         if (res.status === 404) {
           setLoginErrorState('no_user');
           return;

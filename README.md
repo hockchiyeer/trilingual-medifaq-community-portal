@@ -125,6 +125,8 @@ The application includes generic sample accounts representing different user rol
 * **Passwords** – stored as salted `scrypt` hashes (`src/authCrypto.ts`). Older plaintext rows are upgraded automatically on their next login; run `npm run db:hash-passwords` once to upgrade dormant accounts.
 * **Authorization (server-side)** – administrators: categories, subcategories, member management, feedback inbox, broadcast e-mail. Doctors/moderators and above: FAQ create/edit/delete. Signed-in members: posting, private messages and their own profile; authors and moderators manage forum content. Authors, senders and FAQ creators always come from the session, never from the request body. Private messages are visible only to sender and recipient, and members who keep their e-mail private are hidden from other members.
 * **Registration** – always creates a plain member. Only the automated test runner (`NODE_ENV=test`, `tst_` usernames) can bootstrap elevated accounts.
+* **Login throttling** – after 5 failed attempts for the same IP + username (or 30 from one IP) login answers `429` with a `Retry-After` delay that doubles up to 10 minutes; there is no permanent lock-out, so strangers cannot lock the admin out. Unknown usernames are counted and timed like wrong passwords. Limits live in memory per server process (`LOGIN_MAX_ATTEMPTS`, `LOGIN_MAX_PER_IP`). Behind a reverse proxy set `TRUST_PROXY`.
+* **Browser hardening** – in production the server sends a Content-Security-Policy (own-origin scripts only, Google Fonts allowed, same-origin API calls and framing; override framing with `CSP_FRAME_ANCESTORS`), plus `nosniff` and a referrer policy. The development server (Vite) is exempt because it needs inline scripts. Admin broadcast e-mails are HTML-escaped.
 * **Tests** – `npm test` logs in as the seeded `admin` (set `TEST_ADMIN_PASSWORD` if you seeded a different password).
 
 ---
@@ -410,6 +412,8 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 * **Hash Routing & Route Guards**: URL fragment round-trip serialization (`#/page?m=..&s=..&t=..&f=..`), parameter sanitization, route guards for guest and member tiers, and deep-link target restoration (`tests/navhash.test.ts`).
 * **Password Hashing & Session Crypto**: Server-side salted `scrypt` key derivation, timing-safe verification, signed session tokens with 8-hour expiry, token signature validation, and password-change invalidation (`tests/authcrypto.test.ts`).
 * **Client-Side Auth & Bearer Injection**: Storage in `localStorage`, automatic `Authorization: Bearer <token>` header injection, unauthenticated passthrough, and 401 session expiration handling (`tests/authfetch.test.ts`).
+* **Login Rate Limiting & Throttling**: Progressive exponential delays per IP+username, per-IP bulk limits, HTTP 429 `Retry-After` headers, anti-enumeration parity, and success reset mechanics (`tests/loginlimiter.test.ts`).
+* **Security Headers & Mail Escaping**: Production Content Security Policy (own-origin scripts, Google Fonts, frame-ancestors allowlist), `nosniff`, referrer policy, and admin broadcast HTML body escaping (`tests/security.test.ts`).
 * **Translation Parity & Safeguard Verification**: Automated audit asserting 100% key parity across EN, 华语 (ZH), and Bahasa Melayu (BM), non-empty values, token placeholder parity (`{name}`, `{count}`, `{fields}`), and static regex scan confirming all static and dynamic `t('...')` invocations reference valid keys (`tests/translations.test.ts`).
 * **Categories & Subcategories**: Category creation, multilingual structure verification, subtopic associations.
 * **FAQ Knowledge Base**: Creation, content retrieval, view click count incrementation (`/api/faqs/:id/view`), inline editing, and deletion.
@@ -477,6 +481,8 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 │   ├── navhash.test.ts     # Unit tests for URL hash routing, sanitization, and route guards
 │   ├── authcrypto.test.ts  # Unit tests for scrypt password hashing & session tokens
 │   ├── authfetch.test.ts   # Unit tests for browser auth fetch & Bearer token injection
+│   ├── loginlimiter.test.ts # Unit tests for login rate limiting, IP buckets & delays
+│   ├── security.test.ts    # Unit tests for CSP header, trust proxy & HTML escaping
 │   ├── auth-helpers.ts     # Test authentication utilities & bearer token generation
 │   ├── resilience.test.ts  # Teardown & interruption resilience tests
 │   └── translations.test.ts # Safeguard unit tests asserting 100% trilingual key parity & usage
@@ -485,7 +491,9 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
     ├── accessLevels.ts  # Shared membership access levels, roles, and permission gates
     ├── authCrypto.ts    # Server-side scrypt password hashing & signed session token helpers
     ├── authFetch.ts     # Client-side Bearer token storage & automatic header injection
+    ├── loginLimiter.ts  # In-memory IP + username login rate limiter & exponential delays
     ├── navHash.ts       # Hash routing serialization, route guards, and return target helpers
+    ├── security.ts      # Content Security Policy, HTML escaping & security header middleware
     ├── timestamp.ts     # Canonical forum timestamp formatting, parsing, and stable sorting
     ├── index.css        # Global CSS variables, custom typography (CJK), and Tailwind tokens
     ├── main.tsx         # React application bootstrap entry

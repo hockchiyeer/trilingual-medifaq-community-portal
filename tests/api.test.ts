@@ -4,6 +4,7 @@ import { TestGuardian } from './test-guardian.ts';
 import { db } from '../src/db/index.ts';
 import { users } from '../src/db/schema.ts';
 import { loginAs, getAdminToken, withToken } from './auth-helpers.ts';
+import { loginLimiter } from '../server.ts';
 
 export async function runApiTests(baseUrl: string, guardian: TestGuardian): Promise<{ passed: number; failed: number }> {
   let passed = 0;
@@ -789,6 +790,39 @@ export async function runApiTests(baseUrl: string, guardian: TestGuardian): Prom
     assert.equal((await withToken(token)(`${baseUrl}/api/pms`)).status, 200);
     await assert.rejects(() => loginAs(baseUrl, mockUsername, 'test_password_123'));
     await loginAs(baseUrl, mockUsername, 'brand_new_pw_1');
+  });
+
+  // 14. Login rate limiting (the limiter lives in the in-process test server)
+  await testCase('Auth - login throttling answers 429 + Retry-After, stays per-user, treats unknown names alike, resets on success', async () => {
+    if (process.env.USE_ACTIVE_SERVER) return; // cannot reach the limiter of an external server
+    const otherName = `${guardian.prefix}other`;
+    const attempt = (user: string, pw: string) =>
+      fetch(`${baseUrl}/api/members/login`, { method: 'POST', headers: json, body: JSON.stringify({ username: user, password: pw }) });
+    loginLimiter.configure({ maxAttempts: 3, maxPerIp: 1000, baseDelayMs: 60_000 });
+    loginLimiter.reset();
+    try {
+      for (let i = 0; i < 3; i++) assert.equal((await attempt(otherName, 'wrong')).status, 401);
+      const blocked = await attempt(otherName, 'other_password_123'); // even the right password waits
+      assert.equal(blocked.status, 429);
+      assert.ok(Number(blocked.headers.get('retry-after')) >= 1, 'Retry-After header is required');
+      assert.equal((await blocked.json()).error, 'too_many_attempts');
+      assert.equal((await attempt(modUsername, 'mod_password_123')).status, 200, 'other accounts from the same address are not locked out');
+
+      // Unknown usernames are throttled exactly like real ones
+      const ghost = `${guardian.prefix}ghost`;
+      for (let i = 0; i < 3; i++) assert.equal((await attempt(ghost, 'x')).status, 404);
+      assert.equal((await attempt(ghost, 'x')).status, 429);
+
+      // A successful login starts the count again
+      loginLimiter.reset();
+      for (let i = 0; i < 2; i++) assert.equal((await attempt(otherName, 'wrong')).status, 401);
+      assert.equal((await attempt(otherName, 'other_password_123')).status, 200);
+      for (let i = 0; i < 2; i++) assert.equal((await attempt(otherName, 'wrong')).status, 401);
+      assert.equal((await attempt(otherName, 'other_password_123')).status, 200, 'not blocked: the success cleared the earlier failures');
+    } finally {
+      loginLimiter.configure({ maxAttempts: 1000, maxPerIp: 10000, baseDelayMs: 30_000 });
+      loginLimiter.reset();
+    }
   });
 
   return { passed, failed };

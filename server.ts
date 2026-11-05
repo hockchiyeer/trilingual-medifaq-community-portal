@@ -16,6 +16,8 @@ import {
   verifySession,
   MAX_PASSWORD_LENGTH,
 } from './src/authCrypto.ts';
+import { LoginLimiter, DEFAULT_LOGIN_LIMITS } from './src/loginLimiter.ts';
+import { escapeHtml, renderBroadcastHtml, singleLine, parseTrustProxy, securityHeaders } from './src/security.ts';
 import { formatTimestamp, parseTimestamp } from './src/timestamp.ts';
 import {
   users,
@@ -34,6 +36,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.disable('x-powered-by');
+// Behind a reverse proxy set TRUST_PROXY (e.g. 1) so req.ip is the real visitor, not the proxy.
+const trustProxy = parseTrustProxy(process.env.TRUST_PROXY);
+if (trustProxy !== undefined) app.set('trust proxy', trustProxy);
 const portArgIdx = process.argv.indexOf('--port');
 const portFromArg = portArgIdx !== -1 && process.argv[portArgIdx + 1] ? Number(process.argv[portArgIdx + 1]) : null;
 const PORT = portFromArg || Number(process.env.APP_PORT || process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
@@ -596,25 +602,55 @@ app.get('/api/members', async (req, res) => {
   }
 });
 
+// Login throttling. Generous under NODE_ENV=test so the suite's own sign-ins are never slowed;
+// the limiter is exported so tests can tighten it temporarily.
+const envInt = (name: string, fallback: number) => {
+  const n = Number.parseInt(process.env[name] || '', 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+};
+export const loginLimiter = new LoginLimiter(
+  process.env.NODE_ENV === 'test'
+    ? { ...DEFAULT_LOGIN_LIMITS, maxAttempts: 1000, maxPerIp: 10000 }
+    : {
+        ...DEFAULT_LOGIN_LIMITS,
+        maxAttempts: envInt('LOGIN_MAX_ATTEMPTS', DEFAULT_LOGIN_LIMITS.maxAttempts),
+        maxPerIp: envInt('LOGIN_MAX_PER_IP', DEFAULT_LOGIN_LIMITS.maxPerIp),
+      }
+);
+// Unknown usernames still pay for one password hash, so response time does not reveal which usernames exist.
+let dummyHash: Promise<string> | null = null;
+const getDummyHash = () => (dummyHash ??= hashPassword('medifaq-timing-equaliser'));
+
 app.post('/api/members/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password required' });
     }
+    const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+    const gate = loginLimiter.check(clientIp, username);
+    if (!gate.allowed) {
+      res.set('Retry-After', String(gate.retryAfterSec));
+      return res.status(429).json({ error: 'too_many_attempts', retryAfter: gate.retryAfterSec });
+    }
     if (String(password).length > MAX_PASSWORD_LENGTH) {
+      loginLimiter.recordFailure(clientIp, username);
       return res.status(401).json({ error: 'wrong_pw' });
     }
     const cleanUser = String(username).trim();
     const allUsers = await db.select().from(users);
     const found = allUsers.find((u) => u.username.toLowerCase() === cleanUser.toLowerCase());
     if (!found) {
+      await verifyPassword(await getDummyHash(), String(password)); // same work as a real attempt
+      loginLimiter.recordFailure(clientIp, username);
       return res.status(404).json({ error: 'no_user' });
     }
     const check = await verifyPassword(found.password, String(password));
     if (!check.ok) {
+      loginLimiter.recordFailure(clientIp, username);
       return res.status(401).json({ error: 'wrong_pw' });
     }
+    loginLimiter.recordSuccess(clientIp, username);
     // Accounts created before hashing existed are upgraded transparently on their next login.
     const storedPassword = check.legacy ? await hashPassword(String(password)) : found.password;
     await db
@@ -953,15 +989,6 @@ async function getAdministrators() {
   return allUsers.filter((u) => isAdministrator(u));
 }
 
-function escapeHtml(str: string): string {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
 app.post('/api/feedbacks', async (req, res) => {
   try {
     const { id, name, email, subject, message, cat, date } = req.body;
@@ -1199,14 +1226,9 @@ app.post('/api/admin/broadcast-email', requireAdmin, async (req, res) => {
     for (const recipient of recipients) {
       await dispatchEmailNotification({
         to: recipient,
-        subject: `[MediFAQ Announcement] ${subject}`,
-        text: message,
-        html: `<div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #0f766e;">${subject}</h2>
-          <p>${message.replace(/\n/g, '<br/>')}</p>
-          <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 16px 0;" />
-          <small style="color: #64748b;">Sent to registered members by MediFAQ Administration</small>
-        </div>`,
+        subject: `[MediFAQ Announcement] ${singleLine(String(subject))}`,
+        text: String(message),
+        html: renderBroadcastHtml(String(subject), String(message)),
         type: 'broadcast_announcement',
       });
     }
@@ -1224,6 +1246,7 @@ app.all('/api/*', (_req, res) => {
 // Frontend Serving (Vite dev server middleware or static build)
 async function startServer() {
   if (process.env.NODE_ENV === 'production') {
+    app.use(securityHeaders());
     app.use(express.static(path.resolve(__dirname, 'dist')));
     app.get('*', (_req, res) => {
       res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));

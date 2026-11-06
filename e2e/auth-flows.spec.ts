@@ -274,3 +274,30 @@ test.describe('login errors and throttling', () => {
     await deleteMember(request, other.username);
   });
 });
+
+test.describe('clean console for signed-out guests and members', () => {
+  test('a guest loading the home page and a FAQ page encounters zero 401 or 403 console errors', async ({ page, request }) => {
+    const authErrors: string[] = [];
+    page.on('console', (msg) => {
+      const text = msg.text();
+      if (/(401|403|unauthorized|forbidden)/i.test(text) && !/fonts\.(googleapis|gstatic)\.com/i.test(text)) {
+        authErrors.push(`console: ${text}`);
+      }
+    });
+    page.on('response', (res) => {
+      const status = res.status();
+      const url = res.url();
+      if ((status === 401 || status === 403) && url.includes('/api/')) {
+        authErrors.push(`HTTP ${status} on ${url}`);
+      }
+    });
+
+    const faq = await pickFaq(request);
+    await page.goto('/#/home');
+    await page.waitForLoadState('networkidle');
+    await page.goto(`/#/faqList?m=${faq.mainId}&s=${faq.subId}&f=${faq.id}`);
+    await page.waitForLoadState('networkidle');
+
+    expect(authErrors).toEqual([]);
+  });
+});

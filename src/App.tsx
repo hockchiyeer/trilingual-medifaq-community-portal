@@ -2169,14 +2169,16 @@ export default function App() {
   useEffect(() => {
     const loadApiData = async () => {
       try {
+        const canFetchPms = Boolean(currentUser && getAuthToken());
+        const canFetchAdmin = Boolean(currentUser && isAdministrator(currentUser) && getAuthToken());
         const [catsRes, faqsRes, topicsRes, postsRes, membersRes, fbRes, pmsRes] = await Promise.all([
           fetch('/api/categories').then((r) => (r.ok ? r.json() : null)).catch(() => null),
           fetch('/api/faqs').then((r) => (r.ok ? r.json() : null)).catch(() => null),
           fetch('/api/topics').then((r) => (r.ok ? r.json() : null)).catch(() => null),
           fetch('/api/posts').then((r) => (r.ok ? r.json() : null)).catch(() => null),
           fetch('/api/members').then((r) => (r.ok ? r.json() : null)).catch(() => null),
-          fetch('/api/feedbacks').then((r) => (r.ok ? r.json() : null)).catch(() => null),
-          fetch('/api/pms').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+          canFetchAdmin ? fetch('/api/feedbacks').then((r) => (r.ok ? r.json() : null)).catch(() => null) : null,
+          canFetchPms ? fetch('/api/pms').then((r) => (r.ok ? r.json() : null)).catch(() => null) : null,
         ]);
 
         if (catsRes && Array.isArray(catsRes) && catsRes.length > 0) {
@@ -2309,31 +2311,32 @@ export default function App() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  const refreshData = () => {
-    fetch('/api/feedbacks')
-      .then((r) => r.ok && r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setFeedbacks(data);
-      })
-      .catch(() => {});
-    fetch('/api/pms')
-      .then((r) => r.ok && r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setPms(data);
-      })
-      .catch(() => {});
-    fetch('/api/members')
-      .then((r) => r.ok && r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setMembers(data);
-      })
-      .catch(() => {});
-    fetch('/api/admin/email-status')
-      .then((r) => r.ok && r.json())
-      .then((data) => {
-        setEmailStatus(data);
-      })
-      .catch(() => {});
+  const refreshData = (user: Member | null = currentUser) => {
+    const isAdmin = Boolean(user && isAdministrator(user) && getAuthToken());
+    const isMember = Boolean(user && getAuthToken());
+
+    if (isAdmin) {
+      fetch('/api/feedbacks')
+        .then((r) => r.ok && r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setFeedbacks(data);
+        })
+        .catch(() => {});
+      fetch('/api/admin/email-status')
+        .then((r) => r.ok && r.json())
+        .then((data) => {
+          setEmailStatus(data);
+        })
+        .catch(() => {});
+    }
+    if (isMember) {
+      fetch('/api/pms')
+        .then((r) => r.ok && r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setPms(data);
+        })
+        .catch(() => {});
+    }
     fetch('/api/topics')
       .then((r) => r.ok && r.json())
       .then((data) => {
@@ -2648,7 +2651,7 @@ export default function App() {
     setLoginErrorState('none');
     setLoginForm({ username: '', password: '' });
     showToast(`${t('welcome')}, ${user.username}!`);
-    refreshData();
+    refreshData(user);
 
     const target = loginReturnPage;
     setLoginReturnPage(null);
@@ -6559,7 +6562,7 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <span>{t('usersFeedback')} ({feedbacks.length})</span>
                       <button
-                        onClick={refreshData}
+                        onClick={() => refreshData()}
                         className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-white text-[0.625rem] font-semibold transition"
                         title={t('reloadMessages')}
                       >

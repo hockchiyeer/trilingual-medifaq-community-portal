@@ -4024,7 +4024,6 @@ export default function App() {
 
                   <button
                     type="submit"
-                    onClick={handleLogin}
                     className="w-full py-2.5 rounded-xl bg-[var(--navy)] text-white font-bold text-xs hover:bg-[var(--teal-deep)] transition shadow-sm"
                   >
                     {t('login')}

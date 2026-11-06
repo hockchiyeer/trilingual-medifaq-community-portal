@@ -131,6 +131,24 @@ The application includes generic sample accounts representing different user rol
 
 ---
 
+## 🧪 Browser (End-to-End) Tests
+
+Playwright drives a real Chromium against the **production build** (so the real security headers are active) and a real PostgreSQL database. They are separate from `npm test` because they need a browser.
+
+```bash
+npm install
+npx playwright install chromium        # once
+npm run db:push && npm run db:seed     # once, on a development database
+npm run test:e2e                       # builds, starts the server on port 3100, runs the tests
+npm run test:e2e:report                # open the HTML report (traces/screenshots of failures)
+```
+
+* **Covers** – returning to the same topic / subforum / FAQ list / open FAQ answer after login (including signing in from inside a FAQ answer and a refresh on the login page); Back never returning to `/login`; password change keeping the session and ending other devices' sessions (two isolated browser profiles) while tabs of one browser share it; route guards for members and guests on admin pages; the single "Invalid username or password." message; exactly one login request per click; the "too many attempts" message; and the production CSP / security headers with no CSP violations in the console.
+* **Data** – every test creates its own `e2e_*` member through the public API and deletes it afterwards; nothing else is written. The tests sign in as the seeded `admin` (`E2E_ADMIN_PASSWORD`, else `TEST_ADMIN_PASSWORD`, `ADMIN_SEED_PASSWORD`, `admin`). Use a development database.
+* **Options** – `E2E_PORT` (default 3100), `E2E_SKIP_BUILD=1` (reuse `dist/`), `E2E_BASE_URL` (test an already running production-mode server; set `E2E_EXPECT_CSP=0` for a dev server), `PW_CHROMIUM_PATH` / `PW_CHROMIUM_ARGS` (use a Chromium you already have).
+
+---
+
 ## 💻 Tech Stack
 
 * **Frontend Framework**: [React 19](https://react.dev/)
@@ -471,9 +489,15 @@ The test suite is built on a non-disruptive, crash-resilient testing architectur
 ├── index.html           # HTML5 entry point with Fraunces, Inter & CJK fonts
 ├── metadata.json        # Application manifest and platform capabilities
 ├── package.json         # Full-stack dependencies and scripts (dev, build, db:push, db:seed, test)
+├── playwright.config.ts # Playwright browser test configuration & runner settings
 ├── server.ts            # Express full-stack server mounting /api/* and Vite middleware
 ├── tsconfig.json        # TypeScript configuration
 ├── vite.config.ts       # Vite build configuration with Tailwind CSS plugin
+├── e2e/
+│   ├── auth-flows.spec.ts       # E2E tests for navigation redirects, back button, session & guards
+│   ├── security-headers.spec.ts # E2E tests for production CSP, font styling & script blocking
+│   ├── start-server.mjs         # Cross-platform runner compiling & starting server on port 3100
+│   └── support.ts               # Browser context helpers, disposable members & login utilities
 ├── tests/
 │   ├── run-all-tests.ts    # Comprehensive test runner & Data Guardian (npm test)
 │   ├── api.test.ts         # Full-suite API integration tests with baseline invariant checks

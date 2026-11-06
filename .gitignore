@@ -16,3 +16,6 @@ firebase-applet-config.json
 *.patch
 *.rej
 *.orig
+# Playwright
+playwright-report/
+test-results/
